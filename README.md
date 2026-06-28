@@ -6,11 +6,11 @@
 
 <p align="center"><strong>The AI agent that rewrites its own source code, reviews its own PRs, and deploys itself — while you sleep.</strong></p>
 
-Ghost is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 260+ tools, 22 AI nodes, and 14 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
+Ghost is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 260+ tools, 20 AI nodes, and 14 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
 
 It's a full operating system for AI autonomy — not a chatbot.
 
-> **One agent. 260+ tools. 22 AI nodes. 7 LLM providers. MCP client. 3 messaging channels. Zero cloud dependencies.**
+> **One agent. 260+ tools. 20 AI nodes. 7 LLM providers. MCP client. 3 messaging channels. Zero cloud dependencies.**
 
 ---
 
@@ -22,7 +22,7 @@ Most AI tools wait for instructions. Ghost operates autonomously.
 - **Self-healing** — If Ghost crashes, it reads the crash report, diagnoses the root cause from the traceback, writes a fix, tests it, and restarts. After 5 consecutive crashes, the supervisor auto-rolls back to the last known good state.
 - **Adversarial PR review** — Every self-modification goes through a separate LLM instance acting as a strict senior code reviewer. The reviewer searches the codebase with ripgrep, leaves inline comments, suggests exact code replacements, and submits APPROVE / REQUEST_CHANGES / BLOCK verdicts. Rejected PRs preserve the branch and all feedback for fix-and-resubmit — up to 5 rounds.
 - **260+ built-in tools** — File system, precise editing, git, shell, browser automation, web search, web fetch, vision, image generation, TTS, voice, Google Workspace, messaging channels, cron, credentials, code intelligence, data extraction, security audits, MCP-bridged servers, and more.
-- **22 AI nodes** — Local image generation (Stable Diffusion / FLUX), video generation (Kling, Runway, Minimax), audio (TTS, STT, music, voice cloning), vision (captioning, OCR, depth estimation), with an intelligent GPU load balancer and pipeline engine to chain them together.
+- **20 AI nodes** — Local image generation (Stable Diffusion / FLUX), video generation (Kling, Runway, Minimax), audio (TTS, STT, music, voice FX), vision (captioning, OCR, depth estimation), with an intelligent GPU load balancer and pipeline engine to chain them together.
 - **14 autonomous routines** — Tech scouting, bug hunting, security patrols, competitive intelligence, skill improvement, soul evolution, health checks, and more — all on configurable cron schedules.
 - **Multi-channel** — Talk to Ghost on Telegram, Discord, and WhatsApp. Every channel gets message queuing, crash recovery, streaming, and security policies.
 - **Local-first** — Runs on your machine. Your data stays on your machine. No cloud subscription. No telemetry.
@@ -190,7 +190,7 @@ Ghost can extend its own toolset at runtime:
 
 ---
 
-## GhostNodes — 22 AI Capabilities
+## GhostNodes — 20 AI Capabilities
 
 GhostNodes is a modular AI capability system. Each node is a self-contained plugin (just a `NODE.yaml` manifest + `node.py` entry point) that registers tools with Ghost. Nodes can run locally on your GPU or call cloud APIs.
 
@@ -198,9 +198,9 @@ GhostNodes is a modular AI capability system. Each node is a self-contained plug
 
 | Category | Nodes | What They Do |
 |---|---|---|
-| **Image Generation** | `stable-diffusion`, `background-remove`, `image-upscale`, `image-inpaint`, `style-transfer` | FLUX.2/FLUX.1/SDXL text-to-image, background removal (U2-Net), 2–4x upscaling (Real-ESRGAN), inpainting, style transfer |
-| **Video** | `kling-video`, `runway-video`, `minimax-video`, `runware-video`, `video-gen`, `video-router`, `video-composer`, `image-to-video` | Text-to-video, image-to-video, multi-provider routing, clip stitching with audio overlay and transitions |
-| **Audio** | `bark-tts`, `whisper-stt`, `music-gen`, `voice-clone`, `voice-fx`, `sound-effects` | Expressive TTS (13+ languages), 99-language STT, music generation, voice cloning, audio effects, sound FX |
+| **Image Generation** | `stable-diffusion`, `background-remove`, `image-upscale`, `image-inpaint`, `style-transfer`, `face-enhance` | FLUX.2/FLUX.1/SDXL text-to-image, background removal (U2-Net), 2–4x upscaling (Real-ESRGAN), inpainting, style transfer, face/super-resolution enhancement (Swin2SR) |
+| **Video** | `kling-video`, `runway-video`, `minimax-video`, `runware-video`, `video-composer`, `image-to-video` | Cloud text-to-video & image-to-video (multi-provider), local SVD image-to-video, clip stitching with audio overlay and transitions |
+| **Audio** | `bark-tts`, `whisper-stt`, `music-gen`, `voice-fx`, `sound-effects` | Expressive TTS (13+ languages), 99-language STT, music generation, audio/voice effects, sound FX |
 | **Vision** | `florence-vision`, `surya-ocr`, `depth-estimation` | Image captioning, object detection, OCR for 90+ languages, depth maps |
 
 ### GPU Resource Manager
@@ -576,7 +576,7 @@ ghost_security_audit.py     Security audits — AI-driven with auto-fix
 ghost_state_repair.py       State repair — validate and fix config/DB/logs on startup
 ghost_setup_doctor.py       Setup doctor — preflight checks and safe auto-fixes
 ghost_resource_manager.py   GPU/VRAM manager — smart eviction, serialized loading, watchdog
-ghost_node_manager.py       Node manager — load, validate, install 22+ AI capability nodes
+ghost_node_manager.py       Node manager — load, validate, install 20+ AI capability nodes
 ghost_pipeline.py           Pipeline engine — chain node tools into multi-step workflows
 ghost_node_registry.py      Node registry — community marketplace for AI nodes
 ghost_node_sdk.py           Node SDK — scaffold, validate, test node projects
@@ -594,7 +594,7 @@ ghost_platform.py           Cross-platform — macOS/Linux/Windows abstraction l
   static/js/pages/          Frontend page modules (SPA, no build step)
   templates/                HTML shell
 ghost_channels/             3 messaging channel implementations
-ghost_nodes/                22 bundled AI capability nodes
+ghost_nodes/                20 bundled AI capability nodes
 skills/                     47 bundled skill definitions
 SOUL.md                     Agent personality and development standards
 USER.md                     User profile for personalization

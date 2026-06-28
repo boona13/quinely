@@ -217,6 +217,11 @@ export async function render(container) {
     <!-- ── Security ─────────────────────────────────────────── -->
     <div class="cfg-tab-panel" data-panel="security">
 
+      <div class="cfg-crosslink">
+        <span>This tab covers <strong>channel access</strong> (who can DM Ghost). Firewall posture, threats and the full audit log live on the dedicated page.</span>
+        <a href="#security_hub">Open Security &rarr;</a>
+      </div>
+
       <!-- Channel Security / Allowlist -->
       <div class="stat-card mb-6">
         <h3 class="text-sm font-semibold text-white mb-1">${t('config.channelSecurity')}</h3>
@@ -346,6 +351,10 @@ export async function render(container) {
 
     <!-- ── Models ───────────────────────────────────────────── -->
     <div class="cfg-tab-panel" data-panel="models">
+      <div class="cfg-crosslink">
+        <span>This tab manages your <strong>Hugging Face login</strong> for local/open models. To browse and switch the active model, use the Models page.</span>
+        <a href="#models">Open Models &rarr;</a>
+      </div>
       <div class="stat-card mb-4">
         <h3 class="text-sm font-semibold text-white mb-1">${t('config.hfTokenTitle')}</h3>
         <div class="text-[10px] text-zinc-600 mb-3">${t('config.hfTokenDesc')}</div>

@@ -198,9 +198,14 @@ function completionBadge(count) {
 function renderList(goals, filter) {
   const filtered = filter === 'all' ? goals : goals.filter(g => g.status === filter);
   if (filtered.length === 0) {
-    return `<div class="text-center text-zinc-600 py-16 text-sm">
-      ${filter === 'all' ? 'No goals yet. Create your first goal to get started.' : `No ${filter} goals.`}
-    </div>`;
+    if (filter === 'all') {
+      return `<div class="text-center py-16">
+        <div class="text-3xl mb-3 opacity-80">\uD83C\uDFAF</div>
+        <div class="text-sm text-zinc-300">No goals yet.</div>
+        <div class="text-xs text-zinc-600 mt-1">Hand Ghost something to chase \u2014 it'll plan the steps and work them on its own.</div>
+      </div>`;
+    }
+    return `<div class="text-center text-zinc-600 py-16 text-sm">Nothing ${filter} right now.</div>`;
   }
   return filtered.map(g => `
     <div class="stat-card cursor-pointer hover:border-ghost-500/40 transition-colors goal-card" data-id="${g.id}" role="button" tabindex="0" aria-label="View goal: ${escHtml(g.title)}" style="border-color:rgba(63,63,70,0.4)">

@@ -1,6 +1,7 @@
 /** Ghost Dashboard — Main app router */
 
 import { toast } from './utils.js';
+import { initWins } from './wins.js';
 import { i18n } from './i18n/index.js';
 import { render as overview } from './pages/overview.js';
 import { render as models } from './pages/models.js';
@@ -41,6 +42,22 @@ import { render as activity } from './pages/activity.js';
 import { render as evolution } from './pages/evolution.js';
 const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals, traces, identity, memory_hub, nodes_hub, security_hub, activity, evolution };
 const container = document.getElementById('page-content');
+
+function pageSkeleton() {
+  const card = (h) => `<div class="skeleton" style="height:${h}"></div>`;
+  return `
+  <div class="skeleton-wrap">
+    <div class="skeleton" style="height:1.4rem;width:38%;margin-bottom:0.6rem"></div>
+    <div class="skeleton" style="height:0.8rem;width:58%;margin-bottom:1.4rem;opacity:0.6"></div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" style="margin-bottom:1.4rem">
+      ${[0,1,2,3].map(() => card('4.5rem')).join('')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      ${[0,1,2].map(() => card('11rem')).join('')}
+    </div>
+  </div>`;
+}
+
 let currentPage = null;
 let pollTimer = null;
 let needsSetup = false;
@@ -66,11 +83,20 @@ function navigate(page) {
     container.classList.remove('chat-active');
   }
 
-  container.innerHTML = `<div class="flex items-center justify-center h-32 text-zinc-600"><div class="animate-pulse">${i18n.t('common.loading')}</div></div>`;
+  container.innerHTML = page === 'chat'
+    ? `<div class="flex items-center justify-center h-32 text-zinc-600"><div class="animate-pulse">${i18n.t('common.loading')}</div></div>`
+    : pageSkeleton();
 
-  pages[page](container).catch(err => {
-    container.innerHTML = `<div class="text-red-400 p-4">${i18n.t('common.error')}: ${err.message}</div>`;
-  });
+  Promise.resolve(pages[page](container))
+    .then(() => {
+      // Retrigger the gentle page-enter fade on the freshly rendered content.
+      container.classList.remove('page-fade-in');
+      void container.offsetWidth;
+      container.classList.add('page-fade-in');
+    })
+    .catch(err => {
+      container.innerHTML = `<div class="text-red-400 p-4">${i18n.t('common.error')}: ${err.message}</div>`;
+    });
 
   if (page === 'feed') {
     pollTimer = setInterval(() => pages.feed(container), 5000);
@@ -314,6 +340,9 @@ async function init() {
   // Start usage status polling
   updateUsageStatus();
   setInterval(updateUsageStatus, 3000);
+
+  // Celebrate Ghost's autonomous wins as they happen.
+  initWins();
 }
 
 window.GhostI18n = i18n;
@@ -362,14 +391,18 @@ async function updateUsageStatus() {
     modelEl.textContent = model || '\u2014';
     tokensEl.textContent = usage.session_tokens?.toLocaleString() || '0';
 
+    const workingEl = document.getElementById('status-working');
     if (usage.active) {
-      activeDotEl?.classList.remove('hidden');
+      activeDotEl?.classList.add('hidden');
+      workingEl?.classList.remove('hidden');
     } else {
       activeDotEl?.classList.add('hidden');
+      workingEl?.classList.add('hidden');
     }
   } catch (err) {
     providerEl.textContent = '\u2014';
     modelEl.textContent = '\u2014';
     activeDotEl?.classList.add('hidden');
+    document.getElementById('status-working')?.classList.add('hidden');
   }
 }

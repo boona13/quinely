@@ -235,7 +235,7 @@ function renderEntries(entries) {
   const tbody = document.getElementById('audit-entries');
   
   if (!entries.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500">No entries found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500">Nothing logged for this view \u2014 a quiet audit trail is a healthy one.</td></tr>`;
     return;
   }
 

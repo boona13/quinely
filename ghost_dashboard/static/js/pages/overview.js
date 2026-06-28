@@ -26,7 +26,15 @@ export async function render(container) {
     modelPart = modelDisplay.slice(idx + 1);
   }
 
-  const recentEntries = (feed.entries || []).slice(0, 5);
+  const allEntries = feed.entries || [];
+  const recentEntries = allEntries.slice(0, 5);
+
+  // Momentum: activity over the last 14 days + a run streak.
+  const DAYS = 14;
+  const dayCounts = buildDayBuckets(allEntries, DAYS);
+  const streak = computeStreak(allEntries);
+  const skillsCount = s.live?.skills ?? 0;
+  const memoryCount = s.live?.memory_entries ?? 0;
 
   const sessionTokens = usage.session_tokens || s.session_tokens || 0;
   const sessionCalls = usage.calls_this_session || s.calls_this_session || 0;
@@ -120,6 +128,33 @@ export async function render(container) {
     ` : `<div class="mb-6 p-3 rounded-lg" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2)">
       <div class="text-xs text-amber-400">${t('overview.standaloneMode')}</div>
     </div>`}
+
+    <!-- Momentum -->
+    <div class="momentum-card stat-card mb-6">
+      <div class="flex items-center justify-between gap-6 flex-wrap">
+        <div class="flex-1 min-w-0" style="min-width:220px">
+          <div class="text-sm text-zinc-200 leading-relaxed">
+            ${buildStory({ today: s.today_actions ?? 0, total: s.total_actions ?? 0, skills: skillsCount, memory: memoryCount, u })}
+          </div>
+          <div class="flex items-center gap-4 mt-3">
+            <div class="flex items-center gap-1.5">
+              <span class="text-base">${streak > 0 ? '\uD83D\uDD25' : '\u2014'}</span>
+              <span class="text-lg font-bold text-white tabular-nums">${streak}</span>
+              <span class="text-[11px] text-zinc-500">day${streak === 1 ? '' : 's'} active</span>
+            </div>
+            <div class="h-4 w-px bg-zinc-700"></div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg font-bold text-white tabular-nums">${dayCounts.reduce((a, b) => a + b, 0)}</span>
+              <span class="text-[11px] text-zinc-500">actions / ${DAYS}d</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex-shrink-0">
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 mb-1.5 text-right">Activity \u00b7 ${DAYS} days</div>
+          ${sparklineSVG(dayCounts)}
+        </div>
+      </div>
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
       <!-- Quick actions -->
@@ -335,4 +370,71 @@ function formatUptime(secs) {
   const h = Math.floor(secs / 3600);
   const m = Math.floor((secs % 3600) / 60);
   return h + 'h ' + m + 'm';
+}
+
+/** Day index (0 = local midnight epoch day) for an ISO timestamp. */
+function dayIndex(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  const local = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.floor(local.getTime() / 86400000);
+}
+
+/** Counts of feed entries per day for the last `days` days (oldest → today). */
+function buildDayBuckets(entries, days) {
+  const todayIdx = dayIndex(new Date().toISOString());
+  const counts = new Array(days).fill(0);
+  for (const e of entries) {
+    const idx = dayIndex(e.time);
+    if (idx == null) continue;
+    const offset = todayIdx - idx; // 0 = today
+    if (offset >= 0 && offset < days) counts[days - 1 - offset] += 1;
+  }
+  return counts;
+}
+
+/** Consecutive days (ending today or yesterday) with at least one entry. */
+function computeStreak(entries) {
+  const todayIdx = dayIndex(new Date().toISOString());
+  const active = new Set();
+  for (const e of entries) {
+    const idx = dayIndex(e.time);
+    if (idx != null) active.add(idx);
+  }
+  if (active.size === 0) return 0;
+  // Allow the streak to count from today, or from yesterday if nothing yet today.
+  let cursor = active.has(todayIdx) ? todayIdx : (active.has(todayIdx - 1) ? todayIdx - 1 : null);
+  if (cursor == null) return 0;
+  let streak = 0;
+  while (active.has(cursor)) { streak += 1; cursor -= 1; }
+  return streak;
+}
+
+/** Inline SVG sparkline (rounded bars) for the day buckets. */
+function sparklineSVG(counts) {
+  const w = 176, h = 40, gap = 3;
+  const n = counts.length || 1;
+  const bw = (w - gap * (n - 1)) / n;
+  const max = Math.max(1, ...counts);
+  const bars = counts.map((c, i) => {
+    const bh = Math.max(2, Math.round((c / max) * (h - 4)));
+    const x = i * (bw + gap);
+    const y = h - bh;
+    const isToday = i === n - 1;
+    const fill = c === 0 ? 'rgba(113,113,122,0.22)' : (isToday ? '#a78bfa' : 'rgba(167,139,250,0.55)');
+    return `<rect x="${x.toFixed(1)}" y="${y}" width="${bw.toFixed(1)}" height="${bh}" rx="${Math.min(2, bw / 2).toFixed(1)}" fill="${fill}"><title>${c} action${c === 1 ? '' : 's'}</title></rect>`;
+  }).join('');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Activity over the last ${n} days">${bars}</svg>`;
+}
+
+/** A short, human "what Ghost has been up to" line. */
+function buildStory({ today, total, skills, memory, u }) {
+  const esc = (n) => `<span class="text-white font-semibold">${n.toLocaleString()}</span>`;
+  if (total === 0) {
+    return `Ghost is warmed up and waiting. Give it a goal and watch it run \u2014 every action shows up here.`;
+  }
+  const lead = today > 0
+    ? `Today Ghost has taken ${esc(today)} action${today === 1 ? '' : 's'}.`
+    : `Ghost is idle right now, resting on ${esc(total)} lifetime action${total === 1 ? '' : 's'}.`;
+  return `${lead} It's carrying ${esc(skills)} skill${skills === 1 ? '' : 's'} and ${esc(memory)} memor${memory === 1 ? 'y' : 'ies'}, ready to go.`;
 }

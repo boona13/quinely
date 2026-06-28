@@ -21,7 +21,7 @@ _audit_sessions = {}
 _audit_lock = threading.Lock()
 
 SECURITY_AUDIT_PROMPT = (
-    "You are Ghost performing a COMPREHENSIVE SECURITY AUDIT.\n\n"
+    "You are Quinely performing a COMPREHENSIVE SECURITY AUDIT.\n\n"
 
     "## MANDATORY: ALL FIXES GO THROUGH THE EVOLVE LOOP\n"
     "This is the ONLY acceptable sequence for making ANY change:\n\n"
@@ -29,7 +29,7 @@ SECURITY_AUDIT_PROMPT = (
     "  2. `evolve_apply_config(evolution_id, updates={...})` — for config changes\n"
     "     `evolve_apply(evolution_id, file_path, patches=[...])` — for code changes\n"
     "  3. `evolve_test(evolution_id)` — validates changes\n"
-    "  4. `evolve_deploy(evolution_id)` — deploys and restarts Ghost\n\n"
+    "  4. `evolve_deploy(evolution_id)` — deploys and restarts Quinely\n\n"
     "FORBIDDEN TOOLS FOR MODIFICATION:\n"
     "- `config_patch` — NEVER use this. Use `evolve_apply_config` instead.\n"
     "- `shell_exec` for writes — NEVER chmod, rm, or modify files. Read-only ONLY.\n"
@@ -67,7 +67,7 @@ SECURITY_AUDIT_PROMPT = (
     "Call `evolve_test(evolution_id)`. Must PASS.\n\n"
 
     "### Step 5: Deploy\n"
-    "Call `evolve_deploy(evolution_id)`. Ghost restarts with hardened config.\n\n"
+    "Call `evolve_deploy(evolution_id)`. Quinely restarts with hardened config.\n\n"
 
     "### Step 6: Report\n"
     "Use `task_complete` with a report containing:\n"
@@ -93,15 +93,15 @@ class AuditSession:
 
 
 def _run_ai_audit(session, daemon):
-    """Run the AI-driven security audit through Ghost's tool loop."""
+    """Run the AI-driven security audit through Quinely's tool loop."""
     try:
         session.status = "processing"
         tool_names = daemon.tool_registry.names() if daemon.tool_registry else []
         PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
 
         system_prompt = (
-            "You are Ghost, an AUTONOMOUS AI agent running LOCALLY.\n"
-            f"Ghost project root: **{PROJECT_DIR}**\n"
+            "You are Quinely, an AUTONOMOUS AI agent running LOCALLY.\n"
+            f"Quinely project root: **{PROJECT_DIR}**\n"
             f"Available tools: {', '.join(tool_names)}\n\n"
             "CRITICAL: When done, call `task_complete(summary='...')` with your full report.\n\n"
         )
@@ -138,11 +138,11 @@ def _run_ai_audit(session, daemon):
 
 @bp.route("/api/security/ai-audit", methods=["POST"])
 def start_ai_audit():
-    """Start an AI-driven security audit through Ghost's tool loop."""
+    """Start an AI-driven security audit through Quinely's tool loop."""
     from ghost_dashboard import get_daemon
     daemon = get_daemon()
     if not daemon:
-        return jsonify({"ok": False, "error": "Ghost daemon not running"}), 503
+        return jsonify({"ok": False, "error": "Quinely daemon not running"}), 503
 
     session_id = f"sec_{uuid.uuid4().hex[:10]}"
     session = AuditSession(session_id)

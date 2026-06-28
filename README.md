@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="ghost_logo3.png" alt="Ghost" width="180">
+  <img src="ghost_logo3.png" alt="Quinely" width="180">
 </p>
 
-<h1 align="center">Ghost</h1>
+<h1 align="center">Quinely</h1>
 
 <p align="center"><strong>The AI agent that rewrites its own source code, reviews its own PRs, and deploys itself — while you sleep.</strong></p>
 
-Ghost is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 260+ tools, 20 AI nodes, and 14 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
+Quinely is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 260+ tools, 20 AI nodes, and 14 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
 
 It's a full operating system for AI autonomy — not a chatbot.
 
@@ -14,17 +14,17 @@ It's a full operating system for AI autonomy — not a chatbot.
 
 ---
 
-## Why Ghost
+## Why Quinely
 
-Most AI tools wait for instructions. Ghost operates autonomously.
+Most AI tools wait for instructions. Quinely operates autonomously.
 
-- **Self-evolution** — Ghost modifies its own codebase through a complete CI/CD pipeline: plan → apply → test → adversarial PR review → deploy → rollback. Every change is backed up, tested, reviewed by a separate LLM, and auto-rolled back if it fails.
-- **Self-healing** — If Ghost crashes, it reads the crash report, diagnoses the root cause from the traceback, writes a fix, tests it, and restarts. After 5 consecutive crashes, the supervisor auto-rolls back to the last known good state.
+- **Self-evolution** — Quinely modifies its own codebase through a complete CI/CD pipeline: plan → apply → test → adversarial PR review → deploy → rollback. Every change is backed up, tested, reviewed by a separate LLM, and auto-rolled back if it fails.
+- **Self-healing** — If Quinely crashes, it reads the crash report, diagnoses the root cause from the traceback, writes a fix, tests it, and restarts. After 5 consecutive crashes, the supervisor auto-rolls back to the last known good state.
 - **Adversarial PR review** — Every self-modification goes through a separate LLM instance acting as a strict senior code reviewer. The reviewer searches the codebase with ripgrep, leaves inline comments, suggests exact code replacements, and submits APPROVE / REQUEST_CHANGES / BLOCK verdicts. Rejected PRs preserve the branch and all feedback for fix-and-resubmit — up to 5 rounds.
 - **260+ built-in tools** — File system, precise editing, git, shell, browser automation, web search, web fetch, vision, image generation, TTS, voice, Google Workspace, messaging channels, cron, credentials, code intelligence, data extraction, security audits, MCP-bridged servers, and more.
 - **20 AI nodes** — Local image generation (Stable Diffusion / FLUX), video generation (Kling, Runway, Minimax), audio (TTS, STT, music, voice FX), vision (captioning, OCR, depth estimation), with an intelligent GPU load balancer and pipeline engine to chain them together.
 - **14 autonomous routines** — Tech scouting, bug hunting, security patrols, competitive intelligence, skill improvement, soul evolution, health checks, and more — all on configurable cron schedules.
-- **Multi-channel** — Talk to Ghost on Telegram, Discord, and WhatsApp. Every channel gets message queuing, crash recovery, streaming, and security policies.
+- **Multi-channel** — Talk to Quinely on Telegram, Discord, and WhatsApp. Every channel gets message queuing, crash recovery, streaming, and security policies.
 - **Local-first** — Runs on your machine. Your data stays on your machine. No cloud subscription. No telemetry.
 
 ---
@@ -34,7 +34,7 @@ Most AI tools wait for instructions. Ghost operates autonomously.
 ### Prerequisites
 
 - Python 3.10+
-- An API key from any supported provider (or none — Ghost starts a setup wizard)
+- An API key from any supported provider (or none — Quinely starts a setup wizard)
 
 ### One-liner (macOS / Linux)
 
@@ -42,7 +42,7 @@ Most AI tools wait for instructions. Ghost operates autonomously.
 curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash
 ```
 
-This clones the repo, creates a virtual environment, installs dependencies, starts Ghost, and opens the dashboard in your browser.
+This clones the repo, creates a virtual environment, installs dependencies, starts Quinely, and opens the dashboard in your browser.
 
 ```bash
 # Non-interactive with Playwright and API key
@@ -116,13 +116,13 @@ docker run -d --name ghost -p 3333:3333 ghost
 
 ### No API Key?
 
-Ghost starts without one. Open [http://localhost:3333](http://localhost:3333) and the setup wizard walks you through provider selection, API key entry, connection testing, and fallback chain configuration — all from the browser.
+Quinely starts without one. Open [http://localhost:3333](http://localhost:3333) and the setup wizard walks you through provider selection, API key entry, connection testing, and fallback chain configuration — all from the browser.
 
 ---
 
 ## The Tool System — 260+ Tools
 
-Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets results, decides what to do next, and loops — up to 200 steps per session with automatic context compaction, loop detection, and deferral prevention.
+Quinely's tool system is a multi-turn execution engine. The LLM calls tools, gets results, decides what to do next, and loops — up to 200 steps per session with automatic context compaction, loop detection, and deferral prevention.
 
 ### Core Tools
 
@@ -130,7 +130,7 @@ Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets 
 |---|---|---|
 | **File System** | `shell_exec`, `file_read`, `file_write`, `edit_file`, `apply_patch`, `file_search`, `grep`, `glob` | Whitelisted commands, workspace scoping, codebase write protection |
 | **Precise Editing** | `edit_file` (exact unique search/replace), `apply_patch` (context-located unified diffs) | Surgical edits without rewriting whole files — uniqueness checks, fuzzy hunk location, diff previews |
-| **Version Control** | `git_status`, `git_diff`, `git_log`, `git_add`, `git_commit`, `git_branch`, `git_init` | Structured git on user project repos — refuses to touch Ghost's own evolve-managed repo |
+| **Version Control** | `git_status`, `git_diff`, `git_log`, `git_add`, `git_commit`, `git_branch`, `git_init` | Structured git on user project repos — refuses to touch Quinely's own evolve-managed repo |
 | **Browser** | `browser` (navigate, click, type, screenshot, PDF, tabs) | Accessibility tree targeting — no fragile CSS selectors |
 | **Web Intelligence** | `web_search` (6 providers), `web_fetch` (5-tier extraction) | Perplexity, Grok, Brave, Gemini, OpenAI; Readability → Firecrawl pipeline |
 | **Memory** | `memory_save/search`, `semantic_memory`, `hybrid_memory` | SQLite + FTS5 + vector store; **automatic pre-turn retrieval** with fused reranking (keyword + semantic + recency) |
@@ -173,7 +173,7 @@ Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets 
 
 ### Dynamic Tool System
 
-Ghost can extend its own toolset at runtime:
+Quinely can extend its own toolset at runtime:
 
 - **`tools_create`** — Create new tools from scratch (writes TOOL.yaml + tool.py)
 - **`tools_install_github`** — Install tools directly from GitHub repos
@@ -192,7 +192,7 @@ Ghost can extend its own toolset at runtime:
 
 ## GhostNodes — 20 AI Capabilities
 
-GhostNodes is a modular AI capability system. Each node is a self-contained plugin (just a `NODE.yaml` manifest + `node.py` entry point) that registers tools with Ghost. Nodes can run locally on your GPU or call cloud APIs.
+GhostNodes is a modular AI capability system. Each node is a self-contained plugin (just a `NODE.yaml` manifest + `node.py` entry point) that registers tools with Quinely. Nodes can run locally on your GPU or call cloud APIs.
 
 ### Bundled Nodes
 
@@ -205,7 +205,7 @@ GhostNodes is a modular AI capability system. Each node is a self-contained plug
 
 ### GPU Resource Manager
 
-Ghost manages GPU memory like a production ML serving framework:
+Quinely manages GPU memory like a production ML serving framework:
 
 - **Smart model eviction** — Composite scoring: `(use_frequency × recency) / (load_cost × vram_weight)` instead of naive LRU
 - **Serialized loading** — Semaphore-based gate prevents OOM from concurrent model loads
@@ -234,7 +234,7 @@ The engine validates references, executes sequentially, and automatically routes
 
 ## Self-Evolution Engine
 
-Ghost modifies its own source code through a controlled pipeline with adversarial review.
+Quinely modifies its own source code through a controlled pipeline with adversarial review.
 
 ### The Pipeline
 
@@ -280,7 +280,7 @@ The reviewer checks ~15 categories: code quality, security, frontend-backend int
 
 ## Autonomous Growth — 14 Routines
 
-Ghost improves itself on configurable schedules. Each routine is a specialized autonomous agent with a detailed system prompt, full tool access, and its own schedule.
+Quinely improves itself on configurable schedules. Each routine is a specialized autonomous agent with a detailed system prompt, full tool access, and its own schedule.
 
 | Routine | Schedule | What It Does |
 |---|---|---|
@@ -288,7 +288,7 @@ Ghost improves itself on configurable schedules. Each routine is a specialized a
 | **Health Check** | Every 2h | Tests APIs, disk, memory DB, and **self-tests every dashboard endpoint** to find silent 500 errors |
 | **Bug Hunter** | Every 6h | Scans `~/.ghost/log.json` for error patterns, diagnoses root causes, queues P1 fixes |
 | **Security Patrol** | Daily 5am | Runs security audits on permissions, credentials, shell allowlists, config hardening |
-| **Competitive Intel** | Mon/Thu 6am | Studies competing AI products, identifies specific features Ghost is missing, queues implementations |
+| **Competitive Intel** | Mon/Thu 6am | Studies competing AI products, identifies specific features Quinely is missing, queues implementations |
 | **Skill Improver** | Daily 3am | Reviews and upgrades skill definitions, trigger matching, and instructions |
 | **Soul Evolver** | Weekly Sun | Reads SOUL.md + growth logs + user interactions, proposes personality updates |
 | **User Context Sync** | Every 4h | Reads Gmail/Calendar to learn patterns and anticipate needs |
@@ -307,11 +307,11 @@ Crash → Supervisor captures traceback → Writes crash report → Exponential 
 → On next boot: reads crash report → diagnoses root cause → writes fix → tests → deploys → restarts
 ```
 
-Ghost even detects when a crash was caused by importing a file it intentionally deleted, and removes the import instead of recreating the file.
+Quinely even detects when a crash was caused by importing a file it intentionally deleted, and removes the import instead of recreating the file.
 
 ### Future Features Queue
 
-Ghost's autonomous product management system. Features flow in from Tech Scout, Bug Hunter, Competitive Intel, Security Patrol, Health Check, and user requests.
+Quinely's autonomous product management system. Features flow in from Tech Scout, Bug Hunter, Competitive Intel, Security Patrol, Health Check, and user requests.
 
 - **P0–P3 priority** — P0 requires user approval; P1 triggers immediate implementation via `fire_now()`
 - **Smart deduplication** — Exact title match + 70% fuzzy word overlap catches near-duplicates
@@ -324,7 +324,7 @@ Ghost's autonomous product management system. Features flow in from Tech Scout, 
 
 ## Coding Model Dispatcher — Budget-Aware Model Selection
 
-Ghost doesn't use the same model for everything. Health checks run on the cheap default model. But when Ghost is rewriting its own code — feature implementation, bug fixing — it automatically switches to the **best coding model the user can afford**.
+Quinely doesn't use the same model for everything. Health checks run on the cheap default model. But when Quinely is rewriting its own code — feature implementation, bug fixing — it automatically switches to the **best coding model the user can afford**.
 
 The dispatcher scores models by **SWE-bench Verified** (the industry standard for real-world bug fixing), filters by the user's budget, and finds the **cheapest route** across all configured providers.
 
@@ -338,7 +338,7 @@ The dispatcher scores models by **SWE-bench Verified** (the industry standard fo
 
 **Multi-provider routing** — The dispatcher checks all 7 providers and picks the cheapest path. A user with a ChatGPT Plus subscription gets GPT-5.3-Codex at $0 through OAuth. A user with an Anthropic key gets Claude Opus at $3/MTok instead of $5 through OpenRouter.
 
-**Self-updating benchmarks** — A weekly cron job searches for the latest SWE-bench leaderboard and updates the benchmark data automatically. When a new model drops that's better, Ghost discovers and adopts it.
+**Self-updating benchmarks** — A weekly cron job searches for the latest SWE-bench leaderboard and updates the benchmark data automatically. When a new model drops that's better, Quinely discovers and adopts it.
 
 Configure from the dashboard (Models → Coding Model Dispatcher) or via config:
 
@@ -354,9 +354,9 @@ Configure from the dashboard (Models → Coding Model Dispatcher) or via config:
 
 ## 7 LLM Providers with Automatic Fallback
 
-Ghost supports **OpenRouter** (200+ models), **OpenAI** (direct API), **OpenAI Codex** (ChatGPT subscription via OAuth — no extra cost), **Anthropic** (Claude), **Google Gemini** (free tier available), **DeepSeek**, and **Ollama** (local, completely free).
+Quinely supports **OpenRouter** (200+ models), **OpenAI** (direct API), **OpenAI Codex** (ChatGPT subscription via OAuth — no extra cost), **Anthropic** (Claude), **Google Gemini** (free tier available), **DeepSeek**, and **Ollama** (local, completely free).
 
-Configure one or all — Ghost automatically falls back through your provider chain with jittered exponential backoff, escalating cooldowns (60s → 5m → 25m → 1h), and periodic probing of failed providers for recovery detection.
+Configure one or all — Quinely automatically falls back through your provider chain with jittered exponential backoff, escalating cooldowns (60s → 5m → 25m → 1h), and periodic probing of failed providers for recovery detection.
 
 ---
 
@@ -385,7 +385,7 @@ Specialized knowledge injected automatically when relevant:
 | **Media** | Spotify player, GIF search, video frame extraction, image generation |
 | **Social** | X/Twitter growth (post, like, comment, repost, follow with deduplication tracking) |
 | **Finance** | Trading analysis (chart patterns, technical indicators, portfolio tracking) |
-| **System** | Ghost system management, webhooks, weather, tmux, 1password, PDF tools, speech-to-text |
+| **System** | Quinely system management, webhooks, weather, tmux, 1password, PDF tools, speech-to-text |
 
 **GhostHub** — A public skill registry where anyone can publish and install skills with one click from the dashboard. Skills are security-scanned before installation with 34+ regex patterns across 5 threat categories (prompt injection, data exfiltration, destructive commands, obfuscation, self-modification).
 
@@ -405,24 +405,24 @@ Semantic recall is powered by a real local neural embedding model, not just keyw
 
 ### Automatic Memory Retrieval (RAG)
 
-Ghost doesn't wait for the model to decide to look something up. Before every chat turn it automatically retrieves and injects the most relevant long-term memories.
+Quinely doesn't wait for the model to decide to look something up. Before every chat turn it automatically retrieves and injects the most relevant long-term memories.
 
-- **Fused retrieval** — combines keyword/full-text recall (SQLite FTS) with neural semantic vector similarity (see above) over Ghost's existing memory stores (no schema changes).
+- **Fused retrieval** — combines keyword/full-text recall (SQLite FTS) with neural semantic vector similarity (see above) over Quinely's existing memory stores (no schema changes).
 - **Reranker** — blends each candidate's source score with query-term overlap and a recency boost, dedupes near-identical memories, and trims to a token budget.
 - **Safe by default** — greetings and very short messages are skipped, every backend is wrapped defensively, and any retrieval failure yields no injection rather than breaking the turn. Toggle with `enable_auto_retrieval`.
 
 ### Memory Map
 
-Ghost's long-term memory is also explorable as a **living knowledge graph** in the dashboard (Memory → Map). It turns the flat memory list into a visual "mind":
+Quinely's long-term memory is also explorable as a **living knowledge graph** in the dashboard (Memory → Map). It turns the flat memory list into a visual "mind":
 
-- **Type clusters** — every memory orbits a hub node for its type (`ask`, `session`, `note`, `mistake`, `preference`, …), so the shape of what Ghost knows is visible at a glance.
+- **Type clusters** — every memory orbits a hub node for its type (`ask`, `session`, `note`, `mistake`, `preference`, …), so the shape of what Quinely knows is visible at a glance.
 - **Tag cross-links** — memories that share tags are connected, surfacing the latent structure across types.
 - **Fully interactive** — drag nodes, scroll to zoom, pan, hover to highlight a memory's neighborhood, and click any node for its full content, timestamp, and tags. A type legend doubles as a cluster highlighter.
 - **Zero dependencies, fully local** — pure SVG plus a small built-in force simulation (no D3/Canvas libraries, no network), served read-only from the existing memory store (`GET /api/memory/graph`) with no schema changes.
 
 ### MCP — Model Context Protocol
 
-Ghost is an MCP **client**: it connects to external MCP tool servers (filesystem, Linear, Sentry, Stripe, Playwright, or any custom server) and bridges their tools straight into the registry, where the LLM calls them like native tools.
+Quinely is an MCP **client**: it connects to external MCP tool servers (filesystem, Linear, Sentry, Stripe, Playwright, or any custom server) and bridges their tools straight into the registry, where the LLM calls them like native tools.
 
 - **stdio transport** — newline-delimited JSON-RPC 2.0 over each server's stdin/stdout. Pure stdlib, cross-platform, no extra dependencies.
 - **Full handshake** — `initialize` → `notifications/initialized` → `tools/list`, then live `tools/call` invocation with input-schema passthrough.
@@ -452,13 +452,13 @@ Playwright-based browser control with accessibility tree snapshots, ref-based el
 
 ### Voice Interface
 
-- **Voice Wake** — Always-on wake word detection. Say "ghost" followed by a command. Ghost transcribes, processes, and speaks the response.
+- **Voice Wake** — Always-on wake word detection. Say "ghost" followed by a command. Quinely transcribes, processes, and speaks the response.
 - **Talk Mode** — Continuous conversation with no wake word needed.
 - **5 STT providers** — Moonshine (on-device, free), OpenRouter, OpenAI Whisper, Groq Whisper, Vosk (offline)
 
 ### Canvas
 
-Visual output panel for rich HTML/CSS/JS content. Ghost can build interactive demos, visualizations, dashboards, and mini-apps that render alongside the chat with live reload and JS injection.
+Visual output panel for rich HTML/CSS/JS content. Quinely can build interactive demos, visualizations, dashboards, and mini-apps that render alongside the chat with live reload and JS injection.
 
 ### Mid-Generation Control
 
@@ -466,7 +466,7 @@ Cancel or inject prompts into an active LLM generation in real-time. The interru
 
 ### X/Twitter Deduplication
 
-SQLite-backed interaction tracker that prevents duplicate social media actions. Before any like/retweet/follow/comment, Ghost checks if the action was already performed — preventing double-likes and bot-like behavior.
+SQLite-backed interaction tracker that prevents duplicate social media actions. Before any like/retweet/follow/comment, Quinely checks if the action was already performed — preventing double-likes and bot-like behavior.
 
 ### Webhook Triggers
 
@@ -514,20 +514,20 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) is organized
 |---|---|---|
 | **Chat** | — | Real-time messaging with file attachments, audio transcription, tool step streaming, inline evolution approvals, voice toggle, and Canvas panel |
 | **Overview** | — | Live daemon status, PID, uptime, action counts, feature toggles, platform info |
-| **Activity** | Timeline · Live · Traces | Everything Ghost is doing: the outcome feed (auto-refresh), the live SSE event console, and per-invocation run traces (trigger → model/tool spans → outcome) |
-| **Identity** | Personality · About You | Edit Ghost's personality (SOUL.md) and what it knows about you (USER.md) |
+| **Activity** | Timeline · Live · Traces | Everything Quinely is doing: the outcome feed (auto-refresh), the live SSE event console, and per-invocation run traces (trigger → model/tool spans → outcome) |
+| **Identity** | Personality · About You | Edit Quinely's personality (SOUL.md) and what it knows about you (USER.md) |
 | **Memory** | Map · Entries · Structured | An interactive **Memory Map** that renders long-term memory as a force-directed knowledge graph (clustered by type, cross-linked by shared tags), plus search/browse/prune of the FTS memory DB and the synthesized structured-memory profile (confidence-scored facts) |
 | **Projects** | — | Manage project workspaces and their per-project tooling |
 | **Models** | — | Multi-provider management, fallback chain, model browser with pricing, coding dispatcher with budget control and SWE-bench leaderboard |
 | **Skills** | Local · GhostHub Registry | Browse, search, enable/disable skills + registry with security scanning |
-| **Tools** | — | Ghost-managed LLM-callable tools and typed subagents (researcher/coder/bash/reviewer) |
+| **Tools** | — | Quinely-managed LLM-callable tools and typed subagents (researcher/coder/bash/reviewer) |
 | **AI Nodes** | Catalog · Outputs | GPU status and local AI capabilities (image/voice/vision), plus the generated-media gallery |
 | **Evolution** | Live · Backlog · History · Pull Requests · Action Items | The whole self-improvement pipeline in one place: the live theater, the Future-Features backlog, deploy history + approvals, PR review history, and the autonomous action-item queue |
 | **Goals** | — | Persistent long-horizon goals — recurring digests, research, weekly reports — with step progress and per-run deliverables |
 | **Channels** | — | Configure, enable/disable, test, and monitor messaging channels (Telegram, Discord, WhatsApp) |
-| **Webhooks** | — | Event-driven inbound HTTP triggers that fire Ghost actions, with HMAC verification |
+| **Webhooks** | — | Event-driven inbound HTTP triggers that fire Quinely actions, with HMAC verification |
 | **Integrations** | — | Google OAuth, Grok, ElevenLabs, web search providers, image gen, vision, TTS |
-| **MCP Servers** | — | Connect Model Context Protocol servers and expose their tools to Ghost |
+| **MCP Servers** | — | Connect Model Context Protocol servers and expose their tools to Quinely |
 | **Configuration** | — | All settings with hot-reload — feature toggles, rate limits, growth schedules, security, voice, factory reset |
 | **Cron Jobs** | — | Create and manage scheduled tasks |
 | **Security** | Posture · Audit Log | AI-driven security audits with auto-fix, plus the sensitive-operation audit trail |
@@ -679,7 +679,7 @@ All runtime data lives in `~/.ghost/`:
 
 ## Reset / Fresh Start
 
-Three ways to reset Ghost to a clean state. All resets create a timestamped backup (`~/.ghost.backup.<timestamp>/`) before wiping — your data is always recoverable.
+Three ways to reset Quinely to a clean state. All resets create a timestamped backup (`~/.ghost.backup.<timestamp>/`) before wiping — your data is always recoverable.
 
 | Method | Command | What It Wipes |
 |---|---|---|
@@ -687,15 +687,15 @@ Three ways to reset Ghost to a clean state. All resets create a timestamped back
 | **CLI — full** | `python ghost.py reset --all` | Everything in `~/.ghost/` — next start shows setup wizard |
 | **CLI — config** | `python ghost.py reset --config` | Config, API keys, OAuth tokens — memory and skills preserved |
 | **CLI — memory** | `python ghost.py reset --memory` | memory.db, vector_memory.db, session history — config preserved |
-| **Dashboard** | Configuration page → "Reset Ghost" | Same three options via buttons in the UI |
+| **Dashboard** | Configuration page → "Reset Quinely" | Same three options via buttons in the UI |
 
-Ghost must be stopped before running a full or config reset. The CLI checks for running processes and refuses if Ghost is still alive — this prevents file-lock failures on Windows.
+Quinely must be stopped before running a full or config reset. The CLI checks for running processes and refuses if Quinely is still alive — this prevents file-lock failures on Windows.
 
 ---
 
 ## Configuration
 
-Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable from the dashboard with hot-reload (no restart needed).
+Quinely stores configuration at `~/.ghost/config.json`. Every setting is editable from the dashboard with hot-reload (no restart needed).
 
 | Key | Default | Description |
 |---|---|---|
@@ -731,26 +731,26 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 
 ## Cross-Platform
 
-Ghost runs on **macOS**, **Linux**, and **Windows**. No system-level dependencies — all Python packages are pip-installable with pure-Python fallbacks where system libraries are needed.
+Quinely runs on **macOS**, **Linux**, and **Windows**. No system-level dependencies — all Python packages are pip-installable with pure-Python fallbacks where system libraries are needed.
 
 - **Install & launch scripts**: `install.sh` / `start.sh` / `stop.sh` (macOS/Linux) and `install.ps1` / `start.bat` / `stop.bat` (Windows)
 - **Process management**: `SIGTERM` on Unix, `taskkill` on Windows, with cross-platform detached-process and process-group helpers
 - **Notifications**: `osascript` (macOS), `notify-send` (Linux), PowerShell balloon tips (Windows)
 - **Audio playback**: `afplay` (macOS), `mpv`/`paplay`/`aplay` (Linux), PowerShell `SoundPlayer` (Windows), with `sounddevice` fallback
-- **LLM platform context**: Ghost injects OS, Python version, shell, and path style into the system prompt so tool outputs match the user's platform
+- **LLM platform context**: Quinely injects OS, Python version, shell, and path style into the system prompt so tool outputs match the user's platform
 
 ---
 
 ## Security
 
-Ghost takes security seriously for an autonomous agent:
+Quinely takes security seriously for an autonomous agent:
 
 - **Secrets encrypted at rest** — Provider API keys, OAuth tokens, and saved credentials are encrypted with Fernet (AES-128-CBC + HMAC). The data key lives at `~/.ghost/.secret_key` (chmod 600) or via the `GHOST_SECRET_KEY` env var. Legacy plaintext files are auto-migrated on first load; secret files are written `0600`. Degrades gracefully to plaintext only if `cryptography` is unavailable.
-- **Optional dashboard authentication** — Set `GHOST_DASHBOARD_TOKEN` (or `dashboard_auth_token` in config) to require a token before binding the dashboard to a non-loopback host. Supports `Authorization: Bearer`, `X-Ghost-Token`, `?token=`, or a sign-in page that sets an HttpOnly cookie. Off by default so local usage is unchanged.
+- **Optional dashboard authentication** — Set `GHOST_DASHBOARD_TOKEN` (or `dashboard_auth_token` in config) to require a token before binding the dashboard to a non-loopback host. Supports `Authorization: Bearer`, `X-Quinely-Token`, `?token=`, or a sign-in page that sets an HttpOnly cookie. Off by default so local usage is unchanged.
 - **Tool shadowing prevention** — Reserved tool names can't be overwritten by plugins or skills
-- **Codebase write protection** — `file_write`, `edit_file`, and `apply_patch` can't modify Ghost's own source files (self-modification goes through the evolution pipeline)
+- **Codebase write protection** — `file_write`, `edit_file`, and `apply_patch` can't modify Quinely's own source files (self-modification goes through the evolution pipeline)
 - **Execution sandbox** — Shell commands run with POSIX resource limits (CPU, file size, core dumps), secret-scrubbed environments, and process-group kill on timeout; optional Linux `bwrap` OS isolation. See [Execution Sandbox](#execution-sandbox). Configurable under the `sandbox` key.
-- **Command blocklist** — Genuinely destructive patterns (`rm -rf /`, `mkfs`, fork bombs, …) are blocked in `shell_exec`/sessions. (Note: the `allowed_commands` allowlist is *not* enforced at runtime — Ghost relies on the blocklist + sandbox instead.)
+- **Command blocklist** — Genuinely destructive patterns (`rm -rf /`, `mkfs`, fork bombs, …) are blocked in `shell_exec`/sessions. (Note: the `allowed_commands` allowlist is *not* enforced at runtime — Quinely relies on the blocklist + sandbox instead.)
 - **Dangerous interpreter policy** — For autonomous (cron) callers, Python/pip execution is gated with per-command deny flags and optional workspace requirements
 - **Skill security scanning** — 34+ regex patterns across 5 threat categories before installation
 - **Node security scanning** — AST parsing and dangerous code pattern detection
@@ -764,7 +764,7 @@ Ghost takes security seriously for an autonomous agent:
 
 ## Disclaimer
 
-Ghost is open-source software provided as-is. It can execute shell commands, modify files, browse the web, and send messages on your behalf. **You are responsible for how you use it.** Ghost is not financial advice, not a licensed professional service, and not liable for any actions taken based on its output. Review what it does. Use at your own risk.
+Quinely is open-source software provided as-is. It can execute shell commands, modify files, browse the web, and send messages on your behalf. **You are responsible for how you use it.** Quinely is not financial advice, not a licensed professional service, and not liable for any actions taken based on its output. Review what it does. Use at your own risk.
 
 ## License
 

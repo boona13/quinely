@@ -1,4 +1,4 @@
-"""Chat API — direct messaging between the user and Ghost daemon."""
+"""Chat API — direct messaging between the user and Quinely daemon."""
 
 import base64
 import json
@@ -118,12 +118,12 @@ def _save_restart_state(session, deploy_result=""):
 
         if summary_parts:
             result_hint = (
-                f"Task completed. Ghost {', '.join(summary_parts)}, "
+                f"Task completed. Quinely {', '.join(summary_parts)}, "
                 "and restarted with the new code. The system is now running with your changes."
             )
         else:
             result_hint = deploy_result or (
-                "Ghost deployed code changes and restarted successfully. "
+                "Quinely deployed code changes and restarted successfully. "
                 "The system is now running with the updated code."
             )
 
@@ -160,7 +160,7 @@ def _load_restart_recovery():
         updated = False
         for item in feed:
             if item.get("message_id") == msg_id:
-                item["result"] = state.get("result_hint", "Ghost restarted after deploying changes.")
+                item["result"] = state.get("result_hint", "Quinely restarted after deploying changes.")
                 item["status"] = "complete"
                 item["time"] = datetime.now().isoformat()
                 tools = state.get("tools_used", [])
@@ -174,7 +174,7 @@ def _load_restart_recovery():
                 "type": "ask",
                 "message_id": msg_id,
                 "source": state.get("user_message", "")[:2000],
-                "result": state.get("result_hint", "Ghost restarted after deploying changes."),
+                "result": state.get("result_hint", "Quinely restarted after deploying changes."),
                 "status": "complete",
             })
         FEED_FILE.write_text(json.dumps(feed, indent=2), encoding="utf-8")
@@ -188,7 +188,7 @@ _load_restart_recovery()
 
 
 class ChatSession:
-    """Tracks a single chat message being processed by Ghost."""
+    """Tracks a single chat message being processed by Quinely."""
 
     def __init__(self, message_id, user_message, attachments=None, project_id=None, enable_reasoning=False):
         self.id = message_id
@@ -333,7 +333,7 @@ def _trigger_chat_repair(daemon, phase: str, error: Exception, traceback_str: st
 
 
 def _process_message(session, daemon):
-    """Run the user message through Ghost's tool loop in a background thread."""
+    """Run the user message through Quinely's tool loop in a background thread."""
     try:
         session.status = "processing"
         set_current_message_id(session.id)
@@ -429,7 +429,7 @@ def _process_message(session, daemon):
                     )
 
         chat_prompt_body = (
-            "You are Ghost, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
+            "You are Quinely, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
             "You have DIRECT ACCESS to the file system, shell, network, and a real web browser.\n\n"
             "## CONVERSATION vs TASK — READ THIS FIRST, IT OVERRIDES EVERYTHING BELOW\n"
             "Not every message is a task. Before doing anything, decide which kind of message this is:\n"
@@ -445,7 +445,7 @@ def _process_message(session, daemon):
             "Forcing tools, web searches, or file writes onto a greeting is WRONG and wastes the user's time. "
             "The 'NEVER GIVE UP' and 'COMPLETION RULE' sections below apply ONLY to real tasks — never to small talk.\n\n"
             f"## PROJECT LOCATION (IMPORTANT)\n"
-            f"Ghost project root: **{PROJECT_DIR}**\n"
+            f"Quinely project root: **{PROJECT_DIR}**\n"
             f"ALL source files live here: ghost.py, ghost_tools.py, ghost_loop.py, ghost_evolve.py, "
             f"ghost_dashboard/, skills/, SOUL.md, USER.md, etc.\n"
             f"- `shell_exec` runs from {PROJECT_DIR} by default.\n"
@@ -458,7 +458,7 @@ def _process_message(session, daemon):
             "2. Then write all files inside that path.\n"
             "3. Set up venv + deps inside the project path.\n"
             f"Default location is ALWAYS `{Path.home() / 'Projects'}/<name>` unless the user specifies otherwise.\n"
-            "If you skip `project_create`, the project is invisible to Ghost (no dashboard entry, no project memory, no Canvas context). "
+            "If you skip `project_create`, the project is invisible to Quinely (no dashboard entry, no project memory, no Canvas context). "
             "This is a HARD REQUIREMENT, not a suggestion.\n\n"
             "## AGENT BEHAVIOR — NEVER GIVE UP\n\n"
             "**COMPLETION RULE (READ THIS FIRST):**\n"
@@ -489,7 +489,7 @@ def _process_message(session, daemon):
             "python3 -m venv .venv && source .venv/bin/activate && pip install <pkg>')`\n"
             "  2. Write script via file_write to `~/.ghost/sandbox/run.py`\n"
             "  3. `shell_exec('cd ~/.ghost/sandbox && source .venv/bin/activate && python3 run.py')`\n"
-            "  NEVER modify Ghost's own source code or `.venv`. The sandbox isolates everything.\n"
+            "  NEVER modify Quinely's own source code or `.venv`. The sandbox isolates everything.\n"
             "**Level 4 — Browser automation**: ONLY for interactive/visual tasks (login, clicking, forms). "
             "⚠ The browser opens a VISIBLE window on the user's screen — NEVER use it for silent data extraction. "
             "If you need data (transcripts, prices, API results), Level 3 is the right tool.\n"
@@ -504,7 +504,7 @@ def _process_message(session, daemon):
             "'I can follow up', or 'would you like me to'. Either DO it or don't mention it. "
             "End your reply after the deliverable — no upsells.\n\n"
             "### AFTER SUCCESS — formalize the solution:\n"
-            "If the solution would be useful again, submit it as a permanent Ghost tool:\n"
+            "If the solution would be useful again, submit it as a permanent Quinely tool:\n"
             "  `add_future_feature(title='Add <tool_name> tool', description='<what it does, "
             "the working script from ~/.ghost/sandbox/, and the pip deps>', "
             "priority='P1', source='user_request')`\n"
@@ -514,7 +514,7 @@ def _process_message(session, daemon):
             "get the user's task done. Try a different approach, use a different tool, work around "
             "the issue. NEVER call `add_future_feature` to file a bug report during a user conversation — "
             "that is NOT solving the problem, it is giving up with extra steps. "
-            "Ghost has self-repair and health-check systems that catch internal bugs automatically. "
+            "Quinely has self-repair and health-check systems that catch internal bugs automatically. "
             "You focus on the user's task. Period.\n\n"
             "## AVAILABLE TOOLS\n" + ", ".join(tool_names) + "\n\n"
             "## TOOL GUIDE\n"
@@ -537,16 +537,16 @@ def _process_message(session, daemon):
             "You can check status with `list_future_features` and `get_feature_stats`. "
             "This serialization prevents concurrent deploys from killing other running work.\n"
             "**Projects**: project_create, project_list, project_get, project_update, project_delete, project_resolve — "
-            "Ghost has a first-class project management system. "
+            "Quinely has a first-class project management system. "
             "When the user asks to 'create a project', 'start a new project', 'make an app', or similar:\n"
             "  1. ALWAYS use `project_create` to register the project. "
             f"Default location: `{Path.home() / 'Projects'}/<project-name>` (unless the user specifies a path).\n"
             "  2. Then write files inside that project path using `file_write`.\n"
             "  3. Set up the project with a venv if needed: `shell_exec('cd <project-path> && python3 -m venv .venv && source .venv/bin/activate && pip install <deps>')`\n"
-            "  4. To run the project, use the project's own venv — NOT Ghost's venv.\n"
+            "  4. To run the project, use the project's own venv — NOT Quinely's venv.\n"
             "  NEVER create user projects directly on Desktop, Documents, or random locations. "
             f"ALWAYS use `{Path.home() / 'Projects'}/` as the base directory.\n"
-            "  NEVER skip `project_create` — the project must be registered so it appears in the Ghost dashboard.\n"
+            "  NEVER skip `project_create` — the project must be registered so it appears in the Quinely dashboard.\n"
             "**Other**: app_control, notify, uptime\n\n"
             "## URL & WEB TOOL RULES (CRITICAL — follow exactly)\n"
             "When the user's message contains a URL (http/https link):\n"
@@ -636,7 +636,7 @@ def _process_message(session, daemon):
             "10. For self-modification / code change tasks → use `add_future_feature(title, description, priority='P0', source='user_request')` "
             "to queue the work. The Evolution Runner will implement it. Check status with `list_future_features`.\n"
             "11. **PROJECT CREATION (MANDATORY)**: When the user asks to create a project, app, or any new codebase:\n"
-            "   a. Your FIRST tool call MUST be `project_create(path='...', name='...', description='...')` to register it in Ghost.\n"
+            "   a. Your FIRST tool call MUST be `project_create(path='...', name='...', description='...')` to register it in Quinely.\n"
             f"   b. Default path: `{Path.home() / 'Projects'}/<project-name>` — NEVER Desktop, Documents, or random locations.\n"
             "   c. THEN create files inside that project path. NEVER write project files before calling `project_create`.\n"
             "   d. If you skip `project_create`, the project won't appear in the dashboard and project features won't work.\n"
@@ -664,7 +664,7 @@ def _process_message(session, daemon):
             "- Protect user data: store summaries only, never verbatim email/file contents in memory.\n"
             "- Rate limit external calls. Use backoff for retries.\n"
             "- Fail closed: deny on security check failure, never fall through.\n"
-            "- Install dependencies in `~/.ghost/sandbox/.venv` — NEVER into Ghost's own `.venv`.\n"
+            "- Install dependencies in `~/.ghost/sandbox/.venv` — NEVER into Quinely's own `.venv`.\n"
             "### Code Change Rules\n"
             "You do NOT have direct evolve tools. To request code changes, use "
             "`add_future_feature(title, description, priority='P0', source='user_request')`. "
@@ -976,7 +976,7 @@ def upload_file():
     """Handle file uploads - audio files get transcribed, images stored for vision."""
     daemon = _get_daemon()
     if not daemon:
-        return jsonify({"ok": False, "error": "Ghost daemon not running"}), 503
+        return jsonify({"ok": False, "error": "Quinely daemon not running"}), 503
 
     if 'file' not in request.files:
         return jsonify({"ok": False, "error": "No file provided"}), 400
@@ -1088,7 +1088,7 @@ def upload_file():
 def send_message():
     daemon = _get_daemon()
     if not daemon:
-        return jsonify({"ok": False, "error": "Ghost daemon not running"}), 503
+        return jsonify({"ok": False, "error": "Quinely daemon not running"}), 503
 
     data = request.get_json(force=True)
     message = data.get("message", "").strip()
@@ -1352,7 +1352,7 @@ def chat_history():
                     item["assistant_message"] = ""
                     item["still_processing"] = True
                 elif status == "processing":
-                    item["assistant_message"] = "(Ghost was interrupted before completing this request)"
+                    item["assistant_message"] = "(Quinely was interrupted before completing this request)"
                 else:
                     item["assistant_message"] = ""
         chat_items.reverse()

@@ -44,7 +44,7 @@ def _auth_login_html(error: bool = False) -> str:
         "background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;box-sizing:border-box}"
         "button{width:100%;padding:10px;background:#238636;color:#fff;border:0;border-radius:6px;"
         "cursor:pointer;margin-top:8px}</style></head><body>"
-        "<form method='post' action='/auth'><h1>Ghost Dashboard</h1>"
+        "<form method='post' action='/auth'><h1>Quinely</h1>"
         f"{msg}<input type='password' name='token' placeholder='Access token' autofocus>"
         "<button type='submit'>Sign in</button></form></body></html>"
     )
@@ -253,7 +253,7 @@ def run_dashboard(port=3333, open_browser=True):
         return
 
     url = f"http://localhost:{port}"
-    print(f"\n  👻 Ghost Dashboard → {url}\n")
+    print(f"\n  👻 Quinely → {url}\n")
     if open_browser:
         threading.Timer(1.0, lambda: webbrowser.open(url)).start()
 

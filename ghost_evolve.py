@@ -1731,6 +1731,24 @@ class EvolutionEngine:
                 files_changed=changed_files,
             )
 
+        # ── Observability: surface the PR review loop on the live console ──
+        # (it runs in its own nested engine, so it isn't auto-instrumented).
+        pr_id = pr["pr_id"]
+        review_round = (store.get_pr(pr_id) or pr).get("review_rounds", 1)
+
+        def _pr_console(level, title_, detail):
+            """Best-effort live-console event for the PR review loop."""
+            try:
+                from ghost_console import console_bus
+                console_bus.emit(level, "growth", title_, detail)
+            except Exception:
+                pass
+
+        _pr_console(
+            "info", "PR submitted",
+            f"PR {pr_id} opened for review — {title} (round {review_round})",
+        )
+
         # Run the adversarial review with a DEDICATED engine instance.
         # Using daemon.engine caused contention: concurrent cron jobs share
         # the same engine/fallback chain, amplifying 429s and causing empty
@@ -1770,10 +1788,59 @@ class EvolutionEngine:
             ghost_git.stash_and_checkout("main")
             return False, f"Cannot start review: LLM init failed: {e}"
 
-        verdict = review_engine.run_review(pr["pr_id"], loop_engine)
+        _pr_console(
+            "info", "PR review started",
+            f"Reviewing PR {pr_id} — {title} (round {review_round})",
+        )
+
+        # Trace the reviewer's tool loop as its own run. start_run pushes onto
+        # the tracer's thread-local stack, so the reviewer's model/tool spans
+        # attach here (and pop back to the parent run when we end it).
+        _tracer = None
+        _pr_run_id = ""
+        try:
+            from ghost_trace import get_tracer
+            _tracer = get_tracer()
+            _pr_run_id = _tracer.start_run(
+                source="pr_review",
+                user_message=f"Review PR: {title}",
+                meta={"feature_id": feature_id},
+                caller_context=f"PR {pr_id}",
+            )
+        except Exception:
+            _tracer = None
+
+        try:
+            verdict = review_engine.run_review(pr["pr_id"], loop_engine)
+        except Exception as _review_err:
+            if _tracer and _pr_run_id:
+                try:
+                    _tracer.end_run(_pr_run_id, status="error",
+                                    error=str(_review_err)[:300])
+                except Exception:
+                    pass
+            _pr_console("error", "PR review failed",
+                        f"PR {pr_id} review errored — {str(_review_err)[:160]}")
+            raise
+        if _tracer and _pr_run_id:
+            try:
+                _tracer.end_run(_pr_run_id, status="ok",
+                                result_text=f"Review verdict: {verdict}")
+            except Exception:
+                pass
+
         import logging
         _log = logging.getLogger("ghost.evolve")
         _log.info("PR %s verdict: %s", pr["pr_id"], verdict)
+
+        _verdict_level = {"approved": "success", "rejected": "warn",
+                          "blocked": "error"}.get(verdict, "info")
+        _verdict_msg = {
+            "approved": f"PR {pr_id} APPROVED by reviewer — {title}",
+            "rejected": f"PR {pr_id} rejected (round {review_round}) — {title}",
+            "blocked": f"PR {pr_id} blocked by reviewer — {title}",
+        }.get(verdict, f"PR {pr_id} verdict: {verdict} — {title}")
+        _pr_console(_verdict_level, "PR verdict", _verdict_msg)
 
         def _notify_queue_best_effort():
             try:
@@ -1808,6 +1875,10 @@ class EvolutionEngine:
                 return False, f"Merge failed after approval: {msg}"
             ghost_git.delete_branch(branch_name)
             store.mark_merged(pr["pr_id"])
+            _pr_console(
+                "info", "PR merged",
+                f"Merging {pr_id} into main and restarting to apply — {title}",
+            )
             pr_after = store.get_pr(pr["pr_id"]) or pr
             evo["pr_id"] = pr["pr_id"]
             evo["pr_verdict"] = "approved"

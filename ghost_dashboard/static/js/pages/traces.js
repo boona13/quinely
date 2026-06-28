@@ -27,8 +27,10 @@ function fmtTokens(n) {
 
 const SRC_COLOR = {
   chat: 'blue', cron: 'amber', channel: 'purple',
-  monitor: 'cyan', action: 'emerald',
+  monitor: 'cyan', action: 'emerald', pr_review: 'violet',
 };
+const SRC_LABEL = { pr_review: 'PR Review' };
+const srcLabel = (s) => SRC_LABEL[s] || s;
 const STATUS_COLOR = {
   running: 'blue', ok: 'emerald', error: 'red', cancelled: 'zinc',
 };
@@ -89,7 +91,7 @@ export async function render(container) {
     container.innerHTML = `
       <button id="tr-back" class="text-xs text-zinc-400 hover:text-white mb-3 flex items-center gap-1">← Back to runs</button>
       <div class="flex items-center gap-2 flex-wrap mb-1">
-        ${badge(run.source, SRC_COLOR[run.source] || 'zinc')}
+        ${badge(srcLabel(run.source), SRC_COLOR[run.source] || 'zinc')}
         ${badge(run.status, STATUS_COLOR[run.status] || 'zinc')}
         ${run.escalation_count ? badge(`escalated ×${run.escalation_count}`, 'amber') : ''}
       </div>
@@ -141,7 +143,7 @@ export async function render(container) {
       return `<button class="tr-row w-full text-left stat-card mb-2 hover:border-zinc-600 transition" data-run="${esc(r.run_id)}">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-2 min-w-0">
-            ${badge(r.source, SRC_COLOR[r.source] || 'zinc')}
+            ${badge(srcLabel(r.source), SRC_COLOR[r.source] || 'zinc')}
             ${badge(r.status, STATUS_COLOR[r.status] || 'zinc')}
             <span class="text-sm text-white truncate">${esc(r.trigger || '(no trigger)')}</span>
           </div>

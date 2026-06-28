@@ -10,6 +10,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, Callable
 
+# A single LLM HTTP request is bounded by a short read timeout (~30s) plus a few
+# retries. If "active" stays set far longer than that, the call almost certainly
+# leaked (e.g. a cancellation path that returned before call_completed ran), so
+# we auto-expire the flag rather than show "working" forever.
+ACTIVE_TTL_SECONDS = 180
+
 
 @dataclass
 class UsageSnapshot:
@@ -48,6 +54,7 @@ class UsageTracker:
         self._lock = threading.RLock()
         self._snapshot = UsageSnapshot()
         self._callbacks: list[Callable[[UsageSnapshot], None]] = []
+        self._active_since: Optional[float] = None
     
     def register_callback(self, callback: Callable[[UsageSnapshot], None]) -> None:
         """Register a callback to be called on usage updates."""
@@ -75,12 +82,14 @@ class UsageTracker:
             self._snapshot.provider = provider
             self._snapshot.model = model
             self._snapshot.active = True
+            self._active_since = time.time()
         self._notify()
     
     def call_completed(self, tokens_used: int, success: bool = True) -> None:
         """Mark that an LLM call has completed."""
         with self._lock:
             self._snapshot.active = False
+            self._active_since = None
             self._snapshot.last_call_tokens = tokens_used if success else 0
             self._snapshot.last_call_timestamp = time.time()
             if success:
@@ -91,6 +100,12 @@ class UsageTracker:
     def get_snapshot(self) -> UsageSnapshot:
         """Get a copy of the current usage snapshot."""
         with self._lock:
+            # Self-heal a leaked "active" flag: if a call has been in progress
+            # far longer than any real request could take, treat it as idle.
+            if (self._snapshot.active and self._active_since is not None
+                    and (time.time() - self._active_since) > ACTIVE_TTL_SECONDS):
+                self._snapshot.active = False
+                self._active_since = None
             return UsageSnapshot(
                 model=self._snapshot.model,
                 provider=self._snapshot.provider,

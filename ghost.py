@@ -461,6 +461,22 @@ DEFAULT_CONFIG = {
     },
     "user_projects_dir": "",
     "allowed_roots": ["/"],
+    # Execution sandbox for agent shell commands (ghost_sandbox.py). Cross-platform:
+    # POSIX resource limits + process-group kill on timeout + secret env scrubbing.
+    "sandbox": {
+        "enabled": True,
+        "cpu_seconds": 60,          # RLIMIT_CPU for one-shot commands (POSIX)
+        "file_size_mb": 512,        # RLIMIT_FSIZE
+        "memory_mb": 0,             # RLIMIT_AS in MB (0 = off; virtual-mem footgun)
+        "max_processes": 0,         # RLIMIT_NPROC (0 = off; per-user footgun)
+        "open_files": 0,            # RLIMIT_NOFILE (0 = off)
+        "no_core_dumps": True,      # RLIMIT_CORE = 0
+        "env_mode": "scrub_secrets",  # full | scrub_secrets | minimal
+        "env_passthrough_extra": [],  # extra var names to always keep
+        "wall_timeout": 60,         # hard wall-clock cap (seconds)
+        "isolation": "auto",        # auto | none | bwrap (Linux fs/net isolation if present)
+        "network": "allow",         # allow | deny (deny enforced only via bwrap/unshare)
+    },
     "enable_web_search": True,
     "enable_web_fetch": True,
     "enable_image_gen": True,

@@ -569,23 +569,28 @@ def make_shell_exec(cfg):
         # self-evolution can modify Ghost's real dependencies.
         caller = get_shell_caller_context()
         use_sandbox = (caller == "interactive")
-        env = get_sandbox_env() if use_sandbox else None
+        base_env = get_sandbox_env() if use_sandbox else os.environ.copy()
 
+        # Apply the execution sandbox: secret-scrubbed env, POSIX resource
+        # limits, and a hard timeout that kills the whole process group.
         try:
-            r = subprocess.run(
-                command, shell=True,
-                capture_output=True, text=True,
-                timeout=min(timeout, 60),
-                cwd=cwd,
-                env=env,
+            import ghost_sandbox
+            policy = ghost_sandbox.get_policy(cfg)
+            env = ghost_sandbox.scrub_env(
+                base_env, policy.env_mode, policy.env_passthrough_extra)
+            res = ghost_sandbox.run(
+                command, cfg=cfg, cwd=cwd,
+                timeout=min(timeout, 60), env=env, shell=True,
             )
+            if res.timed_out:
+                return f"Command timed out after {min(timeout, 60)}s (process group killed)"
             out = ""
-            if r.stdout:
-                out += r.stdout[:3000]
-            if r.stderr:
-                out += f"\n[stderr]\n{r.stderr[:1000]}"
-            if r.returncode != 0:
-                out += f"\n[exit code: {r.returncode}]"
+            if res.stdout:
+                out += res.stdout[:3000]
+            if res.stderr:
+                out += f"\n[stderr]\n{res.stderr[:1000]}"
+            if res.returncode != 0:
+                out += f"\n[exit code: {res.returncode}]"
             else:
                 if not use_sandbox:
                     try:
@@ -593,8 +598,6 @@ def make_shell_exec(cfg):
                     except Exception:
                         pass
             return out.strip() or "(no output)"
-        except subprocess.TimeoutExpired:
-            return f"Command timed out after {timeout}s"
         except Exception as e:
             return f"Shell error: {e}"
 

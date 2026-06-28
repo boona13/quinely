@@ -23,6 +23,15 @@ from ghost import (
 bp = Blueprint("status", __name__)
 
 
+def _sandbox_status(cfg=None):
+    """Execution sandbox status (best-effort)."""
+    try:
+        import ghost_sandbox
+        return ghost_sandbox.status(cfg)
+    except Exception:
+        return {"enabled": False}
+
+
 def _secret_status():
     """Encryption-at-rest status for local secrets (best-effort)."""
     try:
@@ -148,6 +157,7 @@ def get_status():
             "soul_exists": SOUL_FILE.exists(),
             "user_exists": USER_FILE.exists(),
             "secrets": _secret_status(),
+            "sandbox": _sandbox_status(cfg),
             "safety": {
                 "guard": guard_stats,
                 "repair": repair_stats,

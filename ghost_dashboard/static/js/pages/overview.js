@@ -51,6 +51,9 @@ export async function render(container) {
             ${s.secrets?.encrypted
               ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-medium ml-2" title="API keys, tokens and credentials are encrypted at rest">&#128274; secrets encrypted</span>`
               : ''}
+            ${s.sandbox?.enabled
+              ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-medium ml-2" title="Shell commands run with resource limits, env scrubbing and process-group kill${s.sandbox.rlimits_supported ? ' (POSIX rlimits active)' : ''}">&#128737; sandboxed</span>`
+              : ''}
           </div>
         </div>
         <div class="flex gap-2 flex-shrink-0">

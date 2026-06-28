@@ -463,9 +463,17 @@ SQLite-backed interaction tracker that prevents duplicate social media actions. 
 
 Event-driven automation via HTTP POST. Built-in templates for GitHub (Push, PR, Issue), with custom trigger support using `{field}` placeholders. Bearer token auth, optional per-trigger HMAC verification, cooldowns, and concurrency limits.
 
-### Docker Sandboxing
+### Execution Sandbox
 
-Run untrusted code in isolated Docker containers with read-only root, tmpfs mounts, network isolation, dropped capabilities, and resource limits (512MB RAM, 1 CPU, 256 PIDs).
+Agent shell commands run through a cross-platform sandbox layer (`ghost_sandbox.py`) that uses only the standard library — no Docker, no system packages required:
+
+- **Resource limits (POSIX)** — `setrlimit` in the child process caps CPU time (`cpu_seconds`), file size (`file_size_mb`), and core dumps; optional address-space (`memory_mb`), process (`max_processes`), and open-file caps. Applied to `shell_exec`, `shell_session`, and background processes.
+- **Process-group kill on timeout** — commands start in their own session/process-group, so a wall-clock timeout (or a session/background kill) terminates the *entire* process tree — no orphaned children outliving the timeout.
+- **Secret environment scrubbing** — by default (`env_mode: scrub_secrets`) variables whose names look like secrets (API keys, tokens, passwords, provider creds) are stripped from the subprocess environment, so executed commands can't read the daemon's secrets. Modes: `full`, `scrub_secrets`, `minimal`.
+- **Optional OS-level isolation** — on Linux, if `bubblewrap` (`bwrap`) is present and `sandbox.isolation` is `auto`/`bwrap`, commands run in a mount namespace (read-only system, writable cwd/tmp, optional `--unshare-net` when `network: deny`). Auto-detected, never required.
+- **Graceful degradation** — on Windows `resource` is unavailable, so rlimits are skipped while timeout, process-group kill, and env scrubbing still apply.
+
+All limits are configurable under the `sandbox` config key. Status is exposed at `/api/status` and shown as a "sandboxed" badge on the dashboard.
 
 ---
 
@@ -504,6 +512,7 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) provides ful
 ghost.py                    Main daemon — LLM routing, 260+ tool registration, GhostDaemon class
 ghost_loop.py               ToolLoopEngine — multi-turn LLM + tool execution (200 steps, 6 loop detectors)
 ghost_tools.py              Core tools — shell, files, web fetch, notifications
+ghost_sandbox.py            Execution sandbox — resource limits, env scrubbing, process-group kill
 ghost_edit_tools.py         Precise editing — edit_file (search/replace) + apply_patch (unified diff)
 ghost_code_tools.py         Fast code search — ripgrep-backed grep + glob
 ghost_git_tools.py          Structured git tools — status/diff/log/add/commit/branch/init on user repos
@@ -675,6 +684,12 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `enable_neural_embeddings` | `true` | Use local neural embeddings (model2vec) for semantic memory; auto-index existing memories on boot |
 | `embedding_model` | `"minishlab/potion-base-8M"` | model2vec model for semantic embeddings (256-dim, CPU, no API key) |
 | `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |
+| `sandbox.enabled` | `true` | Master switch for the execution sandbox (resource limits, env scrubbing, process-group kill) |
+| `sandbox.cpu_seconds` | `60` | POSIX `RLIMIT_CPU` for one-shot shell commands |
+| `sandbox.file_size_mb` | `512` | POSIX `RLIMIT_FSIZE` cap on files written by commands |
+| `sandbox.env_mode` | `"scrub_secrets"` | Subprocess env handling: `full`, `scrub_secrets`, or `minimal` |
+| `sandbox.isolation` | `"auto"` | Linux OS isolation: `auto` (use `bwrap` if present), `none`, or `bwrap` |
+| `sandbox.network` | `"allow"` | `deny` blocks network for sandboxed commands (only enforceable via `bwrap`/`unshare`) |
 | `coding_model_budget` | `"auto"` | Budget for coding tasks: `free`, `low`, `medium`, `high`, `auto`, or $/MTok number |
 | `coding_model_override` | `null` | Force a specific model for coding tasks (bypasses dispatcher) |
 | `min_swe_bench_score` | `78.0` | Minimum SWE-bench score for coding model selection |
@@ -701,8 +716,9 @@ Ghost takes security seriously for an autonomous agent:
 - **Optional dashboard authentication** — Set `GHOST_DASHBOARD_TOKEN` (or `dashboard_auth_token` in config) to require a token before binding the dashboard to a non-loopback host. Supports `Authorization: Bearer`, `X-Ghost-Token`, `?token=`, or a sign-in page that sets an HttpOnly cookie. Off by default so local usage is unchanged.
 - **Tool shadowing prevention** — Reserved tool names can't be overwritten by plugins or skills
 - **Codebase write protection** — `file_write`, `edit_file`, and `apply_patch` can't modify Ghost's own source files (self-modification goes through the evolution pipeline)
-- **Command whitelisting** — `shell_exec` only runs pre-approved commands
-- **Dangerous interpreter policy** — Python/pip execution gated with per-command deny flags
+- **Execution sandbox** — Shell commands run with POSIX resource limits (CPU, file size, core dumps), secret-scrubbed environments, and process-group kill on timeout; optional Linux `bwrap` OS isolation. See [Execution Sandbox](#execution-sandbox). Configurable under the `sandbox` key.
+- **Command blocklist** — Genuinely destructive patterns (`rm -rf /`, `mkfs`, fork bombs, …) are blocked in `shell_exec`/sessions. (Note: the `allowed_commands` allowlist is *not* enforced at runtime — Ghost relies on the blocklist + sandbox instead.)
+- **Dangerous interpreter policy** — For autonomous (cron) callers, Python/pip execution is gated with per-command deny flags and optional workspace requirements
 - **Skill security scanning** — 34+ regex patterns across 5 threat categories before installation
 - **Node security scanning** — AST parsing and dangerous code pattern detection
 - **Channel DM policies** — Open, allowlist, blocklist, or block per channel

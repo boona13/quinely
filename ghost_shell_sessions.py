@@ -76,7 +76,16 @@ class InteractiveSession:
         if platform.system() == "Windows":
             shell = "cmd.exe"
 
-        env = os.environ.copy()
+        # Sandbox: secret-scrubbed env + resource limits + own process group so
+        # the whole shell tree can be killed cleanly. CPU limit is omitted for
+        # persistent sessions (it is cumulative and would kill a long-lived shell).
+        try:
+            import ghost_sandbox
+            env = ghost_sandbox.scrub_env(os.environ)
+            _sb_kwargs = ghost_sandbox.popen_kwargs(None, persistent=True)
+        except Exception:
+            env = os.environ.copy()
+            _sb_kwargs = {}
         env["TERM"] = "dumb"
 
         self._proc = subprocess.Popen(
@@ -87,6 +96,7 @@ class InteractiveSession:
             cwd=cwd or str(Path.home()),
             env=env,
             bufsize=0,
+            **_sb_kwargs,
         )
 
         self._reader = threading.Thread(
@@ -148,8 +158,14 @@ class InteractiveSession:
             return output.strip() or "(no output)"
 
     def kill(self):
-        """Terminate the shell process."""
+        """Terminate the shell process (and its whole process group)."""
         self._closed = True
+        try:
+            import ghost_sandbox
+            ghost_sandbox.kill_session_process(self._proc)
+            return
+        except Exception:
+            pass
         try:
             self._proc.terminate()
             self._proc.wait(timeout=3)
@@ -203,11 +219,21 @@ class BackgroundProcess:
         self._output: deque = deque(maxlen=_OUTPUT_LINE_LIMIT)
         self._lock = threading.Lock()
 
+        try:
+            import ghost_sandbox
+            _bg_env = ghost_sandbox.scrub_env(os.environ)
+            _sb_kwargs = ghost_sandbox.popen_kwargs(None, persistent=True)
+        except Exception:
+            _bg_env = os.environ.copy()
+            _sb_kwargs = {}
+
         popen_kwargs: dict = {
             "stdout": subprocess.PIPE,
             "stderr": subprocess.STDOUT,
             "cwd": cwd or str(Path.home()),
             "bufsize": 0,
+            "env": _bg_env,
+            **_sb_kwargs,
         }
         if ghost_platform.IS_WIN:
             self._proc = subprocess.Popen(
@@ -244,7 +270,13 @@ class BackgroundProcess:
         return "\n".join(recent)
 
     def kill(self):
-        """Terminate the process cross-platform."""
+        """Terminate the process (and its whole process group) cross-platform."""
+        try:
+            import ghost_sandbox
+            ghost_sandbox.kill_session_process(self._proc)
+            return
+        except Exception:
+            pass
         try:
             if ghost_platform.IS_WIN:
                 ghost_platform.kill_process(self.pid)

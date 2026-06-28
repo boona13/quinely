@@ -111,6 +111,57 @@ def _get_provider_models(provider_id):
     ]
 
 
+def _get_codex_models():
+    """Get the live list of Codex models the ChatGPT account is entitled to.
+
+    Falls back to the static provider list if live discovery is unavailable
+    (e.g. no OAuth token yet, or network error)."""
+    from ghost_providers import fetch_codex_models, get_provider
+
+    store = None
+    try:
+        from ghost_dashboard import get_daemon
+        daemon = get_daemon()
+        store = getattr(daemon, "auth_store", None)
+    except Exception:
+        store = None
+    if store is None:
+        try:
+            from ghost_auth_profiles import get_auth_store
+            store = get_auth_store()
+        except Exception:
+            store = None
+
+    try:
+        live = fetch_codex_models(store)
+    except Exception:
+        log.warning("Live Codex model discovery failed", exc_info=True)
+        live = None
+
+    if not live:
+        return _get_provider_models("openai-codex")
+
+    prov = get_provider("openai-codex")
+    provider_name = prov.name if prov else "OpenAI Codex"
+    out = []
+    for m in live:
+        mods = m.get("input_modalities") or ["text"]
+        modality = "text+image->text" if "image" in mods else "text->text"
+        out.append({
+            "id": m["id"],
+            "name": m.get("name", m["id"]),
+            "provider": provider_name,
+            "tier": "free",  # included with the ChatGPT subscription
+            "context_length": m.get("context_length", 0),
+            "modality": modality,
+            "pricing": {},
+            "description": m.get("description", ""),
+            "source": "openai-codex",
+            "live": True,
+        })
+    return out
+
+
 @bp.route("/api/models")
 def get_models():
     from ghost_dashboard import get_daemon
@@ -233,6 +284,8 @@ def get_provider_models(provider_id):
         models = _fetch_openrouter_models()
     elif provider_id == "ollama":
         models = _get_ollama_models()
+    elif provider_id == "openai-codex":
+        models = _get_codex_models()
     else:
         models = _get_provider_models(provider_id)
     return jsonify({"provider": provider_id, "models": models})

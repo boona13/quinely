@@ -403,7 +403,7 @@ DEFAULT_CONFIG = {
     "primary_provider": "openrouter",
     "fallback_models": [
         "anthropic/claude-opus-4.6",
-        "openai/gpt-5.3-codex",
+        "openai/gpt-5.5",
         "qwen/qwen3.5-plus-02-15",
     ],
     "poll_interval": 1.0,
@@ -501,7 +501,7 @@ DEFAULT_CONFIG = {
         "capable": "openrouter/anthropic/claude-sonnet-4-6",
         "smart": "openrouter/anthropic/claude-opus-4-6",
         "vision": "openrouter/anthropic/claude-sonnet-4-6",
-        "code": "openrouter/openai/gpt-5.3-codex",
+        "code": "openrouter/openai/gpt-5.5",
     },
     # Model dispatcher — budget-aware coding model selection for evolution/bug hunting
     "coding_model_override": None,
@@ -1019,7 +1019,7 @@ class GhostDaemon:
         model = cfg.get("model", DEFAULT_CONFIG["model"])
         fallback_models = cfg.get("fallback_models", [
             "anthropic/claude-opus-4.6",
-            "openai/gpt-5.3-codex",
+            "openai/gpt-5.5",
         ])
 
         # Multi-provider auth profiles

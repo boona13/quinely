@@ -32,7 +32,7 @@ DEFAULT_MODEL_ALIASES = {
     "capable": "openrouter/anthropic/claude-sonnet-4-6",
     "smart": "openrouter/anthropic/claude-opus-4-6",
     "vision": "openrouter/anthropic/claude-sonnet-4-6",
-    "code": "openrouter/openai/gpt-5.3-codex",
+    "code": "openrouter/openai/gpt-5.5",
 }
 
 

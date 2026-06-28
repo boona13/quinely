@@ -61,12 +61,12 @@ _SEED_BENCHMARKS = {
                 "openrouter": {"id": "openai/gpt-5.2", "input": 1.50, "output": 6.00},
             },
         },
-        "gpt-5.3-codex": {
-            "swe_bench": 80.0,
+        "gpt-5.5": {
+            "swe_bench": 82.5,
             "routes": {
-                "openai": {"id": "gpt-5.3-codex", "input": 1.25, "output": 5.00},
-                "openai-codex": {"id": "gpt-5.3-codex", "input": 0.00, "output": 0.00},
-                "openrouter": {"id": "openai/gpt-5.3-codex", "input": 2.00, "output": 8.00},
+                "openai": {"id": "gpt-5.5", "input": 1.25, "output": 5.00},
+                "openai-codex": {"id": "gpt-5.5", "input": 0.00, "output": 0.00},
+                "openrouter": {"id": "openai/gpt-5.5", "input": 2.00, "output": 8.00},
             },
         },
         "gemini-3-flash": {

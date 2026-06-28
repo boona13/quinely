@@ -47,9 +47,9 @@ PROVIDERS: dict[str, ProviderConfig] = {
         models=[
             "moonshotai/kimi-k2.5",
             "anthropic/claude-opus-4.6",
+            "openai/gpt-5.5",
             "openai/gpt-5.4",
             "openai/gpt-5.4-pro",
-            "openai/gpt-5.3-codex",
             "google/gemini-2.5-pro",
             "anthropic/claude-sonnet-4",
             "openai/gpt-4.1",
@@ -64,14 +64,14 @@ PROVIDERS: dict[str, ProviderConfig] = {
         base_url="https://api.openai.com/v1/chat/completions",
         api_format="openai",
         auth_type="api_key",
-        default_model="gpt-5.3-codex",
+        default_model="gpt-5.5",
         env_key="OPENAI_API_KEY",
         models=[
+            "gpt-5.5",
             "gpt-5.4",
             "gpt-5.4-extended",
             "gpt-5.4-pro",
             "gpt-5.4-thinking",
-            "gpt-5.3-codex",
             "gpt-4.1",
             "gpt-4.1-mini",
             "o3",
@@ -85,8 +85,8 @@ PROVIDERS: dict[str, ProviderConfig] = {
         base_url="https://chatgpt.com/backend-api/codex/responses",
         api_format="codex_responses",
         auth_type="oauth",
-        default_model="gpt-5.3-codex",
-        models=["gpt-5.3-codex", "o3", "o4-mini", "codex-mini-latest"],
+        default_model="gpt-5.5",
+        models=["gpt-5.5", "gpt-5.4", "gpt-5.4-mini"],
         description="Use your ChatGPT subscription — no extra cost",
     ),
     "anthropic": ProviderConfig(
@@ -150,6 +150,91 @@ PROVIDERS: dict[str, ProviderConfig] = {
 
 def get_provider(provider_id: str) -> ProviderConfig | None:
     return PROVIDERS.get(provider_id)
+
+
+# ── Live Codex (ChatGPT subscription) model discovery ──
+# The chatgpt.com Codex backend gates models per-account. The static
+# PROVIDERS["openai-codex"].models list can drift from what an account is
+# actually entitled to, so we discover the live list at runtime and treat
+# the static list only as an offline fallback.
+CODEX_MODELS_URL = "https://chatgpt.com/backend-api/codex/models?client_version=1.0.0"
+CODEX_MODELS_CACHE_TTL = 300
+_codex_models_cache: dict = {"models": None, "fetched_at": 0.0}
+
+
+def fetch_codex_models(auth_store=None, force: bool = False) -> list[dict] | None:
+    """Fetch the Codex models the user's ChatGPT account is entitled to.
+
+    Returns a list of dicts with keys ``id``, ``name``, ``context_length``,
+    ``input_modalities``, ``description`` and ``supported_in_api``. Returns
+    ``None`` on any failure (no token, network error, non-200) so callers can
+    fall back to the static ``PROVIDERS["openai-codex"].models`` list. Results
+    are cached for ``CODEX_MODELS_CACHE_TTL`` seconds.
+    """
+    import time
+
+    now = time.time()
+    cached = _codex_models_cache.get("models")
+    if (
+        not force
+        and cached is not None
+        and (now - _codex_models_cache.get("fetched_at", 0.0)) < CODEX_MODELS_CACHE_TTL
+    ):
+        return cached
+
+    try:
+        if auth_store is None:
+            from ghost_auth_profiles import get_auth_store
+            auth_store = get_auth_store()
+        from ghost_oauth import ensure_fresh_token
+        token = ensure_fresh_token(auth_store)
+        if not token:
+            return None
+        profile = auth_store.get_provider_profile("openai-codex") or {}
+        account_id = profile.get("account_id", "")
+    except Exception:
+        log.warning("Codex model discovery: could not obtain OAuth token", exc_info=True)
+        return None
+
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": "Ghost/1.0"}
+    if account_id:
+        headers["ChatGPT-Account-Id"] = account_id
+
+    try:
+        resp = requests.get(CODEX_MODELS_URL, headers=headers, timeout=15)
+        if resp.status_code != 200:
+            log.warning("Codex model discovery returned HTTP %s", resp.status_code)
+            return None
+        data = resp.json()
+    except Exception:
+        log.warning("Codex model discovery request failed", exc_info=True)
+        return None
+
+    models = []
+    for m in data.get("models", []) or []:
+        slug = m.get("slug")
+        if not slug:
+            continue
+        # Skip internal/hidden entries (e.g. codex-auto-review) — only list
+        # models the picker should surface.
+        visibility = m.get("visibility")
+        if visibility and visibility != "list":
+            continue
+        models.append({
+            "id": slug,
+            "name": m.get("display_name", slug),
+            "context_length": int(m.get("context_window") or 0),
+            "input_modalities": m.get("input_modalities") or ["text"],
+            "description": (m.get("description") or "")[:200],
+            "supported_in_api": bool(m.get("supported_in_api", False)),
+        })
+
+    if not models:
+        return None
+
+    _codex_models_cache["models"] = models
+    _codex_models_cache["fetched_at"] = now
+    return models
 
 
 def _normalize_ollama_model_name(name: str) -> str:
@@ -236,6 +321,17 @@ def validate_model_for_provider(provider_id: str, model: str) -> tuple[bool, str
         return False, f"Empty model for provider {provider_id}"
 
     allowed = set(prov.models or [])
+
+    # Codex (ChatGPT subscription) gates models per-account. Accept anything
+    # the live account is entitled to, falling back to the static list when
+    # discovery is unavailable.
+    if provider_id == "openai-codex":
+        try:
+            live = fetch_codex_models()
+            if live:
+                allowed |= {m["id"] for m in live}
+        except Exception:
+            pass
 
     # OpenRouter allows a broad catalog; accept explicit provider/model form
     # in addition to known curated defaults.
@@ -759,6 +855,13 @@ def parse_codex_sse_response(response, on_token=None) -> dict:
     as it arrives (from ``response.output_text.delta`` events).
     """
     final_response = None
+    # The Codex backend returns an empty ``output`` array in the
+    # ``response.completed`` event when ``store=false`` (which we always send).
+    # The actual content/tool-calls only arrive via streamed item events, so we
+    # accumulate them here and reconstruct ``output`` if the completed event is
+    # empty. Applies to message text AND function_call (tool) items.
+    collected_items: list = []
+    text_buffer: list = []
     for line in response.iter_lines():
         if not line:
             continue
@@ -774,13 +877,19 @@ def parse_codex_sse_response(response, on_token=None) -> dict:
         except (json.JSONDecodeError, ValueError):
             continue
         event_type = event.get("type", "")
-        if event_type == "response.output_text.delta" and on_token:
+        if event_type == "response.output_text.delta":
             delta = event.get("delta", "")
             if delta:
-                try:
-                    on_token(delta)
-                except Exception:
-                    pass
+                text_buffer.append(delta)
+                if on_token:
+                    try:
+                        on_token(delta)
+                    except Exception:
+                        pass
+        elif event_type == "response.output_item.done":
+            item = event.get("item")
+            if isinstance(item, dict):
+                collected_items.append(item)
         if event_type == "response.completed":
             final_response = event.get("response", event)
             break
@@ -790,9 +899,24 @@ def parse_codex_sse_response(response, on_token=None) -> dict:
                 f"Codex API error: {error.get('message', 'unknown')} "
                 f"(code={error.get('code', '')})"
             )
-    if final_response:
-        return final_response
-    raise RuntimeError("Codex stream ended without a response.completed event")
+
+    if final_response is None:
+        if not collected_items and not text_buffer:
+            raise RuntimeError("Codex stream ended without a response.completed event")
+        final_response = {"status": "completed"}
+
+    # Backfill output from streamed items when the completed event omitted it.
+    if not final_response.get("output"):
+        if collected_items:
+            final_response["output"] = collected_items
+        elif text_buffer:
+            final_response["output"] = [{
+                "type": "message",
+                "role": "assistant",
+                "content": [{"type": "output_text", "text": "".join(text_buffer)}],
+            }]
+
+    return final_response
 
 
 # ═════════════════════════════════════════════════════════════════════

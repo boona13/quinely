@@ -6,9 +6,13 @@ Credentials are persisted in ~/.ghost/credentials.json as a JSON array.
 """
 
 import json
+import logging
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any
+
+import ghost_secret_store as secret_store
 
 GHOST_HOME = Path.home() / ".ghost"
 CREDENTIALS_FILE = GHOST_HOME / "credentials.json"
@@ -17,7 +21,12 @@ CREDENTIALS_FILE = GHOST_HOME / "credentials.json"
 def _load_credentials() -> List[Dict[str, Any]]:
     if CREDENTIALS_FILE.exists():
         try:
-            return json.loads(CREDENTIALS_FILE.read_text(encoding="utf-8"))
+            creds = json.loads(CREDENTIALS_FILE.read_text(encoding="utf-8"))
+            # Decrypt the password field back to plaintext for in-memory use.
+            for c in creds:
+                if isinstance(c, dict) and "password" in c:
+                    c["password"] = secret_store.decrypt(c["password"])
+            return creds
         except (json.JSONDecodeError, OSError):
             return []
     return []
@@ -25,11 +34,38 @@ def _load_credentials() -> List[Dict[str, Any]]:
 
 def _save_credentials(creds: List[Dict[str, Any]]):
     GHOST_HOME.mkdir(parents=True, exist_ok=True)
-    CREDENTIALS_FILE.write_text(json.dumps(creds, indent=2), encoding="utf-8")
+    # Encrypt the password field at rest without mutating the caller's list.
+    enc = []
+    for c in creds:
+        if isinstance(c, dict) and c.get("password"):
+            c = {**c, "password": secret_store.encrypt(c["password"])}
+        enc.append(c)
+    CREDENTIALS_FILE.write_text(json.dumps(enc, indent=2), encoding="utf-8")
+    try:
+        os.chmod(CREDENTIALS_FILE, 0o600)
+    except Exception:
+        pass
+
+
+def _migrate_credentials():
+    """One-time: re-encrypt any legacy plaintext passwords on disk."""
+    if not CREDENTIALS_FILE.exists() or not secret_store.is_available():
+        return
+    try:
+        raw = json.loads(CREDENTIALS_FILE.read_text(encoding="utf-8"))
+        if any(isinstance(c, dict) and c.get("password")
+               and not secret_store.is_encrypted(c["password"]) for c in raw):
+            _save_credentials(_load_credentials())  # load decrypts, save encrypts
+            logging.getLogger("ghost.credentials").info(
+                "Migrated credentials to encrypted-at-rest")
+    except Exception as e:
+        logging.getLogger("ghost.credentials").warning(
+            "Credential encryption migration failed: %s", e)
 
 
 def build_credential_tools() -> list:
     """Build credential management tools for the ghost tool registry."""
+    _migrate_credentials()
 
     def credential_save(
         service: str,
@@ -67,7 +103,7 @@ def build_credential_tools() -> list:
         display_email = entry["email"] or entry["username"]
         return f"OK: credentials saved for {entry['service']} ({display_email})"
 
-    def credential_get(service: str, show_password: bool = True) -> str:
+    def credential_get(service: str, show_password: bool = False) -> str:
         creds = _load_credentials()
         service_lower = service.strip().lower()
         matches = [
@@ -163,8 +199,8 @@ def build_credential_tools() -> list:
                     },
                     "show_password": {
                         "type": "boolean",
-                        "description": "Whether to include the password in the result",
-                        "default": True,
+                        "description": "Whether to include the password in the result (default false for safety)",
+                        "default": False,
                     },
                 },
                 "required": ["service"],

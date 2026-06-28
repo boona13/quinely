@@ -23,6 +23,19 @@ from ghost import (
 bp = Blueprint("status", __name__)
 
 
+def _secret_status():
+    """Encryption-at-rest status for local secrets (best-effort)."""
+    try:
+        from ghost_secret_store import status as _ss
+        s = _ss() or {}
+        return {
+            "encrypted": bool(s.get("available")),
+            "reason": s.get("reason", ""),
+        }
+    except Exception:
+        return {"encrypted": False, "reason": "unavailable"}
+
+
 def _daemon_running():
     if not PID_FILE.exists():
         return False, None
@@ -134,6 +147,7 @@ def get_status():
             },
             "soul_exists": SOUL_FILE.exists(),
             "user_exists": USER_FILE.exists(),
+            "secrets": _secret_status(),
             "safety": {
                 "guard": guard_stats,
                 "repair": repair_stats,

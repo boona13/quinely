@@ -14,6 +14,7 @@ import { render as feed } from './pages/feed.js';
 import { render as evolve } from './pages/evolve.js';
 import { render as chat } from './pages/chat.js';
 import { render as integrations } from './pages/integrations.js';
+import { render as mcp } from './pages/mcp.js';
 import { render as autonomy } from './pages/autonomy.js';
 import { render as setup } from './pages/setup.js';
 import { render as security } from './pages/security.js';
@@ -30,7 +31,7 @@ import { render as evolve_theater } from './pages/evolve_theater.js';
 import { render as tools } from './pages/tools.js';
 import { render as structured_memory } from './pages/structured_memory.js';
 import { render as goals } from './pages/goals.js';
-const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals };
+const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals };
 const container = document.getElementById('page-content');
 let currentPage = null;
 let pollTimer = null;
@@ -157,6 +158,7 @@ const CMD_PAGES = [
   { page: 'channels', label: 'Channels', section: 'Connections' },
   { page: 'webhooks', label: 'Webhooks', section: 'Connections' },
   { page: 'integrations', label: 'Integrations', section: 'Connections' },
+  { page: 'mcp', label: 'MCP Servers', section: 'Connections' },
   { page: 'config', label: 'Configuration', section: 'System' },
   { page: 'cron', label: 'Cron Jobs', section: 'System' },
   { page: 'security', label: 'Security', section: 'System' },

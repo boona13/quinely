@@ -6,11 +6,11 @@
 
 <p align="center"><strong>The AI agent that rewrites its own source code, reviews its own PRs, and deploys itself — while you sleep.</strong></p>
 
-Ghost is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 185+ tools, 22 AI nodes, and 10 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
+Ghost is an autonomous, self-evolving AI agent that runs locally on your machine. It doesn't just respond to prompts — it operates 24/7 with 260+ tools, 22 AI nodes, and 14 autonomous growth routines that continuously improve its own codebase. It writes code, submits internal PRs, runs an adversarial code review with a separate LLM instance, deploys approved changes, and rolls back if anything breaks. If it crashes, it reads the traceback, diagnoses the root cause, patches itself, and restarts.
 
 It's a full operating system for AI autonomy — not a chatbot.
 
-> **One agent. 185 tools. 22 AI nodes. 7 LLM providers. 3 messaging channels. Zero cloud dependencies.**
+> **One agent. 260+ tools. 22 AI nodes. 7 LLM providers. MCP client. 3 messaging channels. Zero cloud dependencies.**
 
 ---
 
@@ -21,9 +21,9 @@ Most AI tools wait for instructions. Ghost operates autonomously.
 - **Self-evolution** — Ghost modifies its own codebase through a complete CI/CD pipeline: plan → apply → test → adversarial PR review → deploy → rollback. Every change is backed up, tested, reviewed by a separate LLM, and auto-rolled back if it fails.
 - **Self-healing** — If Ghost crashes, it reads the crash report, diagnoses the root cause from the traceback, writes a fix, tests it, and restarts. After 5 consecutive crashes, the supervisor auto-rolls back to the last known good state.
 - **Adversarial PR review** — Every self-modification goes through a separate LLM instance acting as a strict senior code reviewer. The reviewer searches the codebase with ripgrep, leaves inline comments, suggests exact code replacements, and submits APPROVE / REQUEST_CHANGES / BLOCK verdicts. Rejected PRs preserve the branch and all feedback for fix-and-resubmit — up to 5 rounds.
-- **185+ built-in tools** — File system, shell, browser automation, web search, web fetch, vision, image generation, TTS, voice, Google Workspace, messaging channels, cron, credentials, code intelligence, data extraction, security audits, and more.
+- **260+ built-in tools** — File system, precise editing, git, shell, browser automation, web search, web fetch, vision, image generation, TTS, voice, Google Workspace, messaging channels, cron, credentials, code intelligence, data extraction, security audits, MCP-bridged servers, and more.
 - **22 AI nodes** — Local image generation (Stable Diffusion / FLUX), video generation (Kling, Runway, Minimax), audio (TTS, STT, music, voice cloning), vision (captioning, OCR, depth estimation), with an intelligent GPU load balancer and pipeline engine to chain them together.
-- **10 autonomous routines** — Tech scouting, bug hunting, security patrols, competitive intelligence, skill improvement, soul evolution, health checks, and more — all on configurable cron schedules.
+- **14 autonomous routines** — Tech scouting, bug hunting, security patrols, competitive intelligence, skill improvement, soul evolution, health checks, and more — all on configurable cron schedules.
 - **Multi-channel** — Talk to Ghost on Telegram, Discord, and WhatsApp. Every channel gets message queuing, crash recovery, streaming, and security policies.
 - **Local-first** — Runs on your machine. Your data stays on your machine. No cloud subscription. No telemetry.
 
@@ -120,7 +120,7 @@ Ghost starts without one. Open [http://localhost:3333](http://localhost:3333) an
 
 ---
 
-## The Tool System — 185+ Tools
+## The Tool System — 260+ Tools
 
 Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets results, decides what to do next, and loops — up to 200 steps per session with automatic context compaction, loop detection, and deferral prevention.
 
@@ -128,10 +128,12 @@ Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets 
 
 | Category | Tools | Highlights |
 |---|---|---|
-| **File System** | `shell_exec`, `file_read`, `file_write`, `file_search`, `grep`, `glob` | Whitelisted commands, workspace scoping, codebase write protection |
+| **File System** | `shell_exec`, `file_read`, `file_write`, `edit_file`, `apply_patch`, `file_search`, `grep`, `glob` | Whitelisted commands, workspace scoping, codebase write protection |
+| **Precise Editing** | `edit_file` (exact unique search/replace), `apply_patch` (context-located unified diffs) | Surgical edits without rewriting whole files — uniqueness checks, fuzzy hunk location, diff previews |
+| **Version Control** | `git_status`, `git_diff`, `git_log`, `git_add`, `git_commit`, `git_branch`, `git_init` | Structured git on user project repos — refuses to touch Ghost's own evolve-managed repo |
 | **Browser** | `browser` (navigate, click, type, screenshot, PDF, tabs) | Accessibility tree targeting — no fragile CSS selectors |
 | **Web Intelligence** | `web_search` (6 providers), `web_fetch` (5-tier extraction) | Perplexity, Grok, Brave, Gemini, OpenAI; Readability → Firecrawl pipeline |
-| **Memory** | `memory_save/search`, `semantic_memory`, `hybrid_memory` | SQLite + FTS5 + vector embeddings with temporal decay and MMR reranking |
+| **Memory** | `memory_save/search`, `semantic_memory`, `hybrid_memory` | SQLite + FTS5 + vector store; **automatic pre-turn retrieval** with fused reranking (keyword + semantic + recency) |
 | **Vision** | `image_analyze`, `screenshot_analyze` | 5-provider fallback: OpenAI, OpenRouter, Gemini, Anthropic, Ollama |
 | **Image Gen** | `generate_image` | OpenRouter (Gemini 3 Pro), Google Gemini, OpenAI DALL-E / gpt-image-1 |
 | **Voice** | `voice_wake_start/stop`, `voice_talk_start/stop` | Always-on wake word detection, continuous conversation, 5 STT providers |
@@ -145,6 +147,7 @@ Ghost's tool system is a multi-turn execution engine. The LLM calls tools, gets 
 | **Code Intelligence** | `analyze_code_file`, `analyze_repository`, `find_code_patterns` | LOC, cyclomatic complexity, maintainability index, bug pattern detection |
 | **Webhooks** | `webhook_create/list/delete/test` | Event-driven automation with HMAC verification and template injection |
 | **Diagnostics** | `doctor_run/fix`, `security_audit/fix`, `repair_state` | Health checks, security audits, state repair, dependency doctor |
+| **MCP** | `mcp_status` + bridged `mcp_<server>_<tool>` | Connects to external Model Context Protocol servers and exposes their tools natively |
 
 ### Self-Evolution Tools
 
@@ -275,7 +278,7 @@ The reviewer checks ~15 categories: code quality, security, frontend-backend int
 
 ---
 
-## Autonomous Growth — 11+ Routines
+## Autonomous Growth — 14 Routines
 
 Ghost improves itself on configurable schedules. Each routine is a specialized autonomous agent with a detailed system prompt, full tool access, and its own schedule.
 
@@ -363,13 +366,13 @@ Configure one or all — Ghost automatically falls back through your provider ch
 |---|---|
 | **Telegram** | Bot API with reactions, threading, streaming, and polls |
 | **Discord** | Webhook (zero-dependency) or full bot mode via discord.py |
-| **WhatsApp** | QR code linking via neonize or Business API via webhook |
+| **WhatsApp** | QR code linking via neonize (best-effort) or Business API via webhook |
 
-Every channel gets: message queuing with write-ahead logging, exponential backoff retries, crash recovery, per-channel formatting, real-time streaming, DM security policies, rate limiting, health monitoring, and per-channel onboarding wizards.
+Every channel gets: message queuing with write-ahead logging, exponential backoff retries, crash recovery, per-channel formatting, real-time streaming, DM security policies, rate limiting, health monitoring, and per-channel onboarding wizards. Telegram and Discord are the most battle-tested; WhatsApp via neonize depends on an unofficial library and may require extra setup. Each channel is independently enabled — the startup banner shows how many of the configured channels are currently active.
 
 ---
 
-## 42+ Skills + GhostHub Registry
+## 47 Skills + GhostHub Registry
 
 Specialized knowledge injected automatically when relevant:
 
@@ -389,6 +392,34 @@ Specialized knowledge injected automatically when relevant:
 ---
 
 ## Additional Systems
+
+### Automatic Memory Retrieval (RAG)
+
+Ghost doesn't wait for the model to decide to look something up. Before every chat turn it automatically retrieves and injects the most relevant long-term memories.
+
+- **Fused retrieval** — combines keyword/full-text recall (SQLite FTS) with semantic vector similarity over Ghost's existing memory stores (no schema changes).
+- **Reranker** — blends each candidate's source score with query-term overlap and a recency boost, dedupes near-identical memories, and trims to a token budget.
+- **Safe by default** — greetings and very short messages are skipped, every backend is wrapped defensively, and any retrieval failure yields no injection rather than breaking the turn. Toggle with `enable_auto_retrieval`.
+
+### MCP — Model Context Protocol
+
+Ghost is an MCP **client**: it connects to external MCP tool servers (filesystem, Linear, Sentry, Stripe, Playwright, or any custom server) and bridges their tools straight into the registry, where the LLM calls them like native tools.
+
+- **stdio transport** — newline-delimited JSON-RPC 2.0 over each server's stdin/stdout. Pure stdlib, cross-platform, no extra dependencies.
+- **Full handshake** — `initialize` → `notifications/initialized` → `tools/list`, then live `tools/call` invocation with input-schema passthrough.
+- **Namespaced bridging** — each remote tool registers as `mcp_<server>_<tool>` so there are no collisions with native tools.
+- **Config** — drop a Claude/Cursor-compatible `~/.ghost/mcp_servers.json` (`mcpServers` map with `command` / `args` / `env`, optional `"disabled": true`). See `~/.ghost/mcp_servers.example.json`. Use `mcp_status` to inspect connected servers and tools.
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allow"]
+    }
+  }
+}
+```
 
 ### Browser Automation
 
@@ -443,7 +474,7 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) provides ful
 | **User Profile** | Edit user info (USER.md) |
 | **Memory** | Search, browse, and prune the memory database |
 | **Models** | Multi-provider management, fallback chain visualization, model browser with pricing, coding model dispatcher with budget control and SWE-bench leaderboard |
-| **Skills** | Browse, search, enable/disable 42+ skills + GhostHub Registry with security scanning |
+| **Skills** | Browse, search, enable/disable 47 skills + GhostHub Registry with security scanning |
 | **Autonomy** | Action items, growth routine status, growth log, crash reports |
 | **Evolution** | Self-modification history, approve/reject pending changes, view diffs, rollback |
 | **Future Features** | Prioritized backlog for autonomous implementation — add, approve, reject, track |
@@ -460,13 +491,17 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) provides ful
 ## Architecture
 
 ```
-ghost.py                    Main daemon — LLM routing, 185+ tool registration, GhostDaemon class
+ghost.py                    Main daemon — LLM routing, 260+ tool registration, GhostDaemon class
 ghost_loop.py               ToolLoopEngine — multi-turn LLM + tool execution (200 steps, 6 loop detectors)
 ghost_tools.py              Core tools — shell, files, web fetch, notifications
+ghost_edit_tools.py         Precise editing — edit_file (search/replace) + apply_patch (unified diff)
+ghost_code_tools.py         Fast code search — ripgrep-backed grep + glob
+ghost_git_tools.py          Structured git tools — status/diff/log/add/commit/branch/init on user repos
 ghost_tool_builder.py       Dynamic tool system — create, install, validate tools at runtime
 ghost_browser.py            Browser automation — Playwright with accessibility tree
 ghost_memory.py             Basic memory — SQLite + FTS5
 ghost_hybrid_memory.py      Hybrid memory — FTS5 + vector embeddings + temporal decay + MMR
+ghost_auto_retrieval.py     Automatic pre-turn RAG — fused keyword+semantic retrieval with reranking
 ghost_vector_memory.py      Vector memory — cosine similarity search
 ghost_session_memory.py     Session memory — auto-save conversation summaries
 ghost_web_search.py         Web search — 6 providers with fallback and caching
@@ -481,15 +516,17 @@ ghost_skills.py             Skill loader — auto-discovery and trigger matching
 ghost_plugins.py            Plugin system — hooks, custom tools, plugin data
 ghost_evolve.py             Evolution engine — backup, validate, test, deploy, rollback
 ghost_pr.py                 Adversarial PR review — separate LLM instance with 7 tools
-ghost_autonomy.py           Autonomous growth — 11+ routines, action items, self-repair
+ghost_autonomy.py           Autonomous growth — 14 routines, action items, self-repair
 ghost_goals.py              Goal Engine — persistent long-horizon goals, GoalStore, LLM-callable tools
 ghost_goal_executor.py      Deterministic Goal Executor — Python-controlled step loop, retry verification, quality check
 ghost_model_dispatch.py     Budget-aware coding model selection for evolution & bug hunting
 ghost_future_features.py    Feature backlog — prioritized queue with dedup and dependency ordering
 ghost_providers.py          LLM providers — 7 providers with format adapters and fallback chains
-ghost_auth_profiles.py      Auth store — API keys, OAuth tokens, credential sync
+ghost_auth_profiles.py      Auth store — API keys, OAuth tokens, credential sync (encrypted at rest)
+ghost_secret_store.py       Secret encryption — Fernet-based encrypt/decrypt for secrets at rest
 ghost_oauth.py              OAuth — Codex PKCE flow
 ghost_integrations.py       Google Workspace + Grok integration
+ghost_mcp.py                MCP client — connect external Model Context Protocol tool servers (stdio JSON-RPC)
 ghost_webhooks.py           Webhook triggers — event-driven automation via HTTP POST
 ghost_code_intel.py         Code intelligence — analysis, metrics, bug detection
 ghost_data_extract.py       Data extraction — 15+ pattern types, table parsing
@@ -516,7 +553,7 @@ ghost_platform.py           Cross-platform — macOS/Linux/Windows abstraction l
   templates/                HTML shell
 ghost_channels/             3 messaging channel implementations
 ghost_nodes/                22 bundled AI capability nodes
-skills/                     42+ bundled skill definitions
+skills/                     47 bundled skill definitions
 SOUL.md                     Agent personality and development standards
 USER.md                     User profile for personalization
 ```
@@ -551,7 +588,8 @@ All runtime data lives in `~/.ghost/`:
 ```
 ~/.ghost/
   config.json               Configuration
-  auth_profiles.json        Provider credentials (API keys + OAuth tokens)
+  .secret_key               Local encryption key for secrets at rest (chmod 600)
+  auth_profiles.json        Provider credentials (API keys + OAuth tokens, encrypted at rest)
   memory.db                 SQLite memory database
   vector_memory.db          Vector embedding database
   log.json                  Action history
@@ -562,6 +600,7 @@ All runtime data lives in `~/.ghost/`:
   future_features.json      Evolution backlog
   feature_changelog.json    Completed features log
   integrations.json         Google OAuth tokens
+  mcp_servers.json          External MCP server definitions (see mcp_servers.example.json)
   channels.json             Channel configurations
   model_stats.json          GPU model load/eviction statistics
   coding_benchmarks.json    SWE-bench scores for coding model selection
@@ -620,6 +659,9 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `enable_voice` | `true` | Voice Wake + Talk Mode |
 | `enable_canvas` | `true` | Canvas visual output panel |
 | `enable_integrations` | `true` | Google/Grok integrations |
+| `enable_mcp` | `true` | Connect external MCP tool servers from `~/.ghost/mcp_servers.json` |
+| `enable_auto_retrieval` | `true` | Automatically retrieve + inject relevant memories before each chat turn |
+| `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |
 | `coding_model_budget` | `"auto"` | Budget for coding tasks: `free`, `low`, `medium`, `high`, `auto`, or $/MTok number |
 | `coding_model_override` | `null` | Force a specific model for coding tasks (bypasses dispatcher) |
 | `min_swe_bench_score` | `78.0` | Minimum SWE-bench score for coding model selection |
@@ -642,8 +684,10 @@ Ghost runs on **macOS**, **Linux**, and **Windows**. No system-level dependencie
 
 Ghost takes security seriously for an autonomous agent:
 
+- **Secrets encrypted at rest** — Provider API keys, OAuth tokens, and saved credentials are encrypted with Fernet (AES-128-CBC + HMAC). The data key lives at `~/.ghost/.secret_key` (chmod 600) or via the `GHOST_SECRET_KEY` env var. Legacy plaintext files are auto-migrated on first load; secret files are written `0600`. Degrades gracefully to plaintext only if `cryptography` is unavailable.
+- **Optional dashboard authentication** — Set `GHOST_DASHBOARD_TOKEN` (or `dashboard_auth_token` in config) to require a token before binding the dashboard to a non-loopback host. Supports `Authorization: Bearer`, `X-Ghost-Token`, `?token=`, or a sign-in page that sets an HttpOnly cookie. Off by default so local usage is unchanged.
 - **Tool shadowing prevention** — Reserved tool names can't be overwritten by plugins or skills
-- **Codebase write protection** — `file_write` can't modify Ghost's own source files
+- **Codebase write protection** — `file_write`, `edit_file`, and `apply_patch` can't modify Ghost's own source files (self-modification goes through the evolution pipeline)
 - **Command whitelisting** — `shell_exec` only runs pre-approved commands
 - **Dangerous interpreter policy** — Python/pip execution gated with per-command deny flags
 - **Skill security scanning** — 34+ regex patterns across 5 threat categories before installation

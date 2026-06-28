@@ -5,10 +5,49 @@ Can run standalone:     run_dashboard(port=3333)
 Or embedded in daemon:  start_with_daemon(daemon, port=3333)
 """
 
-import os, webbrowser, threading, logging, socket, secrets
+import os, webbrowser, threading, logging, socket, secrets, hmac
 from werkzeug.serving import make_server
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, make_response
 from pathlib import Path
+
+
+def _get_dashboard_token() -> str:
+    """Optional dashboard auth token. Env var wins; falls back to daemon config.
+
+    When empty (default), the dashboard is unauthenticated as before — local-only
+    usage is unchanged. Set GHOST_DASHBOARD_TOKEN (or config dashboard_auth_token)
+    before binding to a non-loopback host."""
+    tok = os.environ.get("GHOST_DASHBOARD_TOKEN", "").strip()
+    if tok:
+        return tok
+    d = get_daemon()
+    if d is not None:
+        try:
+            return (d.cfg.get("dashboard_auth_token") or "").strip()
+        except Exception:
+            return ""
+    return ""
+
+
+_AUTH_PUBLIC_PATHS = {"/auth", "/api/csrf-token"}
+_AUTH_PUBLIC_PREFIXES = ("/static/",)
+
+
+def _auth_login_html(error: bool = False) -> str:
+    msg = '<p style="color:#e06c75">Invalid token.</p>' if error else ""
+    return (
+        "<!doctype html><html><head><meta charset='utf-8'><title>Ghost — Sign in</title>"
+        "<style>body{background:#0d1117;color:#c9d1d9;font-family:system-ui,sans-serif;"
+        "display:flex;height:100vh;align-items:center;justify-content:center;margin:0}"
+        "form{background:#161b22;padding:32px;border:1px solid #30363d;border-radius:10px;width:300px}"
+        "h1{font-size:18px;margin:0 0 16px}input{width:100%;padding:10px;margin:8px 0;"
+        "background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;box-sizing:border-box}"
+        "button{width:100%;padding:10px;background:#238636;color:#fff;border:0;border-radius:6px;"
+        "cursor:pointer;margin-top:8px}</style></head><body>"
+        "<form method='post' action='/auth'><h1>Ghost Dashboard</h1>"
+        f"{msg}<input type='password' name='token' placeholder='Access token' autofocus>"
+        "<button type='submit'>Sign in</button></form></body></html>"
+    )
 
 # CSRF protection (optional - gracefully degrades if not installed)
 try:
@@ -60,10 +99,12 @@ def create_app():
     register_routes(app)
 
     # Initialize CSRF protection (if available)
+    csrf_obj = None
     if _csrf_available:
         app.config["SECRET_KEY"] = os.environ.get("GHOST_SECRET_KEY", secrets.token_hex(32))
         app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour token validity
         csrf = CSRFProtect(app)
+        csrf_obj = csrf
         # Exempt webhook endpoints that use Bearer token auth (all paths under /api/webhooks/)
         csrf.exempt("/api/webhooks/")
         # Exempt CSRF token endpoint itself
@@ -96,6 +137,52 @@ def create_app():
             token = generate_csrf()
             return jsonify({"csrf_token": token})
         return jsonify({"csrf_token": ""})
+
+    # ── Optional dashboard authentication ────────────────────────────
+    @app.before_request
+    def _require_dashboard_token():
+        token = _get_dashboard_token()
+        if not token:
+            return  # auth disabled (default) — behaviour unchanged
+        path = request.path or "/"
+        if (path in _AUTH_PUBLIC_PATHS
+                or path.startswith("/api/webhooks/")
+                or any(path.startswith(pre) for pre in _AUTH_PUBLIC_PREFIXES)):
+            return
+        auth_header = request.headers.get("Authorization", "")
+        bearer = auth_header[7:] if auth_header.startswith("Bearer ") else ""
+        provided = (
+            request.headers.get("X-Ghost-Token", "")
+            or bearer
+            or request.args.get("token", "")
+            or request.cookies.get("ghost_token", "")
+        )
+        if provided and hmac.compare_digest(provided, token):
+            return
+        if path.startswith("/api/"):
+            return jsonify({"error": "unauthorized",
+                            "detail": "Dashboard auth token required"}), 401
+        return redirect("/auth")
+
+    @app.route("/auth", methods=["GET", "POST"])
+    def _auth_page():
+        token = _get_dashboard_token()
+        if not token:
+            return redirect("/")
+        if request.method == "POST":
+            provided = request.form.get("token", "")
+            if not provided:
+                provided = (request.get_json(silent=True) or {}).get("token", "")
+            if provided and hmac.compare_digest(provided, token):
+                resp = make_response(redirect("/"))
+                resp.set_cookie("ghost_token", provided, httponly=True,
+                                samesite="Lax", max_age=30 * 24 * 3600)
+                return resp
+            return _auth_login_html(error=True), 401
+        return _auth_login_html()
+
+    if csrf_obj is not None:
+        csrf_obj.exempt(_auth_page)
 
     return app
 

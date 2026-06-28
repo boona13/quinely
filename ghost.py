@@ -77,6 +77,8 @@ from ghost_skill_manager import build_skill_manager_tools
 from ghost_hook_debug import build_hook_debug_tools
 from ghost_uptime import build_uptime_tools
 from ghost_code_tools import build_code_search_tools
+from ghost_edit_tools import build_edit_tools
+from ghost_git_tools import build_git_tools
 from ghost_setup_providers import build_setup_provider_tools
 from ghost_tool_intent_security import ToolIntentSecurity
 from ghost_implementation_auditor_filters import build_implementation_auditor_filter_tools
@@ -435,6 +437,9 @@ DEFAULT_CONFIG = {
     "evolve_auto_approve": True,
     "max_evolutions_per_hour": 25,
     "enable_integrations": True,
+    "enable_mcp": True,
+    "enable_auto_retrieval": True,
+    "dashboard_auth_token": "",
     "enable_growth": True,
     "growth_schedules": {},
     "allowed_commands": list(DEFAULT_ALLOWED_COMMANDS),
@@ -1183,6 +1188,14 @@ class GhostDaemon:
         for td in build_code_search_tools(cfg):
             self.tool_registry.register(td)
 
+        # Precise file-editing tools (edit_file / apply_patch — surgical edits)
+        for td in build_edit_tools(cfg):
+            self.tool_registry.register(td)
+
+        # Structured git tools (status/diff/log/add/commit/branch/init on user repos)
+        for td in build_git_tools(cfg):
+            self.tool_registry.register(td)
+
         # Implementation auditor diagnostics (24h filter + dedupe preview)
         for td in build_implementation_auditor_filter_tools():
             self.tool_registry.register(td)
@@ -1684,7 +1697,23 @@ class GhostDaemon:
         except Exception as e:
             print(f"  [pr] Failed to initialize: {e}")
 
-        self.mcp_manager = None  # MCP removed
+        # Model Context Protocol (MCP) — bridge external tool servers into the registry
+        self.mcp_manager = None
+        if cfg.get("enable_mcp", True) and not dry_run:
+            try:
+                from ghost_mcp import MCPManager, build_mcp_introspection_tools
+                self.mcp_manager = MCPManager()
+                mcp_defs = self.mcp_manager.connect_all()
+                for td in mcp_defs:
+                    self.tool_registry.register(td)
+                for td in build_mcp_introspection_tools(self.mcp_manager):
+                    self.tool_registry.register(td)
+                if mcp_defs:
+                    log.info("MCP: bridged %d tools from %d server(s)",
+                             len(mcp_defs), len(self.mcp_manager.clients))
+            except Exception as e:
+                log.warning("MCP initialization failed: %s", e)
+                self.mcp_manager = None
 
         # Focused Delegation — fresh-context research and verification
         if cfg.get("enable_subagents", True):
@@ -2422,6 +2451,11 @@ class GhostDaemon:
                 log.warning("Error cleaning up shell sessions: %s", e)
         if self.hooks:
             self.hooks.run_void("on_shutdown")
+        if getattr(self, "mcp_manager", None):
+            try:
+                self.mcp_manager.shutdown()
+            except Exception as e:
+                log.warning("Error shutting down MCP servers: %s", e)
         if self.memory_db:
             self.memory_db.prune(5000)
             self.memory_db.close()

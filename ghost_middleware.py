@@ -583,6 +583,9 @@ class ToolScopeMiddleware(Middleware):
         _ALWAYS_CORE = {
             "memory_search", "memory_save", "task_complete",
             "file_read", "file_write", "file_search",
+            "edit_file", "apply_patch",
+            "git_status", "git_diff", "git_log",
+            "git_add", "git_commit", "git_branch", "git_init",
             "shell_exec", "grep", "glob",
             "notify", "uptime", "app_control",
             "add_future_feature", "list_future_features",

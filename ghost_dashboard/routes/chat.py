@@ -794,6 +794,18 @@ def _process_message(session, daemon):
         if attachment_context:
             user_message_with_context = session.user_message + attachment_context
 
+        # Automatic pre-turn memory retrieval (RAG): fetch + rerank relevant
+        # long-term memories and inject them so the model has context without
+        # having to call memory_search itself. Fully defensive — never blocks a turn.
+        if daemon.cfg.get("enable_auto_retrieval", True):
+            try:
+                from ghost_auto_retrieval import retrieve_context_block
+                _mem_block = retrieve_context_block(session.user_message, daemon=daemon)
+                if _mem_block:
+                    user_message_with_context = user_message_with_context + "\n\n" + _mem_block
+            except Exception as _e:
+                logging.getLogger("ghost.retrieval").debug("auto-retrieval skipped: %s", _e)
+
         # When the user message contains a URL, force the model to call
         # a tool first (it will naturally pick web_fetch per the system prompt).
         # This avoids the model answering from memory instead of fetching.

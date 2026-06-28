@@ -9,14 +9,20 @@ Syncs credentials from external CLIs (~/.codex/auth.json).
 import json
 import logging
 import os
+import threading
 import time
 from pathlib import Path
+
+import ghost_secret_store as secret_store
 
 log = logging.getLogger("ghost.auth_profiles")
 
 GHOST_HOME = Path.home() / ".ghost"
 PROFILES_FILE = GHOST_HOME / "auth_profiles.json"
 CODEX_AUTH_FILE = Path.home() / ".codex" / "auth.json"
+
+# Profile fields that hold secrets and must be encrypted at rest.
+_SENSITIVE_FIELDS = ("key", "access_token", "refresh_token")
 
 _EMPTY_STORE = {
     "version": 1,
@@ -31,20 +37,55 @@ class AuthProfileStore:
     def __init__(self, path: Path = None):
         self._path = path or PROFILES_FILE
         self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.RLock()
+        self._migration_needed = False
         self._store = self._load()
+        # One-time migration: re-encrypt any legacy plaintext secrets on disk.
+        if self._migration_needed and secret_store.is_available():
+            try:
+                self._save()
+                log.info("Migrated auth profiles to encrypted-at-rest")
+            except Exception as e:
+                log.warning("Auth profile encryption migration failed: %s", e)
 
     def _load(self) -> dict:
         if self._path.exists():
             try:
                 data = json.loads(self._path.read_text(encoding="utf-8"))
                 if isinstance(data, dict) and "profiles" in data:
+                    # Decrypt secrets into the in-memory store so callers see plaintext.
+                    profiles = data.get("profiles", {})
+                    for pid, prof in list(profiles.items()):
+                        if isinstance(prof, dict):
+                            for f in _SENSITIVE_FIELDS:
+                                v = prof.get(f)
+                                if isinstance(v, str) and v and not secret_store.is_encrypted(v):
+                                    self._migration_needed = True
+                            profiles[pid] = secret_store.decrypt_fields(prof, _SENSITIVE_FIELDS)
                     return data
             except (json.JSONDecodeError, OSError) as e:
                 log.warning("Corrupted auth profiles, resetting: %s", e)
         return dict(_EMPTY_STORE)
 
     def _save(self):
-        self._path.write_text(json.dumps(self._store, indent=2), encoding="utf-8")
+        with self._lock:
+            # Write an encrypted-at-rest copy without mutating the in-memory store.
+            profiles = self._store.get("profiles", {})
+            enc_profiles = {
+                pid: (secret_store.encrypt_fields(prof, _SENSITIVE_FIELDS)
+                      if isinstance(prof, dict) else prof)
+                for pid, prof in profiles.items()
+            }
+            out = {
+                "version": self._store.get("version", 1),
+                "profiles": enc_profiles,
+                "provider_order": self._store.get("provider_order", []),
+            }
+            self._path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+            try:
+                os.chmod(self._path, 0o600)
+            except Exception:
+                pass
 
     @property
     def profiles(self) -> dict:
@@ -68,12 +109,13 @@ class AuthProfileStore:
         return self.get_profile(key)
 
     def set_profile(self, profile_id: str, profile: dict):
-        self._store.setdefault("profiles", {})[profile_id] = profile
-        provider = profile.get("provider", profile_id.split(":")[0])
-        order = self._store.setdefault("provider_order", [])
-        if provider not in order:
-            order.append(provider)
-        self._save()
+        with self._lock:
+            self._store.setdefault("profiles", {})[profile_id] = profile
+            provider = profile.get("provider", profile_id.split(":")[0])
+            order = self._store.setdefault("provider_order", [])
+            if provider not in order:
+                order.append(provider)
+            self._save()
         log.info("Saved auth profile: %s", profile_id)
         # Audit log
         try:
@@ -91,8 +133,10 @@ class AuthProfileStore:
             log.warning("Audit log failed: %s", e)
 
     def remove_profile(self, profile_id: str):
-        profiles = self._store.get("profiles", {})
-        if profile_id in profiles:
+        with self._lock:
+            profiles = self._store.get("profiles", {})
+            if profile_id not in profiles:
+                return
             del profiles[profile_id]
             self._save()
             log.info("Removed auth profile: %s", profile_id)

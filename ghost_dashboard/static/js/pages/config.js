@@ -95,7 +95,7 @@ export async function render(container) {
       <div class="stat-card">
         <h3 class="text-sm font-semibold text-white mb-3">${t('config.featureToggles')}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-          ${['enable_tool_loop','enable_memory_db','enable_plugins','enable_skills','enable_system_tools','enable_browser_tools','enable_browser_use','enable_channels','enable_cron','enable_evolve','enable_future_features','enable_integrations','enable_web_search','enable_web_fetch','enable_image_gen','enable_vision','enable_tts','enable_canvas','enable_response_integrity','enable_security_audit','enable_session_memory'].map(k => toggle(k)).join('')}
+          ${['enable_tool_loop','enable_memory_db','enable_plugins','enable_skills','enable_system_tools','enable_browser_tools','enable_browser_use','enable_channels','enable_cron','enable_evolve','enable_future_features','enable_integrations','enable_mcp','enable_auto_retrieval','enable_web_search','enable_web_fetch','enable_image_gen','enable_vision','enable_tts','enable_canvas','enable_response_integrity','enable_security_audit','enable_session_memory'].map(k => toggle(k)).join('')}
         </div>
       </div>
 
@@ -321,6 +321,13 @@ export async function render(container) {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Dashboard Authentication -->
+        <div class="stat-card md:col-span-2">
+          <h3 class="text-sm font-semibold text-white mb-1">Dashboard Access Token</h3>
+          <div class="text-[10px] text-zinc-600 mb-3">Optional. When set, the dashboard requires this token to log in (or the <span class="font-mono">GHOST_DASHBOARD_TOKEN</span> env var). Leave blank to keep the dashboard open on localhost.</div>
+          <input type="password" data-key="dashboard_auth_token" value="${cfg.dashboard_auth_token || ''}" class="form-input w-full" placeholder="Leave blank for no auth" autocomplete="new-password">
         </div>
 
         <!-- Tool Registration Security -->

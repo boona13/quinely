@@ -439,6 +439,8 @@ DEFAULT_CONFIG = {
     "enable_integrations": True,
     "enable_mcp": True,
     "enable_auto_retrieval": True,
+    "enable_neural_embeddings": True,
+    "embedding_model": "minishlab/potion-base-8M",
     "dashboard_auth_token": "",
     "enable_growth": True,
     "growth_schedules": {},
@@ -1095,6 +1097,32 @@ class GhostDaemon:
             self.memory_db = MemoryDB()
             self.tool_registry.register(make_memory_search(self.memory_db))
             self.tool_registry.register(make_memory_save(self.memory_db))
+
+        # Neural embeddings + semantic indexing (background, non-blocking).
+        # Upgrades semantic recall from hash bag-of-words to a real local model
+        # and indexes existing long-term memories so auto-retrieval actually has
+        # a populated vector space to search.
+        if not dry_run and cfg.get("enable_neural_embeddings", True):
+            def _warm_embeddings():
+                try:
+                    import ghost_embeddings
+                    ghost_embeddings.configure(
+                        model=cfg.get("embedding_model") or None,
+                        enable_neural=cfg.get("enable_neural_embeddings", True),
+                    )
+                    emb = ghost_embeddings.get_embedder()
+                    emb.warmup()
+                    from ghost_vector_memory import get_store
+                    store = get_store()
+                    if cfg.get("enable_memory_db", True):
+                        stats = store.sync_from_memory(memory_db=self.memory_db)
+                        if stats.get("indexed"):
+                            log.info("Semantic index: embedded %d memories "
+                                     "(%s)", stats["indexed"], emb.model_id)
+                except Exception as e:
+                    log.warning("Neural embedding warmup skipped: %s", e)
+            threading.Thread(target=_warm_embeddings, daemon=True,
+                             name="embed-warmup").start()
 
         # Runtime stats (exposed via cfg for ghost_tools introspection)
         self._start_time = time.time()

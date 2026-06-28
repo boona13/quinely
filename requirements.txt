@@ -28,6 +28,11 @@ segno>=1.6
 # HuggingFace Hub (model downloads for GhostNodes, HF OAuth in dashboard)
 huggingface-hub>=0.23
 
+# Neural semantic embeddings (ghost_embeddings.py) — pure-Python static model,
+# CPU only, no torch. Powers semantic memory search + auto-retrieval (RAG).
+# Falls back automatically to hash embeddings if unavailable/offline.
+model2vec>=0.3,<1.0
+
 # Optional: offline speech recognition (no API key needed)
 # vosk>=0.3.45
 

@@ -149,6 +149,34 @@ class SimpleEmbeddingProvider(EmbeddingProvider):
         return [self._embed(t) for t in texts]
 
 
+class LocalNeuralEmbeddingProvider(EmbeddingProvider):
+    """Keyless local neural embeddings via the shared ghost_embeddings model
+    (model2vec). High semantic fidelity, no API key, runs on CPU. Falls back to
+    hashing automatically inside the shared embedder if the model is unavailable."""
+
+    def __init__(self):
+        from ghost_embeddings import get_embedder
+        self._emb = get_embedder()
+
+    @property
+    def model_name(self) -> str:
+        return self._emb.model_id
+
+    @property
+    def dimensions(self) -> int:
+        return self._emb.dim
+
+    @property
+    def is_neural(self) -> bool:
+        return getattr(self._emb, "is_neural", False)
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._emb.embed(text)
+
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        return self._emb.embed_batch(texts)
+
+
 class OpenRouterEmbeddingProvider(EmbeddingProvider):
     """Uses OpenRouter's embedding endpoint. Falls back to SimpleEmbeddingProvider on failure."""
 
@@ -948,8 +976,18 @@ def _build_embedding_provider(api_key: str | None = None,
         candidates["gemini"] = GeminiEmbeddingProvider(gemini_key, model=gemini_model)
     candidates["ollama"] = OllamaEmbeddingProvider(model=ollama_model)
 
+    # Keyless local neural embeddings — a strong default that needs no API key
+    # and no external service. Enabled unless explicitly turned off.
+    local_neural = None
+    if (cfg or {}).get("enable_neural_embeddings", True):
+        try:
+            local_neural = LocalNeuralEmbeddingProvider()
+            candidates["local"] = local_neural
+        except Exception:
+            local_neural = None
+
     chain = (cfg or {}).get("provider_chains", {}).get(
-        "embeddings", ["openrouter", "gemini", "ollama"])
+        "embeddings", ["openrouter", "gemini", "local", "ollama"])
     providers: list[EmbeddingProvider] = []
     seen = set()
     for pid in chain:
@@ -961,7 +999,7 @@ def _build_embedding_provider(api_key: str | None = None,
             providers.append(prov)
 
     if not providers:
-        return SimpleEmbeddingProvider()
+        return local_neural or SimpleEmbeddingProvider()
 
     if len(providers) == 1:
         return providers[0]

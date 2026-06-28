@@ -393,11 +393,21 @@ Specialized knowledge injected automatically when relevant:
 
 ## Additional Systems
 
+### Neural Embeddings & Semantic Memory
+
+Semantic recall is powered by a real local neural embedding model, not just keyword overlap.
+
+- **Local neural embeddings** — `ghost_embeddings.py` uses [`model2vec`](https://github.com/MinishLab/model2vec) static embeddings (default `minishlab/potion-base-8M`, 256-dim). Pure-Python + numpy, CPU-only, no torch, no API key. The ~30 MB model downloads once and is cached. This finds conceptually related memories even with no shared words (e.g. *"which language do I like?"* → *"my favorite is Rust"*).
+- **Graceful fallback** — if the model can't be loaded (offline, disabled, or missing dep) the embedder transparently falls back to the legacy 128-dim hash embedding, so memory never breaks.
+- **ANN index** — searches run as vectorized NumPy cosine over an in-memory matrix cache (sub-millisecond for thousands of vectors), auto-invalidated on writes. `hnswlib` is used automatically if present, but is never required.
+- **Mixed vector spaces** — every row records its embedding `model`, so legacy hash vectors and neural vectors coexist; queries are scored in the correct space and legacy rows can be re-embedded with `reembed_stale()`.
+- **Auto-indexing** — on boot a background thread embeds existing long-term memories (`memory.db`) into the semantic store so retrieval has a populated vector space from the first turn. Idempotent and non-blocking. Toggle with `enable_neural_embeddings`; choose the model with `embedding_model`.
+
 ### Automatic Memory Retrieval (RAG)
 
 Ghost doesn't wait for the model to decide to look something up. Before every chat turn it automatically retrieves and injects the most relevant long-term memories.
 
-- **Fused retrieval** — combines keyword/full-text recall (SQLite FTS) with semantic vector similarity over Ghost's existing memory stores (no schema changes).
+- **Fused retrieval** — combines keyword/full-text recall (SQLite FTS) with neural semantic vector similarity (see above) over Ghost's existing memory stores (no schema changes).
 - **Reranker** — blends each candidate's source score with query-term overlap and a recency boost, dedupes near-identical memories, and trims to a token budget.
 - **Safe by default** — greetings and very short messages are skipped, every backend is wrapped defensively, and any retrieval failure yields no injection rather than breaking the turn. Toggle with `enable_auto_retrieval`.
 
@@ -502,7 +512,8 @@ ghost_browser.py            Browser automation — Playwright with accessibility
 ghost_memory.py             Basic memory — SQLite + FTS5
 ghost_hybrid_memory.py      Hybrid memory — FTS5 + vector embeddings + temporal decay + MMR
 ghost_auto_retrieval.py     Automatic pre-turn RAG — fused keyword+semantic retrieval with reranking
-ghost_vector_memory.py      Vector memory — cosine similarity search
+ghost_embeddings.py         Shared neural embedding provider (model2vec) with hash fallback
+ghost_vector_memory.py      Vector memory — neural embeddings + NumPy ANN cosine search
 ghost_session_memory.py     Session memory — auto-save conversation summaries
 ghost_web_search.py         Web search — 6 providers with fallback and caching
 ghost_web_fetch.py          Web fetch — 5-tier extraction pipeline with SSRF protection
@@ -591,7 +602,7 @@ All runtime data lives in `~/.ghost/`:
   .secret_key               Local encryption key for secrets at rest (chmod 600)
   auth_profiles.json        Provider credentials (API keys + OAuth tokens, encrypted at rest)
   memory.db                 SQLite memory database
-  vector_memory.db          Vector embedding database
+  vector_memory.db          Semantic vector store (neural embeddings + model id per row)
   log.json                  Action history
   feed.json                 Activity feed
   ghost.pid                 Running daemon PID
@@ -661,6 +672,8 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `enable_integrations` | `true` | Google/Grok integrations |
 | `enable_mcp` | `true` | Connect external MCP tool servers from `~/.ghost/mcp_servers.json` |
 | `enable_auto_retrieval` | `true` | Automatically retrieve + inject relevant memories before each chat turn |
+| `enable_neural_embeddings` | `true` | Use local neural embeddings (model2vec) for semantic memory; auto-index existing memories on boot |
+| `embedding_model` | `"minishlab/potion-base-8M"` | model2vec model for semantic embeddings (256-dim, CPU, no API key) |
 | `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |
 | `coding_model_budget` | `"auto"` | Budget for coding tasks: `free`, `low`, `medium`, `high`, `auto`, or $/MTok number |
 | `coding_model_override` | `null` | Force a specific model for coding tasks (bypasses dispatcher) |

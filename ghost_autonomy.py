@@ -25,17 +25,19 @@ CRASH_REPORT_FILE = GHOST_HOME / "crash_report.json"
 PROJECT_DIR = Path(__file__).resolve().parent
 
 DEFAULT_GROWTH_SCHEDULES = {
-    "tech_scout":          "0 */12 * * *",
-    "health_check":        "0 */2 * * *",
-    "user_context":        "0 */4 * * *",
-    "skill_improver":      "0 3 * * *",
-    "soul_evolver":        "0 4 * * 0",
-    "bug_hunter":          "0 */6 * * *",
-    "competitive_intel":   "0 6 * * 1,4",
-    "content_health":      "0 4 * * 0",
-    "security_patrol":     "0 5 * * *",
-    "visual_monitor":      "0 */8 * * *",
-    "model_benchmarks":    "0 3 * * 0",
+    # Stagger autonomous LLM/tool-loop routines so shared provider/tool resources
+    # are not saturated by many jobs firing at the same minute boundary.
+    "health_check":        "5 */2 * * *",
+    "user_context":        "15 */4 * * *",
+    "bug_hunter":          "25 */6 * * *",
+    "tech_scout":          "35 */12 * * *",
+    "visual_monitor":      "45 */8 * * *",
+    "competitive_intel":   "10 6 * * 1,4",
+    "content_health":      "20 4 * * 0",
+    "security_patrol":     "30 5 * * *",
+    "model_benchmarks":    "40 3 * * 0",
+    "skill_improver":      "50 3 * * *",
+    "soul_evolver":        "55 4 * * 0",
     "goal_executor":       "*/30 * * * *",
 }
 
@@ -1334,7 +1336,7 @@ def bootstrap_growth_cron(cron_service, cfg):
     schedules = cfg.get("growth_schedules", {})
     store = cron_service.store
 
-    from ghost_cron import make_job
+    from ghost_cron import compute_next_run, make_job
     existing_jobs = {j["name"]: j for j in store.get_all()}
 
     for routine in GROWTH_ROUTINES:
@@ -1350,9 +1352,17 @@ def bootstrap_growth_cron(cron_service, cfg):
         existing = existing_jobs.get(job_name)
         if existing:
             updates = {}
-            # Migrate schedule if kind changed (e.g. cron → manual for event_driven)
-            if existing.get("schedule", {}).get("kind") != target_schedule.get("kind"):
+            existing_schedule = existing.get("schedule", {})
+            if existing_schedule != target_schedule:
                 updates["schedule"] = target_schedule
+                updates["state"] = {
+                    **existing.get("state", {}),
+                    "nextRunAtMs": compute_next_run(
+                        target_schedule,
+                        job_id=existing["id"],
+                        created_at_ms=existing.get("createdAtMs"),
+                    ),
+                }
             # Always refresh the payload so prompt changes take effect immediately
             current_prompt = existing.get("payload", {}).get("prompt", "")
             if current_prompt != routine["prompt"]:

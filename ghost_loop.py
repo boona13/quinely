@@ -2984,7 +2984,11 @@ class ToolLoopEngine:
             else:
                 text_content = (msg.get("content") or "").strip()
                 if not tool_calls_log:
-                    if tools_schema and step == 0 and step < max_steps - 2:
+                    # Only push back on a plain-text first turn when the caller
+                    # forced tool use (cron/evolve/URL fetches). For ordinary
+                    # conversational turns (force_tool=False) a direct text reply
+                    # is the desired behavior — don't make "hi" call a tool.
+                    if force_tool and tools_schema and step == 0 and step < max_steps - 2:
                         pushback = (
                             "You answered with a plain text message instead of using your tools. "
                             "You MUST use tools to complete tasks — do NOT answer from memory or assumptions. "

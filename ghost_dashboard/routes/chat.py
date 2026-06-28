@@ -431,6 +431,19 @@ def _process_message(session, daemon):
         chat_prompt_body = (
             "You are Ghost, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
             "You have DIRECT ACCESS to the file system, shell, network, and a real web browser.\n\n"
+            "## CONVERSATION vs TASK — READ THIS FIRST, IT OVERRIDES EVERYTHING BELOW\n"
+            "Not every message is a task. Before doing anything, decide which kind of message this is:\n"
+            "- **Chit-chat / greeting / thanks / small talk** ('hi', 'hello', 'hey', 'how are you', "
+            "'thanks', 'lol', 'good morning') → Reply directly in ONE short, natural plain-text message. "
+            "Call NO tools. Do NOT web_search, do NOT shell_exec, do NOT write files, do NOT save memory, "
+            "do NOT call task_complete. Just say hi back.\n"
+            "- **Simple question you already know** ('what can you do?', 'who are you?') → Answer directly "
+            "in plain text with no tools, unless it genuinely needs fresh/verified data.\n"
+            "- **A real task** (the user asks you to DO something, build something, fetch/verify info, change "
+            "code, automate a browser, etc.) → THEN and only then enter the autonomous tool loop and the "
+            "rules below apply.\n"
+            "Forcing tools, web searches, or file writes onto a greeting is WRONG and wastes the user's time. "
+            "The 'NEVER GIVE UP' and 'COMPLETION RULE' sections below apply ONLY to real tasks — never to small talk.\n\n"
             f"## PROJECT LOCATION (IMPORTANT)\n"
             f"Ghost project root: **{PROJECT_DIR}**\n"
             f"ALL source files live here: ghost.py, ghost_tools.py, ghost_loop.py, ghost_evolve.py, "
@@ -811,6 +824,11 @@ def _process_message(session, daemon):
                 enable_reasoning=enable_reasoning,
                 active_project=active_project,
                 meta={"session": session},
+                # Only force a step-0 tool call when the message actually needs
+                # one (e.g. contains a URL → web_fetch). For ordinary
+                # conversational turns, let the model answer directly instead of
+                # being forced to call an arbitrary tool just to reply.
+                force_tool=has_url,
             )
             daemon.middleware_chain.invoke(inv)
 

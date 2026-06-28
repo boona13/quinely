@@ -18,7 +18,8 @@ _current_model = None
 
 MODELS = {
     "sd2": "stabilityai/stable-diffusion-2-inpainting",
-    "sd15": "runwayml/stable-diffusion-inpainting",
+    # RunwayML removed their HF repos in 2024; use the community-maintained mirror.
+    "sd15": "stable-diffusion-v1-5/stable-diffusion-inpainting",
 }
 
 

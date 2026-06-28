@@ -79,7 +79,7 @@ def _ensure_pipeline(api, variant="svd"):
         pass
 
     _current_model = model_id
-    api.log(f"SVD loaded on {device}")
+    api.log(f"SVD loaded on {device_str}")
     return _pipe
 
 

@@ -363,11 +363,14 @@ export async function render(container) {
 
 /* ── Run Modal ─────────────────────────────────────────────────── */
 
-const FILE_FIELD_PATTERNS = /image|file|path|audio|video|model/i;
+const FILE_FIELD_PATTERNS = /image|file|path|audio|video/i;
 const SKIP_FIELDS = new Set(['filename', 'output_path', 'output_file']);
 
 function isFileField(key, schema) {
   if (schema.type !== 'string') return false;
+  // URLs and model IDs are typed text, not local file uploads.
+  if (/url/i.test(key)) return false;
+  if (/^model$|model_id/i.test(key)) return false;
   if (FILE_FIELD_PATTERNS.test(key)) return true;
   const desc = (schema.description || '').toLowerCase();
   return /path to|file|image|audio|video/.test(desc);
@@ -418,6 +421,16 @@ function buildFieldInput(key, schema, isRequired, u, saved) {
         <input type="checkbox" name="${key}" class="rounded bg-surface-700 border-surface-600 text-ghost-500"${chk}>
         <label class="text-xs text-zinc-400">${label}${req}</label>
         ${desc ? `<span class="text-[10px] text-zinc-600">${desc}</span>` : ''}
+      </div>`;
+  }
+
+  if (schema.type === 'array') {
+    const val = (def !== undefined && def !== null) ? u.escapeHtml(JSON.stringify(def)) : '';
+    return `
+      <div class="mb-3">
+        <label class="block text-xs text-zinc-400 mb-1">${label}${req}</label>
+        <textarea name="${key}" data-array="1" rows="3" class="form-input w-full text-sm font-mono resize-y" placeholder='JSON array, e.g. ["a", "b"]'>${val}</textarea>
+        ${desc ? `<div class="text-[10px] text-zinc-600 mt-0.5">${desc} — enter a JSON array</div>` : `<div class="text-[10px] text-zinc-600 mt-0.5">Enter a JSON array</div>`}
       </div>`;
   }
 
@@ -630,6 +643,7 @@ async function openRunModal(nodeName, tools, api, u) {
       if (!raw) continue;
       if (schema.type === 'number') vals[key] = parseFloat(raw);
       else if (schema.type === 'integer') vals[key] = parseInt(raw, 10);
+      else if (schema.type === 'array') { try { vals[key] = JSON.parse(raw); } catch { vals[key] = raw; } }
       else vals[key] = raw;
     }
     return vals;
@@ -713,6 +727,19 @@ async function openRunModal(nodeName, tools, api, u) {
           continue;
         }
         el.classList.remove('border-red-500');
+
+        if (schema.type === 'array') {
+          let parsed;
+          try { parsed = JSON.parse(val); } catch { parsed = undefined; }
+          if (!Array.isArray(parsed)) {
+            el.classList.add('border-red-500');
+            el.focus();
+            u.toast(`${key.replace(/_/g, ' ')} must be a valid JSON array`, 'error');
+            return;
+          }
+          args[key] = parsed;
+          continue;
+        }
 
         if (schema.type === 'number') val = parseFloat(val);
         else if (schema.type === 'integer') val = parseInt(val, 10);

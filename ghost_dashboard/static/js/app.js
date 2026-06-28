@@ -31,7 +31,8 @@ import { render as evolve_theater } from './pages/evolve_theater.js';
 import { render as tools } from './pages/tools.js';
 import { render as structured_memory } from './pages/structured_memory.js';
 import { render as goals } from './pages/goals.js';
-const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals };
+import { render as traces } from './pages/traces.js';
+const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals, traces };
 const container = document.getElementById('page-content');
 let currentPage = null;
 let pollTimer = null;
@@ -140,6 +141,7 @@ const CMD_PAGES = [
   { page: 'overview', label: 'Overview', section: '' },
   { page: 'feed', label: 'Activity Feed', section: 'Monitor' },
   { page: 'console', label: 'Console', section: 'Monitor' },
+  { page: 'traces', label: 'Run Traces', section: 'Monitor' },
   { page: 'soul', label: 'Soul', section: 'Intelligence' },
   { page: 'user', label: 'User Profile', section: 'Intelligence' },
   { page: 'memory', label: 'Memory', section: 'Intelligence' },

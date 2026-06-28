@@ -1274,6 +1274,54 @@ class ResponseIntegrityMiddleware(Middleware):
                 set_shell_caller_context("autonomous")
 
 
+# ---------------------------------------------------------------------------
+# 12. TraceMiddleware  (before_invoke / after_invoke)
+#     Opens a run trace at the start of every invocation and closes it at the
+#     end, after all retries/escalation.  Model and tool spans are emitted
+#     from inside the engine loop (ghost_loop) into the run active on this
+#     thread.  This is the correlation layer that ties trigger → model calls
+#     → tool calls → outcome under one run_id.
+# ---------------------------------------------------------------------------
+
+
+class TraceMiddleware(Middleware):
+    """Record a single run trace per agent invocation."""
+
+    def before_invoke(self, ctx: InvocationContext) -> None:
+        if not ctx.config.get("enable_run_tracing", True):
+            return
+        try:
+            from ghost_trace import get_tracer
+            run_id = get_tracer().start_run(
+                source=ctx.source,
+                user_message=ctx.user_message or "",
+                meta=ctx.meta or {},
+                caller_context=ctx.caller_context,
+            )
+            ctx.meta["run_id"] = run_id
+        except Exception as exc:
+            log.debug("TraceMiddleware.before_invoke: %s", exc)
+
+    def after_invoke(self, ctx: InvocationContext) -> None:
+        run_id = (ctx.meta or {}).get("run_id")
+        if not run_id:
+            return
+        try:
+            from ghost_trace import get_tracer
+            engine_err = (ctx.meta or {}).get("engine_error")
+            get_tracer().end_run(
+                run_id=run_id,
+                status="error" if engine_err else "ok",
+                result_text=ctx.result_text or "",
+                tools_used=ctx.tools_used or [],
+                total_tokens=ctx.tokens_used or 0,
+                escalation_count=ctx.escalation_count or 0,
+                error=str(engine_err) if engine_err else "",
+            )
+        except Exception as exc:
+            log.debug("TraceMiddleware.after_invoke: %s", exc)
+
+
 # ===========================================================================
 # FACTORY — builds the default chain with all middlewares
 # ===========================================================================
@@ -1295,6 +1343,9 @@ def build_default_chain() -> MiddlewareChain:
     9.  GiveUpDetectionMiddleware         — retry on give-up responses
     10. ResponseIntegrityMiddleware       — catch fabricated action claims
     11. BrowserCleanupMiddleware — cleanup browser after task
+    12. TraceMiddleware          — open/close the run trace (last, so its
+                                   after_invoke records the final, post-retry
+                                   outcome)
     """
     return MiddlewareChain([
         IdentityMiddleware(),
@@ -1308,4 +1359,5 @@ def build_default_chain() -> MiddlewareChain:
         GiveUpDetectionMiddleware(),
         ResponseIntegrityMiddleware(),
         BrowserCleanupMiddleware(),
+        TraceMiddleware(),
     ])

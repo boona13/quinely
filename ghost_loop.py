@@ -32,6 +32,11 @@ try:
 except ImportError:
     get_provider = adapt_response = parse_codex_sse_response = build_headers = adapt_request = None
 
+try:
+    from ghost_trace import get_tracer as _get_tracer
+except Exception:  # pragma: no cover - tracing is best-effort
+    _get_tracer = None
+
 log = logging.getLogger("ghost.loop")
 
 
@@ -2326,6 +2331,12 @@ class ToolLoopEngine:
         )
         rctx.session_id = _debug_logger._session_id or ""
 
+        if _get_tracer is not None:
+            try:
+                _get_tracer().attach_session(rctx.session_id, model=effective_model)
+            except Exception:
+                pass
+
         # Save parent session state before overwriting (nested run() inside
         # evolve_submit_pr would clobber the implementer's session otherwise)
         _prev_ctx_session = _ctx_logger._session_id
@@ -2429,6 +2440,7 @@ class ToolLoopEngine:
                 step, len(messages), _msg_chars, _tools_chars, _est_tokens,
             )
 
+            _model_t0 = time.time()
             try:
                 future = _llm_pool.submit(
                     self._call_llm, payload, DEFAULT_TIMEOUT, on_token,
@@ -2465,6 +2477,15 @@ class ToolLoopEngine:
             if error:
                 consecutive_errors += 1
                 _debug_logger.step_error(step, f"LLM error ({consecutive_errors}/3): {error}")
+                if _get_tracer is not None:
+                    try:
+                        _get_tracer().add_model_span(
+                            step, effective_model,
+                            duration_ms=(time.time() - _model_t0) * 1000,
+                            ok=False, error=error,
+                        )
+                    except Exception:
+                        pass
 
                 if _CONTEXT_OVERFLOW_RE.search(error):
                     overflow_recovery_attempts += 1
@@ -2516,9 +2537,22 @@ class ToolLoopEngine:
 
             consecutive_errors = 0
             usage = data.get("usage", {})
-            total_tokens += usage.get("total_tokens") or (
+            _step_total_tokens = usage.get("total_tokens") or (
                 usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
             )
+            total_tokens += _step_total_tokens
+            if _get_tracer is not None:
+                try:
+                    _get_tracer().add_model_span(
+                        step, effective_model,
+                        duration_ms=(time.time() - _model_t0) * 1000,
+                        prompt_tokens=usage.get("prompt_tokens", 0),
+                        completion_tokens=usage.get("completion_tokens", 0),
+                        total_tokens=_step_total_tokens,
+                        ok=True,
+                    )
+                except Exception:
+                    pass
 
             choices = data.get("choices", [])
             if not choices:
@@ -2833,6 +2867,15 @@ class ToolLoopEngine:
                         duration_ms=tool_duration_ms,
                         loop_detection=loop_hint,
                     )
+
+                    if _get_tracer is not None:
+                        try:
+                            _get_tracer().add_tool_span(
+                                step, fn_name, fn_args, tool_result or "",
+                                duration_ms=tool_duration_ms,
+                            )
+                        except Exception:
+                            pass
 
                     tool_calls_log.append({
                         "step": step,
@@ -3224,6 +3267,11 @@ class ToolLoopEngine:
             exit_reason=exit_reason,
             final_text=final_text,
         )
+        if _get_tracer is not None:
+            try:
+                _get_tracer().set_exit_reason(exit_reason)
+            except Exception:
+                pass
         _ctx_logger.log_context_snapshot(
             step=steps_used, total_messages=len(messages),
             tokens_estimated=_estimate_context_tokens(messages),

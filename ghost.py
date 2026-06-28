@@ -439,6 +439,7 @@ DEFAULT_CONFIG = {
     "enable_integrations": True,
     "enable_mcp": True,
     "enable_auto_retrieval": True,
+    "enable_run_tracing": True,
     "enable_neural_embeddings": True,
     "embedding_model": "minishlab/potion-base-8M",
     "dashboard_auth_token": "",

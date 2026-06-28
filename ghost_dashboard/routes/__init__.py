@@ -40,6 +40,7 @@ def register_routes(app: Flask):
     from .subagents import bp as subagents_bp
     from .goals import bp as goals_bp
     from .mcp import bp as mcp_bp
+    from .traces import bp as traces_bp
 
     for bp in [status_bp, config_bp, models_bp, identity_bp,
                skills_bp, cron_bp, memory_bp, feed_bp, daemon_bp, evolve_bp,
@@ -48,7 +49,8 @@ def register_routes(app: Flask):
                voice_bp, canvas_bp, usage_bp, webhooks_bp, projects_bp,
                prs_bp, doctor_bp,
                nodes_bp, media_bp, audit_bp, tools_bp,
-               structured_memory_bp, subagents_bp, goals_bp, mcp_bp]:
+               structured_memory_bp, subagents_bp, goals_bp, mcp_bp,
+               traces_bp]:
         app.register_blueprint(bp)
 
     @app.route("/")

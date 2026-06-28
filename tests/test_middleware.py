@@ -977,18 +977,31 @@ class TestToolCallIntercept:
 
 
 class TestBuildDefaultChain:
-    def test_returns_chain_with_9_middlewares(self):
+    def test_returns_full_default_chain(self):
+        from ghost_middleware import (
+            ImageIntentMiddleware, ResponseIntegrityMiddleware,
+            TraceMiddleware,
+        )
         chain = build_default_chain()
-        assert len(chain._middlewares) == 9
-        assert isinstance(chain._middlewares[0], IdentityMiddleware)
-        assert isinstance(chain._middlewares[1], SkillMatchMiddleware)
-        assert isinstance(chain._middlewares[2], ToolScopeMiddleware)
-        assert isinstance(chain._middlewares[3], CallerContextMiddleware)
-        assert isinstance(chain._middlewares[4], DanglingToolCallRepairMiddleware)
-        assert isinstance(chain._middlewares[5], ContextSummarizationMiddleware)
-        assert isinstance(chain._middlewares[6], SubagentLimitMiddleware)
-        assert isinstance(chain._middlewares[7], GiveUpDetectionMiddleware)
-        assert isinstance(chain._middlewares[8], BrowserCleanupMiddleware)
+        expected = [
+            IdentityMiddleware,
+            SkillMatchMiddleware,
+            ImageIntentMiddleware,
+            ToolScopeMiddleware,
+            CallerContextMiddleware,
+            DanglingToolCallRepairMiddleware,
+            ContextSummarizationMiddleware,
+            SubagentLimitMiddleware,
+            GiveUpDetectionMiddleware,
+            ResponseIntegrityMiddleware,
+            BrowserCleanupMiddleware,
+            TraceMiddleware,
+        ]
+        assert len(chain._middlewares) == len(expected)
+        for mw, cls in zip(chain._middlewares, expected):
+            assert isinstance(mw, cls)
+        # TraceMiddleware must be LAST so it records the final, post-retry outcome.
+        assert isinstance(chain._middlewares[-1], TraceMiddleware)
 
 
 # ---------------------------------------------------------------------------

@@ -475,6 +475,26 @@ Agent shell commands run through a cross-platform sandbox layer (`ghost_sandbox.
 
 All limits are configurable under the `sandbox` config key. Status is exposed at `/api/status` and shown as a "sandboxed" badge on the dashboard.
 
+### Observability & Run Tracing
+
+Every agent invocation — a chat message, a cron job, a channel message, a monitor action — is recorded as a single **run trace** (`ghost_trace.py`) with one `run_id` that ties the whole thing together:
+
+```
+trigger (source + message/job)
+  ├─ model span   step 0   gpt-5.5   13.5s   15,776 tok (15,770→6)
+  ├─ tool span    step 1   file_read  8ms    ok
+  ├─ model span   step 1   gpt-5.5    0.9s    420 tok
+  └─ outcome      ok   "PONG"   1 model call · 1 tool call
+```
+
+- **Model spans** — each LLM call's model, latency, and prompt/completion/total tokens, captured inside the loop where the timing and usage already exist.
+- **Tool spans** — each tool call's name, summarized args, result preview, duration, and success/failure (errors are flagged).
+- **Correlation** — the run links to its `tool_loop_debug.jsonl` session id and records the loop's `exit_reason`; status is derived automatically (`ok` / `error` / `cancelled`), and escalation/integrity retries are folded into the same run (they run last, so the final post-retry outcome is what's recorded).
+- **Storage** — a thread-safe in-memory ring buffer (last 300 runs) for instant queries, plus one JSON line per completed run appended to `~/.ghost/logs/runs.jsonl` (size-rotated). Pure stdlib, cross-platform, thread-local per invocation so concurrent runs and subagents stay isolated.
+- **API & UI** — `GET /api/traces`, `/api/traces/stats`, `/api/traces/<run_id>` back the **Run Traces** dashboard page (Monitor section): a live list with per-source/status badges and a drill-down timeline of every span.
+
+Tracing is best-effort (failures never affect the agent) and toggled with `enable_run_tracing` (default `true`).
+
 ---
 
 ## Dashboard
@@ -487,6 +507,7 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) provides ful
 | **Overview** | Live daemon status, PID, uptime, action counts, feature toggles, platform info |
 | **Activity Feed** | Live feed of all actions with type filtering and auto-refresh |
 | **Console** | Real-time SSE event stream with category filters, search, and pause/resume |
+| **Run Traces** | Per-invocation traces — trigger → model spans (latency + tokens) → tool spans (args + result) → outcome, with a drill-down timeline and stats |
 | **Nodes** | GPU status, 22 AI capabilities, dynamic form generation from JSON schemas, inline media previews (images/audio/video/3D), pipeline management, drag-and-drop install |
 | **Soul** | Edit Ghost's personality (SOUL.md) |
 | **User Profile** | Edit user info (USER.md) |
@@ -513,6 +534,7 @@ ghost.py                    Main daemon — LLM routing, 260+ tool registration,
 ghost_loop.py               ToolLoopEngine — multi-turn LLM + tool execution (200 steps, 6 loop detectors)
 ghost_tools.py              Core tools — shell, files, web fetch, notifications
 ghost_sandbox.py            Execution sandbox — resource limits, env scrubbing, process-group kill
+ghost_trace.py              Run tracing — one run_id per invocation; model/tool spans, JSONL store + API
 ghost_edit_tools.py         Precise editing — edit_file (search/replace) + apply_patch (unified diff)
 ghost_code_tools.py         Fast code search — ripgrep-backed grep + glob
 ghost_git_tools.py          Structured git tools — status/diff/log/add/commit/branch/init on user repos
@@ -614,6 +636,7 @@ All runtime data lives in `~/.ghost/`:
   vector_memory.db          Semantic vector store (neural embeddings + model id per row)
   log.json                  Action history
   feed.json                 Activity feed
+  logs/runs.jsonl           Run traces — one JSON line per invocation (size-rotated)
   ghost.pid                 Running daemon PID
   action_items.json         Things needing user attention
   growth_log.json           Autonomous improvement history
@@ -681,6 +704,7 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `enable_integrations` | `true` | Google/Grok integrations |
 | `enable_mcp` | `true` | Connect external MCP tool servers from `~/.ghost/mcp_servers.json` |
 | `enable_auto_retrieval` | `true` | Automatically retrieve + inject relevant memories before each chat turn |
+| `enable_run_tracing` | `true` | Record a run trace per invocation (model/tool spans, outcome) for the Run Traces page and `~/.ghost/logs/runs.jsonl` |
 | `enable_neural_embeddings` | `true` | Use local neural embeddings (model2vec) for semantic memory; auto-index existing memories on boot |
 | `embedding_model` | `"minishlab/potion-base-8M"` | model2vec model for semantic embeddings (256-dim, CPU, no API key) |
 | `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |

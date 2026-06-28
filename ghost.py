@@ -126,17 +126,24 @@ _ESCALATION_COACHING = (
 )
 
 _GIVE_UP_CLASSIFIER_PROMPT = (
-    "You are a binary classifier. The user asked an AI agent to perform a task. "
-    "The agent replied with the text below. Did the agent GIVE UP or FAIL to "
-    "complete the task? Signs of giving up include: saying it can't do something, "
-    "asking the user to do it themselves, suggesting manual steps, apologizing "
-    "for limitations, providing partial results while admitting it couldn't "
-    "finish, or PROMISING to do the work later instead of delivering actual "
-    "results NOW (e.g. 'I'm going to...', 'I will try...', 'let me do this "
-    "properly').\n\n"
-    "Reply with ONLY one word: YES or NO.\n"
-    "YES = the agent gave up, failed to deliver, or only described what it plans to do.\n"
-    "NO = the agent delivered a complete, concrete result."
+    "You are a STRICT binary classifier. A user sent a message to an AI agent and the "
+    "agent replied with the text below. Decide whether the agent GAVE UP — meaning it "
+    "refused or failed to do what was asked and delivered nothing useful.\n\n"
+    "Answer YES only when the reply CLEARLY shows giving up, such as:\n"
+    "- It explicitly says it cannot / is unable / it's not possible, and offers no result.\n"
+    "- It tells the user to do the task themselves or to perform manual steps instead.\n"
+    "- It ONLY promises to do the work later ('I'm going to...', 'I'll try...') without "
+    "delivering any actual result now.\n"
+    "- It apologizes for a limitation and provides nothing useful.\n\n"
+    "Answer NO when the agent delivered a real answer or result, INCLUDING:\n"
+    "- Answering the user's question or explaining a topic — even with caveats, "
+    "uncertainty, or notes that some details may vary or are still emerging.\n"
+    "- Completing the requested action and reporting the outcome.\n"
+    "- Providing concrete information, data, code, or analysis.\n"
+    "- Offering optional follow-ups AFTER already delivering the answer.\n\n"
+    "A reply that contains substantive content addressing the request is NOT giving up. "
+    "Casual conversation and greetings are NOT giving up. When uncertain, answer NO.\n\n"
+    "Reply with ONLY one word: YES or NO."
 )
 
 _give_up_engine = None

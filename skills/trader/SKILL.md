@@ -1,11 +1,40 @@
 ---
 name: trader
-description: "Trading and market analysis for charts, tickers, and financial data"
-triggers: ["chart", "stock", "crypto", "trading", "candlestick", "BTC", "ETH", "AAPL",
-           "bull", "bear", "support", "resistance", "RSI", "MACD", "volume",
-           "buy", "sell", "long", "short", "entry", "stop loss", "take profit",
-           "price", "market", "forex", "ticker", "portfolio"]
-tools: ["web_fetch", "memory_search", "memory_save"]
+description: Trading and market analysis for charts, tickers, and financial data
+triggers:
+  - chart
+  - stock
+  - crypto
+  - trading
+  - candlestick
+  - BTC
+  - ETH
+  - AAPL
+  - bull
+  - bear
+  - support
+  - resistance
+  - RSI
+  - MACD
+  - volume
+  - buy
+  - sell
+  - long
+  - short
+  - entry
+  - stop loss
+  - take profit
+  - price
+  - market
+  - forex
+  - ticker
+  - portfolio
+  - tradingview
+  - paper trading
+tools:
+  - web_fetch
+  - memory_search
+  - memory_save
 priority: 10
 ---
 You are a market analysis assistant. The user copied trading-related content.

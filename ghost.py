@@ -465,8 +465,8 @@ DEFAULT_CONFIG = {
     # POSIX resource limits + process-group kill on timeout + secret env scrubbing.
     "sandbox": {
         "enabled": True,
-        "cpu_seconds": 60,          # RLIMIT_CPU for one-shot commands (POSIX)
-        "file_size_mb": 512,        # RLIMIT_FSIZE
+        "cpu_seconds": 60,          # RLIMIT_CPU for one-shot commands (POSIX); IO/network waits don't count
+        "file_size_mb": 0,          # RLIMIT_FSIZE in MB (0 = off, so large media/downloads aren't blocked)
         "memory_mb": 0,             # RLIMIT_AS in MB (0 = off; virtual-mem footgun)
         "max_processes": 0,         # RLIMIT_NPROC (0 = off; per-user footgun)
         "open_files": 0,            # RLIMIT_NOFILE (0 = off)

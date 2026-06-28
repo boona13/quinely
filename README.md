@@ -686,7 +686,7 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |
 | `sandbox.enabled` | `true` | Master switch for the execution sandbox (resource limits, env scrubbing, process-group kill) |
 | `sandbox.cpu_seconds` | `60` | POSIX `RLIMIT_CPU` for one-shot shell commands |
-| `sandbox.file_size_mb` | `512` | POSIX `RLIMIT_FSIZE` cap on files written by commands |
+| `sandbox.file_size_mb` | `0` | POSIX `RLIMIT_FSIZE` cap on files written by commands (`0` = off, so large media/downloads aren't blocked) |
 | `sandbox.env_mode` | `"scrub_secrets"` | Subprocess env handling: `full`, `scrub_secrets`, or `minimal` |
 | `sandbox.isolation` | `"auto"` | Linux OS isolation: `auto` (use `bwrap` if present), `none`, or `bwrap` |
 | `sandbox.network` | `"allow"` | `deny` blocks network for sandboxed commands (only enforceable via `bwrap`/`unshare`) |

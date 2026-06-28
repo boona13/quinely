@@ -493,6 +493,82 @@ def _search_gemini(query: str, count: int = 5, freshness: str = "") -> dict:
     }
 
 
+_DDG_FRESHNESS = {"day": "d", "week": "w", "month": "m", "year": "y"}
+
+
+def _search_duckduckgo(query: str, count: int = 5, freshness: str = "") -> dict:
+    """Keyless web search via DuckDuckGo's HTML endpoint.
+
+    Requires NO API key, so it works for every user regardless of which LLM
+    provider (openai-codex, openrouter, etc.) they use. Used as the final
+    fallback so web_search never hard-fails on a fresh install.
+    """
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError as exc:
+        raise ValueError(f"DuckDuckGo fallback needs beautifulsoup4: {exc}")
+
+    import urllib.parse as _up
+
+    data = {"q": query}
+    df = _DDG_FRESHNESS.get(freshness, "")
+    if df:
+        data["df"] = df
+
+    resp = requests.post(
+        "https://html.duckduckgo.com/html/",
+        data=data,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml",
+        },
+        timeout=REQUEST_TIMEOUT_S,
+    )
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    results = []
+    for res in soup.select("div.result")[: max(count, 1) * 2]:
+        a = res.select_one("a.result__a")
+        if not a:
+            continue
+        href = a.get("href", "")
+        if "uddg=" in href:
+            parsed = _up.parse_qs(_up.urlparse(href).query).get("uddg", [""])[0]
+            href = _up.unquote(parsed) if parsed else href
+        if href.startswith("//"):
+            href = "https:" + href
+        title = a.get_text(" ", strip=True)
+        snippet_el = res.select_one(".result__snippet")
+        snippet = snippet_el.get_text(" ", strip=True) if snippet_el else ""
+        if title and href:
+            results.append({"title": title, "url": href, "description": snippet})
+        if len(results) >= count:
+            break
+
+    if not results:
+        raise ValueError("DuckDuckGo returned no parseable results")
+
+    lines = []
+    for i, r in enumerate(results, 1):
+        lines.append(f"{i}. **{r['title']}**")
+        lines.append(f"   {r['url']}")
+        if r["description"]:
+            lines.append(f"   {r['description']}")
+
+    return {
+        "provider": "duckduckgo (keyless)",
+        "query": query,
+        "content": "\n".join(lines),
+        "citations": [r["url"] for r in results],
+        "results": results,
+    }
+
+
 # ═════════════════════════════════════════════════════════════════════
 #  PROVIDER REGISTRY & FALLBACK
 # ═════════════════════════════════════════════════════════════════════
@@ -533,6 +609,16 @@ PROVIDERS = [
         "name": "gemini",
         "fn": _search_gemini,
         "key_fn": _get_gemini_key,
+    },
+    {
+        # Keyless last-resort fallback. key_fn always returns True so it is
+        # ALWAYS in the fallback chain — this guarantees web_search works even
+        # when the user has no API keys (e.g. running on openai-codex /
+        # ChatGPT subscription with no OpenRouter key configured).
+        "id": "duckduckgo",
+        "name": "duckduckgo (keyless)",
+        "fn": _search_duckduckgo,
+        "key_fn": lambda: True,
     },
 ]
 
@@ -668,7 +754,8 @@ def build_web_search_tools(cfg: dict = None) -> list[dict]:
             "description": (
                 "Search the web for current information. Returns specific, dated results "
                 "with source citations. Automatically falls back across multiple providers "
-                "(Perplexity, Grok, OpenAI, Brave, Gemini) if one fails. Use this for any "
+                "(Perplexity, Grok, OpenAI, Brave, Gemini, and a keyless DuckDuckGo "
+                "fallback that always works without any API key) if one fails. Use this for any "
                 "question requiring up-to-date information: news, tech updates, library docs, "
                 "security advisories, current events, etc. "
                 "IMPORTANT: For news or recent events, ALWAYS set freshness to 'day' or 'week' "

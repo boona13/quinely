@@ -39,35 +39,35 @@ Most AI tools wait for instructions. Quinely operates autonomously.
 ### One-liner (macOS / Linux)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/boona13/quinely/main/install.sh | bash
 ```
 
 This clones the repo, creates a virtual environment, installs dependencies, starts Quinely, and opens the dashboard in your browser.
 
 ```bash
 # Non-interactive with Playwright and API key
-curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash -s -- --with-playwright --api-key sk-or-v1-...
+curl -fsSL https://raw.githubusercontent.com/boona13/quinely/main/install.sh | bash -s -- --with-playwright --api-key sk-or-v1-...
 
 # Skip all prompts
-curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash -s -- --no-interactive
+curl -fsSL https://raw.githubusercontent.com/boona13/quinely/main/install.sh | bash -s -- --no-interactive
 
 # Fresh install — wipe existing ~/.ghost/ data and start clean (creates a backup first)
-curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash -s -- --fresh
+curl -fsSL https://raw.githubusercontent.com/boona13/quinely/main/install.sh | bash -s -- --fresh
 ```
 
 Or clone first, then install:
 
 ```bash
-git clone https://github.com/boona13/ghost.git
-cd ghost
+git clone https://github.com/boona13/quinely.git
+cd quinely
 bash install.sh
 ```
 
 ### Install (Windows)
 
 ```powershell
-git clone https://github.com/boona13/ghost.git
-cd ghost
+git clone https://github.com/boona13/quinely.git
+cd quinely
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -87,8 +87,8 @@ Open [http://localhost:3333](http://localhost:3333) — the setup wizard guides 
 ### Manual Install
 
 ```bash
-git clone https://github.com/boona13/ghost.git
-cd ghost
+git clone https://github.com/boona13/quinely.git
+cd quinely
 python3 -m venv .venv
 
 # macOS / Linux

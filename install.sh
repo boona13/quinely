@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ── Ghost Installer ──────────────────────────────────────────────────
+# ── Quinely Installer ──────────────────────────────────────────────────
 # Works two ways:
-#   1. One-liner:  curl -fsSL https://raw.githubusercontent.com/boona13/ghost/main/install.sh | bash
-#   2. Local:      cd ghost && bash install.sh
+#   1. One-liner:  curl -fsSL https://raw.githubusercontent.com/boona13/quinely/main/install.sh | bash
+#   2. Local:      cd quinely && bash install.sh
 #
 # Options:
 #   --no-interactive    Skip prompts (API key=skip)
@@ -13,8 +13,8 @@ set -euo pipefail
 #   --fresh             Wipe ~/.ghost/ and start clean (backs up existing data)
 # ─────────────────────────────────────────────────────────────────────
 
-GHOST_REPO="https://github.com/boona13/ghost.git"
-INSTALL_DIR="${GHOST_INSTALL_DIR:-$HOME/ghost}"
+GHOST_REPO="https://github.com/boona13/quinely.git"
+INSTALL_DIR="${GHOST_INSTALL_DIR:-$HOME/quinely}"
 
 RST="\033[0m"; B="\033[1m"; DIM="\033[2m"
 RED="\033[31m"; GRN="\033[32m"; YLW="\033[33m"; CYN="\033[36m"
@@ -45,7 +45,7 @@ banner() {
   echo "  ╚██████╔╝██║  ██║╚██████╔╝███████║   ██║"
   echo "   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝"
   echo -e "${RST}"
-  echo -e "  ${B}Ghost Installer${RST}"
+  echo -e "  ${B}Quinely Installer${RST}"
   echo ""
 }
 
@@ -60,14 +60,14 @@ banner
 
 if [ -f "ghost.py" ] && [ -f "requirements.txt" ]; then
   GHOST_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd || pwd)"
-  ok "Running inside Ghost repo: $GHOST_DIR"
+  ok "Running inside Quinely repo: $GHOST_DIR"
 else
-  step "Cloning Ghost..."
+  step "Cloning Quinely..."
   if ! command -v git &>/dev/null; then
     fail "git is required. Install it first: https://git-scm.com"
   fi
   if [ -d "$INSTALL_DIR" ] && [ -f "$INSTALL_DIR/ghost.py" ]; then
-    ok "Ghost already cloned at $INSTALL_DIR — pulling latest"
+    ok "Quinely already cloned at $INSTALL_DIR — pulling latest"
     git -C "$INSTALL_DIR" pull --ff-only 2>/dev/null || true
   else
     git clone "$GHOST_REPO" "$INSTALL_DIR"
@@ -87,7 +87,7 @@ if [ "$FRESH_INSTALL" = true ] && [ -d "$GHOST_HOME" ]; then
   BACKUP_DIR="$GHOST_HOME.backup.$(date +%s)"
   mv "$GHOST_HOME" "$BACKUP_DIR"
   ok "Backed up existing data to $BACKUP_DIR"
-  ok "Ghost will start fresh with the setup wizard"
+  ok "Quinely will start fresh with the setup wizard"
 fi
 
 # ── 1. Check Python ───────────────────────────────────────────────────
@@ -138,7 +138,7 @@ ok "Dependencies installed"
 step "Browser automation (PinchTab)..."
 
 if [ "$SKIP_PINCHTAB" = true ]; then
-  ok "Skipped (Ghost will auto-install PinchTab on first browser use)"
+  ok "Skipped (Quinely will auto-install PinchTab on first browser use)"
 elif command -v pinchtab &>/dev/null; then
   PT_VER=$(pinchtab --version 2>/dev/null || echo "unknown")
   ok "PinchTab already installed ($PT_VER)"
@@ -147,13 +147,13 @@ else
   if curl -fsSL https://pinchtab.com/install.sh | bash 2>/dev/null; then
     ok "PinchTab installed"
   else
-    warn "PinchTab install failed — Ghost will auto-install on first browser use"
+    warn "PinchTab install failed — Quinely will auto-install on first browser use"
   fi
 fi
 
 # ── 5. Create ~/.ghost directory ─────────────────────────────────────
 
-step "Setting up Ghost home directory..."
+step "Setting up Quinely home directory..."
 mkdir -p "$GHOST_HOME"/{cron,skills,plugins,screenshots,evolve/backups}
 ok "Created ~/.ghost/"
 
@@ -168,7 +168,7 @@ elif [ -n "$API_KEY_ARG" ]; then
   ok "API key set from --api-key flag"
 elif [ "$NO_INTERACTIVE" = false ]; then
   echo ""
-  echo -e "    Ghost uses OpenRouter to access LLMs (GPT-4o, Claude, Gemini, etc.)"
+  echo -e "    Quinely uses OpenRouter to access LLMs (GPT-4o, Claude, Gemini, etc.)"
   echo -e "    Get a free key at: ${CYN}https://openrouter.ai/keys${RST}"
   echo -e "    Or skip — the dashboard has a setup wizard for all providers."
   echo ""
@@ -186,7 +186,7 @@ elif [ "$NO_INTERACTIVE" = false ]; then
 
     if ! grep -q "OPENROUTER_API_KEY" "$RC_FILE" 2>/dev/null; then
       echo "" >> "$RC_FILE"
-      echo "# Ghost AI — OpenRouter API key" >> "$RC_FILE"
+      echo "# Quinely AI — OpenRouter API key" >> "$RC_FILE"
       echo "export OPENROUTER_API_KEY=\"$API_KEY\"" >> "$RC_FILE"
       ok "Saved to $RC_FILE"
     else
@@ -204,30 +204,30 @@ fi
 
 chmod +x "$GHOST_DIR/start.sh" "$GHOST_DIR/stop.sh" 2>/dev/null || true
 
-# ── 8. Done — start Ghost and open dashboard ─────────────────────────
+# ── 8. Done — start Quinely and open dashboard ─────────────────────────
 
 echo ""
 echo -e "  ${GRN}${B}════════════════════════════════════════════════════${RST}"
-echo -e "  ${GRN}${B}  Ghost installed successfully!${RST}"
+echo -e "  ${GRN}${B}  Quinely installed successfully!${RST}"
 echo -e "  ${GRN}${B}════════════════════════════════════════════════════${RST}"
 echo ""
 echo -e "  ${B}Commands:${RST}"
 echo ""
-echo -e "    ${CYN}cd $GHOST_DIR && ./start.sh${RST}    Start Ghost"
-echo -e "    ${CYN}./stop.sh${RST}                      Stop Ghost"
+echo -e "    ${CYN}cd $GHOST_DIR && ./start.sh${RST}    Start Quinely"
+echo -e "    ${CYN}./stop.sh${RST}                      Stop Quinely"
 echo ""
 echo -e "  ${B}Dashboard:${RST}  ${CYN}http://localhost:3333${RST}"
 echo ""
 echo -e "  ${DIM}Docs: README.md | docs/ARCHITECTURE.md${RST}"
 echo ""
 
-step "Starting Ghost..."
+step "Starting Quinely..."
 
 cd "$GHOST_DIR"
 nohup "$GHOST_DIR/start.sh" > /dev/null 2>&1 &
 GHOST_PID=$!
 
-ok "Ghost is starting in the background (PID $GHOST_PID)"
+ok "Quinely is starting in the background (PID $GHOST_PID)"
 echo ""
 
 # Wait for the dashboard to become available, then open it
@@ -253,9 +253,9 @@ if [ $WAITED -lt $MAX_WAIT ]; then
   elif command -v xdg-open &>/dev/null; then
     xdg-open "$DASHBOARD_URL"
   fi
-  echo -e "  ${GRN}${B}Ghost is running! The dashboard should open in your browser.${RST}"
+  echo -e "  ${GRN}${B}Quinely is running! The dashboard should open in your browser.${RST}"
 else
-  warn "Dashboard not yet responding — Ghost may still be booting."
+  warn "Dashboard not yet responding — Quinely may still be booting."
   echo -e "    Open ${CYN}${DASHBOARD_URL}${RST} in your browser once it's ready."
 fi
 echo ""

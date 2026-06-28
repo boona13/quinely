@@ -491,7 +491,7 @@ trigger (source + message/job)
 - **Tool spans** — each tool call's name, summarized args, result preview, duration, and success/failure (errors are flagged).
 - **Correlation** — the run links to its `tool_loop_debug.jsonl` session id and records the loop's `exit_reason`; status is derived automatically (`ok` / `error` / `cancelled`), and escalation/integrity retries are folded into the same run (they run last, so the final post-retry outcome is what's recorded).
 - **Storage** — a thread-safe in-memory ring buffer (last 300 runs) for instant queries, plus one JSON line per completed run appended to `~/.ghost/logs/runs.jsonl` (size-rotated). Pure stdlib, cross-platform, thread-local per invocation so concurrent runs and subagents stay isolated.
-- **API & UI** — `GET /api/traces`, `/api/traces/stats`, `/api/traces/<run_id>` back the **Run Traces** dashboard page (Monitor section): a live list with per-source/status badges and a drill-down timeline of every span.
+- **API & UI** — `GET /api/traces`, `/api/traces/stats`, `/api/traces/<run_id>` back the **Activity → Traces** tab (Monitor section): a live list with per-source/status badges and a drill-down timeline of every span.
 
 Tracing is best-effort (failures never affect the agent) and toggled with `enable_run_tracing` (default `true`).
 
@@ -499,31 +499,31 @@ Tracing is best-effort (failures never affect the agent) and toggled with `enabl
 
 ## Dashboard
 
-The web dashboard at [http://localhost:3333](http://localhost:3333) provides full management with 28+ pages:
+The web dashboard at [http://localhost:3333](http://localhost:3333) is organized into **19 destinations**, grouped in the sidebar. Related views are consolidated into tabbed **hubs** so the navigation stays shallow — each tab below is a view that used to be its own page.
 
-| Page | What It Does |
-|---|---|
-| **Chat** | Real-time messaging with file attachments, audio transcription, tool step streaming, inline evolution approvals, voice toggle, and Canvas panel |
-| **Overview** | Live daemon status, PID, uptime, action counts, feature toggles, platform info |
-| **Activity Feed** | Live feed of all actions with type filtering and auto-refresh |
-| **Console** | Real-time SSE event stream with category filters, search, and pause/resume |
-| **Run Traces** | Per-invocation traces — trigger → model spans (latency + tokens) → tool spans (args + result) → outcome, with a drill-down timeline and stats |
-| **Nodes** | GPU status, 22 AI capabilities, dynamic form generation from JSON schemas, inline media previews (images/audio/video/3D), pipeline management, drag-and-drop install |
-| **Soul** | Edit Ghost's personality (SOUL.md) |
-| **User Profile** | Edit user info (USER.md) |
-| **Memory** | Search, browse, and prune the memory database |
-| **Models** | Multi-provider management, fallback chain visualization, model browser with pricing, coding model dispatcher with budget control and SWE-bench leaderboard |
-| **Skills** | Browse, search, enable/disable 47 skills + GhostHub Registry with security scanning |
-| **Autonomy** | Action items, growth routine status, growth log, crash reports |
-| **Evolution** | Self-modification history, approve/reject pending changes, view diffs, rollback |
-| **Future Features** | Prioritized backlog for autonomous implementation — add, approve, reject, track |
-| **Goals** | Create and monitor persistent long-horizon goals — recurring digests, research tasks, weekly reports — with real-time step progress, output history, and per-run deliverables |
-| **Channels** | Configure, enable/disable, test, and monitor messaging channels (Telegram, Discord, WhatsApp) |
-| **Integrations** | Google OAuth, Grok, ElevenLabs, web search providers, image gen, vision, TTS |
-| **Configuration** | All settings with hot-reload — feature toggles, rate limits, growth schedules, security, voice, factory reset |
-| **Cron Jobs** | Create and manage scheduled tasks |
-| **Security** | AI-driven security audits with real-time streaming and auto-fix |
-| **Setup** | Multi-provider wizard with connection testing and Setup Doctor |
+| Page | Tabs | What It Does |
+|---|---|---|
+| **Chat** | — | Real-time messaging with file attachments, audio transcription, tool step streaming, inline evolution approvals, voice toggle, and Canvas panel |
+| **Overview** | — | Live daemon status, PID, uptime, action counts, feature toggles, platform info |
+| **Activity** | Timeline · Live · Traces | Everything Ghost is doing: the outcome feed (auto-refresh), the live SSE event console, and per-invocation run traces (trigger → model/tool spans → outcome) |
+| **Identity** | Personality · About You | Edit Ghost's personality (SOUL.md) and what it knows about you (USER.md) |
+| **Memory** | Entries · Structured | Search/browse/prune the FTS memory DB, plus the synthesized structured-memory profile (confidence-scored facts) |
+| **Projects** | — | Manage project workspaces and their per-project tooling |
+| **Models** | — | Multi-provider management, fallback chain, model browser with pricing, coding dispatcher with budget control and SWE-bench leaderboard |
+| **Skills** | Local · GhostHub Registry | Browse, search, enable/disable skills + registry with security scanning |
+| **Tools** | — | Ghost-managed LLM-callable tools and typed subagents (researcher/coder/bash/reviewer) |
+| **AI Nodes** | Catalog · Outputs | GPU status and local AI capabilities (image/voice/vision), plus the generated-media gallery |
+| **Evolution** | Live · Backlog · History · Pull Requests · Action Items | The whole self-improvement pipeline in one place: the live theater, the Future-Features backlog, deploy history + approvals, PR review history, and the autonomous action-item queue |
+| **Goals** | — | Persistent long-horizon goals — recurring digests, research, weekly reports — with step progress and per-run deliverables |
+| **Channels** | — | Configure, enable/disable, test, and monitor messaging channels (Telegram, Discord, WhatsApp) |
+| **Webhooks** | — | Event-driven inbound HTTP triggers that fire Ghost actions, with HMAC verification |
+| **Integrations** | — | Google OAuth, Grok, ElevenLabs, web search providers, image gen, vision, TTS |
+| **MCP Servers** | — | Connect Model Context Protocol servers and expose their tools to Ghost |
+| **Configuration** | — | All settings with hot-reload — feature toggles, rate limits, growth schedules, security, voice, factory reset |
+| **Cron Jobs** | — | Create and manage scheduled tasks |
+| **Security** | Posture · Audit Log | AI-driven security audits with auto-fix, plus the sensitive-operation audit trail |
+
+> Setup runs as a standalone first-run wizard (multi-provider connection testing + Setup Doctor) before the main dashboard.
 
 ---
 
@@ -704,7 +704,7 @@ Ghost stores configuration at `~/.ghost/config.json`. Every setting is editable 
 | `enable_integrations` | `true` | Google/Grok integrations |
 | `enable_mcp` | `true` | Connect external MCP tool servers from `~/.ghost/mcp_servers.json` |
 | `enable_auto_retrieval` | `true` | Automatically retrieve + inject relevant memories before each chat turn |
-| `enable_run_tracing` | `true` | Record a run trace per invocation (model/tool spans, outcome) for the Run Traces page and `~/.ghost/logs/runs.jsonl` |
+| `enable_run_tracing` | `true` | Record a run trace per invocation (model/tool spans, outcome) for the Activity → Traces tab and `~/.ghost/logs/runs.jsonl` |
 | `enable_neural_embeddings` | `true` | Use local neural embeddings (model2vec) for semantic memory; auto-index existing memories on boot |
 | `embedding_model` | `"minishlab/potion-base-8M"` | model2vec model for semantic embeddings (256-dim, CPU, no API key) |
 | `dashboard_auth_token` | `""` | Optional token required to access the dashboard (also via `GHOST_DASHBOARD_TOKEN` env). Empty = open (local only) |

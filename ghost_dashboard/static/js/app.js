@@ -32,7 +32,14 @@ import { render as tools } from './pages/tools.js';
 import { render as structured_memory } from './pages/structured_memory.js';
 import { render as goals } from './pages/goals.js';
 import { render as traces } from './pages/traces.js';
-const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals, traces };
+// Consolidated hubs — compose the pages above as tabs (see *_hub.js / identity / activity / evolution).
+import { render as identity } from './pages/identity.js';
+import { render as memory_hub } from './pages/memory_hub.js';
+import { render as nodes_hub } from './pages/nodes_hub.js';
+import { render as security_hub } from './pages/security_hub.js';
+import { render as activity } from './pages/activity.js';
+import { render as evolution } from './pages/evolution.js';
+const pages = { overview, chat, models, config, soul, user, skills, cron, memory, feed, evolve, integrations, mcp, autonomy, setup, security, console: console_page, channels, future_features, webhooks, projects, prs, nodes, gallery, audit, evolve_theater, tools, structured_memory, goals, traces, identity, memory_hub, nodes_hub, security_hub, activity, evolution };
 const container = document.getElementById('page-content');
 let currentPage = null;
 let pollTimer = null;
@@ -139,32 +146,23 @@ let cmdFilteredItems = [];
 const CMD_PAGES = [
   { page: 'chat', label: 'Chat', section: '' },
   { page: 'overview', label: 'Overview', section: '' },
-  { page: 'feed', label: 'Activity Feed', section: 'Monitor' },
-  { page: 'console', label: 'Console', section: 'Monitor' },
-  { page: 'traces', label: 'Run Traces', section: 'Monitor' },
-  { page: 'soul', label: 'Soul', section: 'Intelligence' },
-  { page: 'user', label: 'User Profile', section: 'Intelligence' },
-  { page: 'memory', label: 'Memory', section: 'Intelligence' },
-  { page: 'structured_memory', label: 'Structured Memory', section: 'Intelligence' },
+  { page: 'activity', label: 'Activity', section: 'Monitor' },
+  { page: 'identity', label: 'Identity', section: 'Intelligence' },
+  { page: 'memory_hub', label: 'Memory', section: 'Intelligence' },
   { page: 'projects', label: 'Projects', section: 'Intelligence' },
   { page: 'models', label: 'Models', section: 'Intelligence' },
   { page: 'skills', label: 'Skills', section: 'Capabilities' },
-  { page: 'autonomy', label: 'Autonomy', section: 'Capabilities' },
-  { page: 'evolve', label: 'Evolution', section: 'Capabilities' },
-  { page: 'evolve_theater', label: 'Self-Evolution Theater', section: 'Capabilities' },
-  { page: 'prs', label: 'Pull Requests', section: 'Capabilities' },
+  { page: 'tools', label: 'Tools', section: 'Capabilities' },
+  { page: 'nodes_hub', label: 'AI Nodes', section: 'Capabilities' },
+  { page: 'evolution', label: 'Evolution', section: 'Capabilities' },
   { page: 'goals', label: 'Goals', section: 'Capabilities' },
-  { page: 'future_features', label: 'Future Features', section: 'Capabilities' },
-  { page: 'nodes', label: 'AI Nodes', section: 'Capabilities' },
-  { page: 'gallery', label: 'Media Gallery', section: 'Capabilities' },
   { page: 'channels', label: 'Channels', section: 'Connections' },
   { page: 'webhooks', label: 'Webhooks', section: 'Connections' },
   { page: 'integrations', label: 'Integrations', section: 'Connections' },
   { page: 'mcp', label: 'MCP Servers', section: 'Connections' },
   { page: 'config', label: 'Configuration', section: 'System' },
   { page: 'cron', label: 'Cron Jobs', section: 'System' },
-  { page: 'security', label: 'Security', section: 'System' },
-  { page: 'audit', label: 'Audit Log', section: 'System' },
+  { page: 'security_hub', label: 'Security', section: 'System' },
 ];
 
 function openCmdPalette() {

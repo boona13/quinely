@@ -411,6 +411,15 @@ Ghost doesn't wait for the model to decide to look something up. Before every ch
 - **Reranker** — blends each candidate's source score with query-term overlap and a recency boost, dedupes near-identical memories, and trims to a token budget.
 - **Safe by default** — greetings and very short messages are skipped, every backend is wrapped defensively, and any retrieval failure yields no injection rather than breaking the turn. Toggle with `enable_auto_retrieval`.
 
+### Memory Map
+
+Ghost's long-term memory is also explorable as a **living knowledge graph** in the dashboard (Memory → Map). It turns the flat memory list into a visual "mind":
+
+- **Type clusters** — every memory orbits a hub node for its type (`ask`, `session`, `note`, `mistake`, `preference`, …), so the shape of what Ghost knows is visible at a glance.
+- **Tag cross-links** — memories that share tags are connected, surfacing the latent structure across types.
+- **Fully interactive** — drag nodes, scroll to zoom, pan, hover to highlight a memory's neighborhood, and click any node for its full content, timestamp, and tags. A type legend doubles as a cluster highlighter.
+- **Zero dependencies, fully local** — pure SVG plus a small built-in force simulation (no D3/Canvas libraries, no network), served read-only from the existing memory store (`GET /api/memory/graph`) with no schema changes.
+
 ### MCP — Model Context Protocol
 
 Ghost is an MCP **client**: it connects to external MCP tool servers (filesystem, Linear, Sentry, Stripe, Playwright, or any custom server) and bridges their tools straight into the registry, where the LLM calls them like native tools.
@@ -507,7 +516,7 @@ The web dashboard at [http://localhost:3333](http://localhost:3333) is organized
 | **Overview** | — | Live daemon status, PID, uptime, action counts, feature toggles, platform info |
 | **Activity** | Timeline · Live · Traces | Everything Ghost is doing: the outcome feed (auto-refresh), the live SSE event console, and per-invocation run traces (trigger → model/tool spans → outcome) |
 | **Identity** | Personality · About You | Edit Ghost's personality (SOUL.md) and what it knows about you (USER.md) |
-| **Memory** | Entries · Structured | Search/browse/prune the FTS memory DB, plus the synthesized structured-memory profile (confidence-scored facts) |
+| **Memory** | Map · Entries · Structured | An interactive **Memory Map** that renders long-term memory as a force-directed knowledge graph (clustered by type, cross-linked by shared tags), plus search/browse/prune of the FTS memory DB and the synthesized structured-memory profile (confidence-scored facts) |
 | **Projects** | — | Manage project workspaces and their per-project tooling |
 | **Models** | — | Multi-provider management, fallback chain, model browser with pricing, coding dispatcher with budget control and SWE-bench leaderboard |
 | **Skills** | Local · GhostHub Registry | Browse, search, enable/disable skills + registry with security scanning |

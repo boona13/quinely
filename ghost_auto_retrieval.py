@@ -9,7 +9,7 @@ into the prompt. Ghost previously only recalled memory when the LLM chose to cal
 ``retrieve_context_block(query)`` fuses three retrieval signals over Ghost's
 existing stores (no schema changes, so the live memory DBs are untouched):
 
-  1. Keyword / full-text recall  (ghost_memory.memory_search, SQLite FTS)
+  1. Keyword / full-text recall  (daemon MemoryDB.search, SQLite FTS)
   2. Semantic similarity         (ghost_vector_memory vector store)
   3. A lightweight **reranker** that blends the source score with query-term
      overlap and recency, then dedupes and trims to a token budget.
@@ -63,19 +63,25 @@ def _norm_key(content: str) -> str:
     return re.sub(r"\s+", " ", (content or "").strip().lower())[:160]
 
 
-def _gather_keyword(query: str, limit: int) -> List[Dict[str, Any]]:
+def _gather_keyword(query: str, limit: int, daemon=None) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     try:
-        from ghost_memory import memory_search
-        for m in (memory_search(query, limit=limit) or []):
+        # Use the live daemon's FTS store. (There is no module-level
+        # ``memory_search`` in ghost_memory — that's a tool *factory* — so the
+        # old top-level import silently disabled this leg entirely.)
+        db = getattr(daemon, "memory_db", None) if daemon is not None else None
+        if db is None:
+            from ghost_memory import MemoryDB
+            db = MemoryDB()
+        for m in (db.search(query, limit=limit) or []):
             if not isinstance(m, dict):
                 continue
-            content = m.get("content") or m.get("summary") or ""
+            content = m.get("content") or m.get("source_preview") or m.get("summary") or ""
             if content:
                 out.append({
                     "content": content,
                     "base": 0.45,
-                    "created": m.get("created_at", ""),
+                    "created": m.get("timestamp") or m.get("created_at", ""),
                     "src": "keyword",
                 })
     except Exception as e:
@@ -134,7 +140,7 @@ def retrieve_context_block(query: str, daemon=None, max_items: int = 5,
     if q.lower().strip("!?. ") in _GREETINGS:
         return ""
 
-    candidates = _gather_keyword(q, max_items * 2) + _gather_semantic(q, max_items * 2)
+    candidates = _gather_keyword(q, max_items * 2, daemon=daemon) + _gather_semantic(q, max_items * 2)
     if not candidates:
         return ""
 

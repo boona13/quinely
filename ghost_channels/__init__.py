@@ -1,8 +1,8 @@
 """
-GHOST Multi-Channel Messaging — Phase 2
+QUINELY Multi-Channel Messaging — Phase 2
 
 Plugin-based messaging across 20+ channels (Slack, Discord, Telegram, WhatsApp,
-Signal, ntfy, Email, Webhook, etc.).  Integrated with Ghost's autonomy engine.
+Signal, ntfy, Email, Webhook, etc.).  Integrated with Quinely's autonomy engine.
 
 Phase 1:
   - ChannelProvider ABC with optional adapter slots (outbound, inbound, media)
@@ -699,7 +699,7 @@ class InboundDispatcher:
 
 def build_channel_tools(router: MessageRouter, registry: ChannelRegistry,
                         channels_config: dict) -> list:
-    """Build Ghost tools for channel messaging.  Returns list of tool defs."""
+    """Build Quinely tools for channel messaging.  Returns list of tool defs."""
 
     tools: list = []
 

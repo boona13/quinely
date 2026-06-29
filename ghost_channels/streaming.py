@@ -4,7 +4,7 @@ Streaming Adapter with Coalescing
   - Real-time message editing as LLM generates tokens
   - Coalescing: buffer tokens, flush on idle (configurable min_chars, idle_ms)
   - Update existing messages in-place (Telegram editMessageText, Slack chat.update, etc.)
-  - Integrates with Ghost's LLM engine on_step callback
+  - Integrates with Quinely's LLM engine on_step callback
 
 Usage:
     streamer = MessageStreamer(provider, chat_id)

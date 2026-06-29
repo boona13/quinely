@@ -3,7 +3,7 @@ Message Actions Adapter
 
   - Standard actions: react, edit, unsend/delete, poll, pin
   - Capability checking per provider
-  - LLM tool definitions for Ghost to invoke actions
+  - LLM tool definitions for Quinely to invoke actions
   - Per-provider implementation via mixin pattern
 
 Usage:

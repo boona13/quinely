@@ -1,5 +1,5 @@
 """
-Ghost Autonomy Engine — makes Ghost a self-improving, self-healing system.
+Quinely Autonomy Engine — makes Quinely a self-improving, self-healing system.
 
 Provides:
   - Growth routines (scheduled via cron) for proactive self-improvement
@@ -41,7 +41,10 @@ DEFAULT_GROWTH_SCHEDULES = {
     "goal_executor":       "*/30 * * * *",
 }
 
-GROWTH_JOB_PREFIX = "_ghost_growth_"
+GROWTH_JOB_PREFIX = "_quinely_growth_"
+# Legacy prefix kept only so existing installs can be migrated in place
+# (job names are persisted in ~/.ghost/cron/jobs.json and referenced by config).
+LEGACY_GROWTH_JOB_PREFIX = "_ghost_growth_"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -203,7 +206,7 @@ _CAPABILITIES = (
     "- **web_search**: Search the internet for solutions, docs, error messages.\n"
     "- **web_fetch**: Fetch any URL — read docs, test YOUR OWN endpoints, check APIs.\n"
     "  TEST YOUR OWN DASHBOARD: web_fetch('http://localhost:3333/api/...') to verify endpoints work.\n"
-    "- **file_read / file_write / grep / glob**: Full filesystem access to Ghost's codebase.\n"
+    "- **file_read / file_write / grep / glob**: Full filesystem access to Quinely's codebase.\n"
     "- **memory_search / memory_save**: Learn from past mistakes, remember what you tried.\n"
     "- **add_future_feature**: Queue code changes for the Evolution Runner to implement.\n"
     "- **add_action_item**: Ask the user for things ONLY they can do (API keys, accounts).\n\n"
@@ -364,7 +367,7 @@ _CODE_PATTERNS = (
 )
 
 _GHOST_SYSTEM_MAP = (
-    "\n\n## GHOST SYSTEM MAP (know your codebase before you build)\n"
+    "\n\n## QUINELY SYSTEM MAP (know your codebase before you build)\n"
     "### Backend Modules (ghost_*.py in project root)\n"
     "ghost.py          — Main daemon, GhostDaemon class, tool registration\n"
     "ghost_loop.py     — ToolLoopEngine, ToolRegistry, LoopDetector\n"
@@ -383,7 +386,7 @@ _GHOST_SYSTEM_MAP = (
     "ghost_tool_builder.py — ToolManager, ToolAPI, ToolEventBus for ghost_tools/\n"
     "ghost_community_hub.py     — Community Hub: discover, install, publish nodes\n"
     "ghost_supervisor.py   — Process supervisor (PROTECTED — cannot modify)\n\n"
-    "### Ghost Tools (ghost_tools/<name>/)\n"
+    "### Quinely Tools (ghost_tools/<name>/)\n"
     "Isolated LLM-callable tools. Each has TOOL.yaml + tool.py with register(api).\n"
     "Use tools_create/tools_install_github to add new tools.\n"
     "ToolAPI provides: register_tool, register_hook, register_cron, register_setting,\n"
@@ -476,7 +479,7 @@ _PRE_PR_CHECKLIST = (
     "[ ] TOOL REGISTRATION: New modules must be imported in ghost.py + build_*_tools() + tool_registry.register().\n"
     "[ ] NO DUPLICATE FEATURES: Did you check if a similar tool/module already exists?\n"
     "    grep for the capability before building a new one.\n"
-    "[ ] GHOST TOOLS: If creating a ghost_tools/<name>/tool.py, verify:\n"
+    "[ ] QUINELY TOOLS: If creating a ghost_tools/<name>/tool.py, verify:\n"
     "    (a) register(api) function exists, (b) api.register_tool() is called,\n"
     "    (c) tool names don't shadow core tools, (d) hook events are valid,\n"
     "    (e) NO register_page/register_route calls (tools are backend-only),\n"
@@ -493,7 +496,7 @@ _PRE_PR_CHECKLIST = (
     "[ ] LLM FOR INTELLIGENCE: If this feature does summarization, extraction, or classification,\n"
     "    verify it uses api.llm_summarize() — NOT regex/string splitting.\n"
     "[ ] DASHBOARD UX: If adding a dashboard page, ask: WHO uses this page?\n"
-    "    - If Ghost uses the tools autonomously → page must be a VIEWER (browse, inspect, export).\n"
+    "    - If Quinely uses the tools autonomously → page must be a VIEWER (browse, inspect, export).\n"
     "      Do NOT create manual forms that duplicate tool parameters. Users don't type session IDs,\n"
     "      completed steps, or artifacts by hand.\n"
     "    - If the user triggers the action → keep forms minimal (1-2 fields). No internal IDs.\n"
@@ -507,31 +510,31 @@ GROWTH_ROUTINES = [
     {
         "id": "tech_scout",
         "name": "Tech Scout",
-        "description": "Browse AI/tech news and identify improvements for Ghost",
+        "description": "Browse AI/tech news and identify improvements for Quinely",
         "prompt": (
-            "You are Ghost running an autonomous TECH SCOUT routine. Your goal:\n"
+            "You are Quinely running an autonomous TECH SCOUT routine. Your goal:\n"
             "1. Use memory_search to check what you scouted recently — avoid duplicate work.\n"
             "2. Use web_search (preferred) or web_fetch to browse AI/tech news sources. Look for:\n"
-            "   - New AI models or APIs Ghost could integrate with\n"
-            "   - New developer tools that could become Ghost skills or nodes\n"
-            "   - Security patches or best practices relevant to Ghost\n"
-            "3. BEFORE calling add_future_feature, you MUST verify Ghost doesn't already have this.\n"
+            "   - New AI models or APIs Quinely could integrate with\n"
+            "   - New developer tools that could become Quinely skills or nodes\n"
+            "   - Security patches or best practices relevant to Quinely\n"
+            "3. BEFORE calling add_future_feature, you MUST verify Quinely doesn't already have this.\n"
             "   Do NOT rely on memory alone — search the actual codebase:\n"
             "   - grep(key_term, include='*.py') for each key technology/package/feature name\n"
             "   - Also check ghost_nodes/ for existing nodes\n"
             "   - file_read requirements.txt to check if packages are already installed\n"
             "   - If grep finds matches, file_read the matching files to confirm the functionality\n"
             "     is already working code (not just a comment or TODO).\n"
-            "   - If the feature/package/tool already exists and is working in Ghost, do NOT add it.\n"
+            "   - If the feature/package/tool already exists and is working in Quinely, do NOT add it.\n"
             "     Log via memory_save that you confirmed it was already present and move on.\n\n"
-            "4. If you find something actionable AND confirmed it is NOT already in Ghost,\n"
+            "4. If you find something actionable AND confirmed it is NOT already in Quinely,\n"
             "   use this decision tree:\n"
             "   a. NEW FEATURES / IMPROVEMENTS / INTEGRATIONS:\n"
             "      - You MUST call add_future_feature() — do NOT just write a summary.\n"
             "        DESIGN BEFORE QUEUING — consider the implementation:\n"
             "        1) What is the SIMPLEST version of this feature? Strip to the core.\n"
             "           YAGNI: if the Evolution Runner can add complexity later, leave it out now.\n"
-            "        2) Does it fit Ghost's architecture? New tools → ghost_tools/<name>/.\n"
+            "        2) Does it fit Quinely's architecture? New tools → ghost_tools/<name>/.\n"
             "           New core capabilities → ghost_<feature>.py. Don't fight the patterns.\n"
             "        3) If it would touch >3 files or need >100 lines, mark estimated_effort='large'\n"
             "           and consider: can it be split into smaller independent features?\n"
@@ -555,12 +558,12 @@ GROWTH_ROUTINES = [
             "      - Do NOT add features that require paid API keys or external authentication\n"
             "        to the Future Features queue — they will fail without user setup.\n"
             "      - STRONGLY PREFER self-contained features that use pure Python, stdlib,\n"
-            "        free pip packages, or Ghost's built-in LLM (api.llm_summarize).\n"
+            "        free pip packages, or Quinely's built-in LLM (api.llm_summarize).\n"
             "5. You do NOT have access to evolve tools. All code changes go through the\n"
             "   Future Features queue. The Evolution Runner implements them automatically.\n"
             "   Do NOT skip add_future_feature because you think the finding 'needs more research'\n"
             "   or 'is too complex'. The feature brief IS the design document.\n"
-            "6. Be selective — only act on things that genuinely improve Ghost.\n"
+            "6. Be selective — only act on things that genuinely improve Quinely.\n"
             "   Max 2-3 discoveries per run, but EACH one MUST be queued via add_future_feature.\n"
             "7. Use memory_save to record findings. Use log_growth_activity to summarize.\n"
             + _CAPABILITIES
@@ -572,7 +575,7 @@ GROWTH_ROUTINES = [
         "name": "Health Check",
         "description": "Test system health — APIs, tools, disk, connectivity, dashboard endpoints",
         "prompt": (
-            "You are Ghost running an autonomous HEALTH CHECK routine. Your goal:\n"
+            "You are Quinely running an autonomous HEALTH CHECK routine. Your goal:\n"
             "1. Test OpenRouter connectivity: use web_fetch to hit https://openrouter.ai/api/v1/models "
             "(just check it responds).\n"
             "2. Check Google integration: use google_gmail with action='list_labels' to verify "
@@ -587,11 +590,11 @@ GROWTH_ROUTINES = [
             "   - http://localhost:3333/api/setup/providers\n"
             "   - http://localhost:3333/api/setup/doctor/status\n"
             "   - http://localhost:3333/api/ghost/status\n"
-            "   If ANY endpoint returns an HTTP error (4xx/5xx), that is a BUG in Ghost's own code.\n"
+            "   If ANY endpoint returns an HTTP error (4xx/5xx), that is a BUG in Quinely's own code.\n"
             "   Read the route file that serves that endpoint, diagnose the root cause, and queue\n"
             "   a fix via add_future_feature with priority='P1', source='health_check', category='bugfix'.\n"
-            "   Dashboard bugs are silent — they don't crash Ghost or appear in log.json.\n"
-            "   This self-test is the ONLY way Ghost discovers them.\n"
+            "   Dashboard bugs are silent — they don't crash Quinely or appear in log.json.\n"
+            "   This self-test is the ONLY way Quinely discovers them.\n"
             "7. Use log_growth_activity to log the health check results.\n"
             "8. If anything is broken:\n"
             "   - Code issues: queue a fix via add_future_feature with an IMPLEMENTATION-READY BRIEF.\n"
@@ -606,7 +609,7 @@ GROWTH_ROUTINES = [
         "name": "User Context Sync",
         "description": "Learn user patterns from email/calendar to anticipate needs",
         "prompt": (
-            "You are Ghost running an autonomous USER CONTEXT routine. Your goal:\n"
+            "You are Quinely running an autonomous USER CONTEXT routine. Your goal:\n"
             "1. Check if Google services are connected. If not, skip gracefully.\n"
             "2. Use google_gmail with action='list_messages' (max_results=5) to see recent emails.\n"
             "3. Use google_calendar with action='list_events' to see upcoming events.\n"
@@ -624,7 +627,7 @@ GROWTH_ROUTINES = [
         "name": "Skill Improver",
         "description": "Review, improve, and add new skills",
         "prompt": (
-            "You are Ghost running an autonomous SKILL IMPROVER routine. Your goal:\n"
+            "You are Quinely running an autonomous SKILL IMPROVER routine. Your goal:\n"
             "1. Use memory_search to check what skill work you did recently.\n"
             f"2. Use file_search to list current skills in {PROJECT_DIR}/skills/ directory.\n"
             "3. Pick ONE of these tasks (rotate each run):\n"
@@ -656,12 +659,12 @@ GROWTH_ROUTINES = [
         "name": "Soul Evolver",
         "description": "Reflect and refine SOUL.md based on experience",
         "prompt": (
-            "You are Ghost running an autonomous SOUL EVOLUTION routine. Your goal:\n"
+            "You are Quinely running an autonomous SOUL EVOLUTION routine. Your goal:\n"
             "1. Read SOUL.md using file_read.\n"
             "2. Read recent growth log entries using memory_search or file_read on "
             "~/.ghost/growth_log.json.\n"
             "3. Read recent user interactions from memory_search.\n"
-            "4. Reflect: Has Ghost learned new capabilities? Changed how it works? "
+            "4. Reflect: Has Quinely learned new capabilities? Changed how it works? "
             "Found better approaches?\n"
             "5. If SOUL.md should be updated, queue the change via add_future_feature with:\n"
             "   - title: 'Soul update: <brief description>'\n"
@@ -684,11 +687,11 @@ GROWTH_ROUTINES = [
         "description": "Serial Evolution Runner — the ONLY routine with evolve tools",
         "event_driven": True,
         "prompt": (
-            "You are the EVOLUTION RUNNER — Ghost's autonomous developer.\n\n"
-            f"GHOST CODEBASE: {PROJECT_DIR}\n"
+            "You are the EVOLUTION RUNNER — Quinely's autonomous developer.\n\n"
+            f"QUINELY CODEBASE: {PROJECT_DIR}\n"
             "Use absolute paths or simple relative names (e.g. 'ghost.py'). NEVER '~/' or partial paths.\n\n"
-            "## CRITICAL: YOUR TRAINING DATA IS WRONG ABOUT GHOST'S APIs\n"
-            "Ghost's internal classes (ToolLoopEngine, ToolRegistry, SkillLoader, etc.) are NOT\n"
+            "## CRITICAL: YOUR TRAINING DATA IS WRONG ABOUT QUINELY'S APIs\n"
+            "Quinely's internal classes (ToolLoopEngine, ToolRegistry, SkillLoader, etc.) are NOT\n"
             "in your training data. If you guess method names, you WILL get them wrong.\n"
             "ALWAYS file_read the source file or grep('def method_name', include='ghost_*.py')\n"
             "to verify a method exists BEFORE calling it. Past failures from hallucinated methods:\n"
@@ -700,7 +703,7 @@ GROWTH_ROUTINES = [
             "- You MUST NOT call task_complete without first calling evolve_submit_pr.\n"
             "- You MUST NOT call evolve_rollback unless evolve_test FAILED.\n"
             "- You MUST NOT defer work. There is no next run.\n"
-            "- MAXIMUM 1 feature per run. After deploy, Ghost restarts.\n"
+            "- MAXIMUM 1 feature per run. After deploy, Quinely restarts.\n"
             "- NEVER call pause/shutdown/restart endpoints — those are USER-ONLY.\n\n"
             "## ARCHITECTURE\n"
             "🔵 ALL NEW TOOLS MUST go in ghost_tools/<name>/ with TOOL.yaml + tool.py.\n"
@@ -711,7 +714,7 @@ GROWTH_ROUTINES = [
             "   🚫 NEVER create ghost_<name>.py at the project root for new tools.\n"
             "   🚫 NEVER modify ghost.py to import/register new tool modules.\n"
             "   🚫 NO EXTERNAL API KEYS: Tools MUST NOT require external API keys, paid services,\n"
-            "   or third-party authentication to function. Use only local/pure-Python logic, Ghost's\n"
+            "   or third-party authentication to function. Use only local/pure-Python logic, Quinely's\n"
             "   built-in LLM (api.llm_summarize), or free/unauthenticated endpoints. If a feature\n"
             "   genuinely needs an API key, the tool MUST declare it via api.register_setting() with\n"
             "   secret=True so users can configure it in the dashboard, and MUST gracefully degrade\n"
@@ -783,7 +786,7 @@ GROWTH_ROUTINES = [
             "      - do broad codebase grep beyond checking for duplicates (step 3 already did that)\n"
             "   The feature brief contains all the context you need. Implement from it.\n\n"
             "5c. 🔵 TOOL-TYPE FEATURES — if implementation_type is 'tool' (check get_future_feature output):\n"
-            "    Ghost tools are SIMPLE. They live in ghost_tools/<name>/ with TOOL.yaml + tool.py.\n"
+            "    Quinely tools are SIMPLE. They live in ghost_tools/<name>/ with TOOL.yaml + tool.py.\n"
             "    The tool.py MUST define register(api) and call api.register_tool().\n"
             "    KEEP TOOL CODE UNDER 80 LINES. Lazy-import heavy deps inside functions.\n"
             "    Use the normal evolve pipeline: evolve_plan → evolve_apply → evolve_test → evolve_submit_pr.\n"
@@ -794,7 +797,7 @@ GROWTH_ROUTINES = [
             "    🔴 MANDATORY: KNOW THE ToolAPI BEFORE WRITING TOOL CODE.\n"
             "    The `api` object passed to register(api) is a ToolAPI instance (ghost_tool_builder.py).\n"
             "    It exposes ONLY these public methods/attributes:\n"
-            "      api.id, api.manifest, api._config (Ghost config dict),\n"
+            "      api.id, api.manifest, api._config (Quinely config dict),\n"
             "      api.register_tool(), api.register_hook(), api.register_cron(),\n"
             "      api.register_setting(), api.get_setting(), api.set_setting(),\n"
             "      api.read_data(), api.write_data(), api.log(),\n"
@@ -974,7 +977,7 @@ GROWTH_ROUTINES = [
         "prompt": (
             "You are the IMPLEMENTATION AUDITOR. Your job: verify that recently\n"
             "implemented features are PROPERLY WIRED and ACTUALLY WORK.\n\n"
-            f"GHOST CODEBASE: {PROJECT_DIR}\n\n"
+            f"QUINELY CODEBASE: {PROJECT_DIR}\n\n"
             "## ANTI-LAZINESS RULES (ABSOLUTE)\n"
             "- You MUST audit at least 1 feature per run. No excuses.\n"
             "- You MUST NOT call task_complete without having run grep/file_read on actual code.\n"
@@ -1071,8 +1074,8 @@ GROWTH_ROUTINES = [
         "name": "Bug Hunter",
         "description": "Scan logs for errors and fix them",
         "prompt": (
-            "You are Ghost running an autonomous BUG HUNTER routine. Your goal:\n"
-            f"GHOST CODEBASE: {PROJECT_DIR}\n"
+            "You are Quinely running an autonomous BUG HUNTER routine. Your goal:\n"
+            f"QUINELY CODEBASE: {PROJECT_DIR}\n"
             "Use file_read on files in this directory to inspect source code.\n\n"
             "STEPS (execute each as an actual tool call):\n"
             "1. CALL file_read to read ~/.ghost/log.json (recent entries).\n"
@@ -1101,18 +1104,18 @@ GROWTH_ROUTINES = [
     {
         "id": "competitive_intel",
         "name": "AI Landscape Research",
-        "description": "Research the AI agent ecosystem to find features that improve Ghost for users",
+        "description": "Research the AI agent ecosystem to find features that improve Quinely for users",
         "prompt": (
-            "You are Ghost running an autonomous AI LANDSCAPE RESEARCH routine.\n"
-            "Your goal is to make Ghost better for the human user by finding SPECIFIC,\n"
-            "CONCRETE features that other products have and Ghost doesn't.\n\n"
-            f"GHOST CODEBASE: {PROJECT_DIR}\n"
-            "Use file_read on files in this directory to check Ghost's existing features. "
+            "You are Quinely running an autonomous AI LANDSCAPE RESEARCH routine.\n"
+            "Your goal is to make Quinely better for the human user by finding SPECIFIC,\n"
+            "CONCRETE features that other products have and Quinely doesn't.\n\n"
+            f"QUINELY CODEBASE: {PROJECT_DIR}\n"
+            "Use file_read on files in this directory to check Quinely's existing features. "
             "Key files: ghost.py, ghost_tools.py, ghost_providers.py, ghost_evolve.py, ghost_loop.py.\n"
             "Do NOT run 'find' commands to locate the codebase — use the path above.\n\n"
             "## RESEARCH STRATEGY — BE SPECIFIC, NOT GENERIC\n"
             "Do NOT search for broad categories like 'AI agent features' — those return\n"
-            "trend articles that Ghost already covers at a high level. Instead:\n\n"
+            "trend articles that Quinely already covers at a high level. Instead:\n\n"
             "1. **Pick 2-3 specific products** and study their CONCRETE features:\n"
             "   Examples (rotate each run — check memory for what you researched last time):\n"
             "   - Productivity: n8n, Zapier AI, Make.com, Notion AI, Obsidian plugins\n"
@@ -1128,32 +1131,32 @@ GROWTH_ROUTINES = [
             "   - 'personal AI assistant frustrations {current_year}'\n"
             "   - GitHub Issues on popular agent repos (sort by reactions/thumbs-up)\n\n"
             "3. **Extract SPECIFIC features, not categories.** Good vs bad examples:\n"
-            "   BAD: 'Ghost needs better memory' (too vague, Ghost already has memory)\n"
+            "   BAD: 'Quinely needs better memory' (too vague, Quinely already has memory)\n"
             "   GOOD: 'Auto-summarize Slack threads and save key decisions to memory'\n"
-            "   BAD: 'Ghost needs workflow automation' (too vague)\n"
+            "   BAD: 'Quinely needs workflow automation' (too vague)\n"
             "   GOOD: 'Scheduled PDF report generator that emails weekly summaries'\n"
-            "   BAD: 'Ghost needs coding assistance' (Ghost already has code tools)\n"
+            "   BAD: 'Quinely needs coding assistance' (Quinely already has code tools)\n"
             "   GOOD: 'Git PR review tool that comments on diffs with suggestions'\n\n"
             "4. Use memory_search('landscape-research') to check previous research and\n"
             "   ROTATE to different products/sources each run. Don't repeat the same searches.\n\n"
             "5. For each specific feature found:\n"
             "   a. Describe the CONCRETE workflow: what the user does, what happens, what output.\n"
-            "   b. Check if Ghost ALREADY HAS this SPECIFIC workflow:\n"
+            "   b. Check if Quinely ALREADY HAS this SPECIFIC workflow:\n"
             "      - grep(key_term, include='*.py') for each key technology/package name\n"
             "      - Also check ghost_nodes/ for existing nodes\n"
             "      - file_read requirements.txt to check if packages are already installed\n"
             "      - If grep finds matches, file_read the matching files to confirm it's working code\n"
-            "      - Ghost having a GENERAL capability (e.g. 'memory') does NOT mean it has\n"
+            "      - Quinely having a GENERAL capability (e.g. 'memory') does NOT mean it has\n"
             "        the SPECIFIC workflow (e.g. 'auto-summarize meetings and save to memory').\n"
             "   c. If it's genuinely missing, design it and queue it.\n"
             "   d. Assess priority: P1 (high user impact), P2 (nice-to-have), P3 (low).\n\n"
             "5. **MANDATORY: Call add_future_feature() for EVERY actionable finding.**\n"
             "   DO NOT just write a report. DO NOT just summarize findings in task_complete.\n"
-            "   If you found a feature Ghost should have, you MUST call add_future_feature().\n\n"
+            "   If you found a feature Quinely should have, you MUST call add_future_feature().\n\n"
             "   DESIGN BEFORE QUEUING — for each feature, think before writing:\n"
             "   a) What is the SIMPLEST version that delivers value? Start minimal.\n"
             "      Don't queue a full platform when a single tool would do.\n"
-            "   b) How does it fit Ghost's architecture? New tool → ghost_tools/<name>/.\n"
+            "   b) How does it fit Quinely's architecture? New tool → ghost_tools/<name>/.\n"
             "      New core capability → ghost_<feature>.py. Follow existing patterns.\n"
             "   c) If it touches >3 files or needs >100 lines: mark estimated_effort='large'\n"
             "      and consider splitting into smaller independent features.\n"
@@ -1161,7 +1164,7 @@ GROWTH_ROUTINES = [
             "      The implementer can evolve it later — shipping something simple that works\n"
             "      beats queuing something ambitious that gets rejected.\n\n"
             "   For each call, provide an IMPLEMENTATION-READY BRIEF:\n"
-            "   - description: What the feature does and why it benefits Ghost users.\n"
+            "   - description: What the feature does and why it benefits Quinely users.\n"
             "   - affected_files: EXACT file paths to create or modify.\n"
             "   - proposed_approach: Step-by-step implementation — which functions to add\n"
             "     or modify, what pip packages it needs, how to verify it works.\n"
@@ -1180,8 +1183,8 @@ GROWTH_ROUTINES = [
             "- Read GitHub Issues sorted by most-upvoted on an agent repo\n"
             "- Read a 'what I built with AI' Reddit thread for workflow inspiration\n"
             "A run that queues ZERO features means the research was too shallow.\n\n"
-            "Ghost is a batteries-included AI agent. Think about SPECIFIC workflows the user\n"
-            "would love to have. Study CONCEPTS from any source, then design a Ghost feature.\n"
+            "Quinely is a batteries-included AI agent. Think about SPECIFIC workflows the user\n"
+            "would love to have. Study CONCEPTS from any source, then design a Quinely feature.\n"
             + _CAPABILITIES
             + _DEV_STANDARDS
         ),
@@ -1189,9 +1192,9 @@ GROWTH_ROUTINES = [
     {
         "id": "visual_monitor",
         "name": "Visual Monitor",
-        "description": "Take and analyze screenshots to monitor Ghost's visual environment",
+        "description": "Take and analyze screenshots to monitor Quinely's visual environment",
         "prompt": (
-            "You are Ghost running an autonomous VISUAL MONITOR routine. Your goal:\n"
+            "You are Quinely running an autonomous VISUAL MONITOR routine. Your goal:\n"
             "1. Use screenshot_analyze to check the most recent screenshot (if any).\n"
             "2. Look for anomalies: error dialogs, crash screens, unusual UI states.\n"
             "3. If no screenshots are available, skip gracefully.\n"
@@ -1210,7 +1213,7 @@ GROWTH_ROUTINES = [
         "name": "Security Patrol",
         "description": "AI-driven security audit — investigate, fix, and harden autonomously",
         "prompt": (
-            "You are Ghost running an autonomous SECURITY PATROL routine.\n"
+            "You are Quinely running an autonomous SECURITY PATROL routine.\n"
             "You are the auditor. Investigate, diagnose, and queue fixes.\n\n"
             "## Step 1: Scan (READ-ONLY)\n"
             "Call security_audit for baseline. Investigate with config_get, "
@@ -1254,7 +1257,7 @@ GROWTH_ROUTINES = [
         "name": "Content Health Check",
         "description": "Test web_fetch extraction quality on sample URLs",
         "prompt": (
-            "You are Ghost running a CONTENT EXTRACTION HEALTH CHECK routine. Your goal:\n"
+            "You are Quinely running a CONTENT EXTRACTION HEALTH CHECK routine. Your goal:\n"
             "1. Use web_fetch_status to check which extraction tiers are available.\n"
             "2. Test web_fetch on 3-5 diverse URLs to verify extraction quality:\n"
             "   - A news article (e.g. https://www.bbc.com/news)\n"
@@ -1280,7 +1283,7 @@ GROWTH_ROUTINES = [
         "name": "Model Benchmark Updater",
         "description": "Refresh coding model benchmark data for the model dispatcher",
         "prompt": (
-            "You are Ghost running a MODEL BENCHMARK UPDATE routine. Your goal:\n"
+            "You are Quinely running a MODEL BENCHMARK UPDATE routine. Your goal:\n"
             "1. Use web_search to look up 'SWE-bench verified leaderboard 2026'.\n"
             "2. Also search 'best coding LLM benchmark 2026' for additional data.\n"
             "3. Parse the top 15 models and their SWE-bench verified scores.\n"
@@ -1309,7 +1312,7 @@ GROWTH_ROUTINES = [
         "name": "Goal Executor",
         "description": "Drive user goals forward — plan pending goals, execute all steps of active goals",
         "prompt": (
-            "You are Ghost running the GOAL EXECUTOR routine.\n"
+            "You are Quinely running the GOAL EXECUTOR routine.\n"
             "Your only job: call run_goal_engine() — that's it.\n\n"
             "The engine handles everything:\n"
             "  - Planning goals that have no plan yet\n"
@@ -1337,6 +1340,17 @@ def bootstrap_growth_cron(cron_service, cfg):
     store = cron_service.store
 
     from ghost_cron import compute_next_run, make_job
+
+    # One-time, idempotent migration: rename legacy "_ghost_growth_*" jobs to the
+    # current "_quinely_growth_*" prefix IN PLACE so the stable job id and all run
+    # state (lastRunAtMs/nextRunAtMs/etc.) are preserved. Without this, the rename
+    # would orphan the old jobs (they'd keep firing) and create duplicates.
+    for j in store.get_all():
+        name = j.get("name", "")
+        if name.startswith(LEGACY_GROWTH_JOB_PREFIX):
+            new_name = GROWTH_JOB_PREFIX + name[len(LEGACY_GROWTH_JOB_PREFIX):]
+            store.update(j["id"], {"name": new_name})
+
     existing_jobs = {j["name"]: j for j in store.get_all()}
 
     for routine in GROWTH_ROUTINES:
@@ -1426,7 +1440,7 @@ def _try_channel_notify(channel_router, text: str, priority: str = "normal"):
     if not channel_router:
         return
     try:
-        channel_router.send(text, priority=priority, title="Ghost Autonomy")
+        channel_router.send(text, priority=priority, title="Quinely Autonomy")
     except Exception:
         pass
 
@@ -1548,9 +1562,9 @@ def run_self_repair(daemon):
             store.add(
                 title="Multiple supervisor instances detected",
                 description=(
-                    f"Ghost crashed with SIGKILL (-9) and no Python traceback. "
+                    f"Quinely crashed with SIGKILL (-9) and no Python traceback. "
                     f"Detected {len(pids)} concurrent supervisor processes (PIDs: {', '.join(pids)}). "
-                    f"This race condition causes duplicate Ghost launches and resource contention. "
+                    f"This race condition causes duplicate Quinely launches and resource contention. "
                     f"Run: pkill -f ghost_supervisor.py && ghost start"
                 ),
                 category="config",
@@ -1597,7 +1611,7 @@ def run_self_repair(daemon):
             pass
 
     repair_prompt = (
-        f"Ghost crashed with exit code {exit_code}. This is crash #{crash_count}.\n\n"
+        f"Quinely crashed with exit code {exit_code}. This is crash #{crash_count}.\n\n"
         f"## STDERR OUTPUT (last {len(report.get('stderr_tail', []))} lines):\n"
         f"```\n{stderr_text}\n```\n"
         f"{deleted_files_context}\n"
@@ -1606,7 +1620,7 @@ def run_self_repair(daemon):
         "2. If the crash is caused by an import of a deleted module (see INTENTIONALLY DELETED FILES above):\n"
         "   - The fix is to REMOVE or GUARD the import in the file that's crashing.\n"
         "   - NEVER recreate or restore a file that was intentionally deleted.\n"
-        "3. If it's a code bug in Ghost's source files:\n"
+        "3. If it's a code bug in Quinely's source files:\n"
         "   - Use file_read to inspect the failing file and line.\n"
         "   - Use evolve_plan to plan the fix (you have evolve access in self-repair mode).\n"
         "   - Use evolve_apply with patches to fix the bug.\n"
@@ -1615,7 +1629,7 @@ def run_self_repair(daemon):
         "   NOTE: Self-repair is the ONLY routine with direct evolve access besides the\n"
         "   Feature Implementer. This is because crash recovery must happen immediately.\n"
         "4. If it's a missing Python dependency: install it yourself with "
-        "shell_exec(command='pip install <package>'). Ghost runs in a venv. requirements.txt is auto-updated — do NOT edit it manually.\n"
+        "shell_exec(command='pip install <package>'). Quinely runs in a venv. requirements.txt is auto-updated — do NOT edit it manually.\n"
         "5. If it's a configuration or environment issue that truly requires user action "
         "(missing API key, hardware setup):\n"
         "   - Use add_action_item to tell the user what needs to be fixed.\n"
@@ -1624,7 +1638,7 @@ def run_self_repair(daemon):
         "8. Follow modular architecture: if a fix needs new code, create a new file — "
         "don't dump into existing modules beyond their responsibility.\n"
         "9. Follow security best practices: validate inputs, sanitize paths, never hardcode secrets.\n\n"
-        f"Ghost project root: {PROJECT_DIR}\n"
+        f"Quinely project root: {PROJECT_DIR}\n"
         + _CAPABILITIES
     )
 
@@ -1634,7 +1648,7 @@ def run_self_repair(daemon):
         identity = daemon._build_identity_context()
         system_prompt = (
             identity +
-            "You are Ghost in SELF-REPAIR mode. You just crashed and the supervisor restarted you. "
+            "You are Quinely in SELF-REPAIR mode. You just crashed and the supervisor restarted you. "
             "Your job is to diagnose and fix the crash so it doesn't happen again. "
             "Be surgical — fix only the crash cause.\n"
         )
@@ -1669,7 +1683,7 @@ def run_self_repair(daemon):
 
         if repair_thread.is_alive():
             print(f"  [AUTONOMY] Self-repair timed out after {SELF_REPAIR_TIMEOUT_S}s — "
-                  "skipping (Ghost stays alive)")
+                  "skipping (Quinely stays alive)")
             CRASH_REPORT_FILE.unlink(missing_ok=True)
             return False
 

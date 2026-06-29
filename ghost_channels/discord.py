@@ -117,7 +117,7 @@ class Provider(ChannelProvider, ActionsMixin, StreamingMixin,
     def _send_webhook(self, text: str) -> OutboundResult:
         try:
             resp = requests.post(self.webhook_url,
-                                 json={"content": text, "username": "Ghost"},
+                                 json={"content": text, "username": "Quinely"},
                                  timeout=15)
             if resp.status_code in (200, 204):
                 return OutboundResult(ok=True, channel_id=self.meta.id)
@@ -134,7 +134,7 @@ class Provider(ChannelProvider, ActionsMixin, StreamingMixin,
                 with open(media_path, "rb") as f:
                     resp = requests.post(
                         self.webhook_url,
-                        data={"content": caption, "username": "Ghost"},
+                        data={"content": caption, "username": "Quinely"},
                         files={"file": f},
                         timeout=60,
                     )

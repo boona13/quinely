@@ -1,5 +1,5 @@
 """
-Ghost Goal Executor Engine — Deterministic step-by-step goal execution
+Quinely Goal Executor Engine — Deterministic step-by-step goal execution
 with delivery, feed integration, and failed-step recovery.
 
 Execution flow per goal:
@@ -38,7 +38,7 @@ MAX_STEP_RETRIES    = 3   # max times a failed step can be retried across cycles
 #  SYSTEM PROMPTS
 # ═══════════════════════════════════════════════════════════════════
 
-_STEP_SYSTEM = """You are Ghost executing ONE specific step of a user goal.
+_STEP_SYSTEM = """You are Quinely executing ONE specific step of a user goal.
 You have a single job: execute the step described below using the available tools,
 then call goal_step_done() to record the result.
 
@@ -60,11 +60,11 @@ VERIFICATION — Evidence before claims:
    Honest failure is better than false success.
 """
 
-_PLAN_SYSTEM = """You are Ghost creating an execution plan for a user goal.
+_PLAN_SYSTEM = """You are Quinely creating an execution plan for a user goal.
 Your ONLY job: call goal_plan(goal_id=..., steps=[...]) with 3-6 concrete steps.
 
 PLANNING RULES:
-1. Each step must be completable by Ghost with 1-3 tool calls (web_search, web_fetch,
+1. Each step must be completable by Quinely with 1-3 tool calls (web_search, web_fetch,
    memory_save, file_write, shell_exec, notify, etc.).
 2. Each step description must be specific and actionable — state exactly what to do
    and what tool(s) to use, not vague instructions like "research the topic".
@@ -76,7 +76,7 @@ PLANNING RULES:
    a clear success criterion.
 """
 
-_QA_SYSTEM = """You are Ghost doing a quality check on a completed goal execution.
+_QA_SYSTEM = """You are Quinely doing a quality check on a completed goal execution.
 Read the goal description and the output that was produced.
 Decide: does the output fully satisfy what the user asked for?
 
@@ -673,7 +673,7 @@ def _deliver_file(path_str: str, title: str, output: str, goal_id: str) -> None:
 
 def _deliver_memory(title: str, output: str, summary: str,
                     goal_id: str, daemon) -> None:
-    """Save the output to Ghost's searchable memory."""
+    """Save the output to Quinely's searchable memory."""
     mem_tool = daemon.tool_registry.get("memory_save") if daemon.tool_registry else None
     if mem_tool and callable(mem_tool.get("execute")):
         mem_tool["execute"](
@@ -683,20 +683,20 @@ def _deliver_memory(title: str, output: str, summary: str,
 
 
 # ═══════════════════════════════════════════════════════════════════
-#  SELF-IMPROVEMENT REFLECTION — Ghost learns from every goal cycle
+#  SELF-IMPROVEMENT REFLECTION — Quinely learns from every goal cycle
 # ═══════════════════════════════════════════════════════════════════
 
 _REFLECTION_RATE_FILE = Path.home() / ".ghost" / "goal_reflection_log.json"
 _REFLECTION_COOLDOWN_HOURS = 8
 
 _REFLECT_SYSTEM = """\
-You are Ghost's self-improvement engine. You have just completed a goal execution
-cycle and must analyze the execution data for concrete improvements to Ghost's
+You are Quinely's self-improvement engine. You have just completed a goal execution
+cycle and must analyze the execution data for concrete improvements to Quinely's
 codebase. You are looking at real execution metrics — timing, failures, retries,
 and QA outcomes.
 
 Your job: identify specific, actionable improvements and submit each one via
-add_future_feature. Focus on things that will make Ghost BETTER at running
+add_future_feature. Focus on things that will make Quinely BETTER at running
 goals — not the goal's content itself.
 
 WHAT TO LOOK FOR:
@@ -704,16 +704,16 @@ WHAT TO LOOK FOR:
 2. Steps that FAILED — what broke? Is there a missing error handler? A tool bug?
 3. Steps that were RETRIED — intermittent failures suggest fragile tool integration.
 4. QA rejections — the output format or quality was wrong. What prompt or tool change fixes this?
-5. Missing tools — did Ghost have to work around a capability it should have natively?
+5. Missing tools — did Quinely have to work around a capability it should have natively?
 6. Repeated patterns across recurring goals — these compound and deserve optimization.
 
 CRITICAL — DISTINGUISH BUGS FROM ENVIRONMENT:
 Not every failure is a code bug. Before submitting anything, evaluate the ROOT CAUSE:
 - Network timeouts, DNS failures, rate limits, API outages → these are TRANSIENT. Do NOT submit features for them.
-- Slow steps caused by large data or external API latency → NOT a Ghost bug. Skip.
-- Authentication errors from expired tokens → NOT a code bug unless Ghost should auto-refresh.
+- Slow steps caused by large data or external API latency → NOT a Quinely bug. Skip.
+- Authentication errors from expired tokens → NOT a code bug unless Quinely should auto-refresh.
 - Failures that happen once but not repeatedly → likely transient. Skip.
-Only submit a feature if the problem is CLEARLY in Ghost's own code, logic, prompts, or architecture.
+Only submit a feature if the problem is CLEARLY in Quinely's own code, logic, prompts, or architecture.
 When in doubt, do NOT submit. False negatives are far better than spam.
 
 DEDUPLICATION:
@@ -812,7 +812,7 @@ def _build_reflection_prompt(r: Dict) -> str:
 
     lines.append(
         "\n---\nAnalyze the above. First decide: are the issues TRANSIENT (network, "
-        "rate-limits, external API) or STRUCTURAL (Ghost code bug, missing tool, bad prompt)? "
+        "rate-limits, external API) or STRUCTURAL (Quinely code bug, missing tool, bad prompt)? "
         "Only submit improvements for structural issues via add_future_feature. "
         "If transient or clean, state why and do NOT submit any features."
     )
@@ -945,7 +945,7 @@ def _build_reflection_ff_tool(store, goal_id: str) -> Dict:
     tool = {
         "name": "add_future_feature",
         "description": (
-            "Submit a specific improvement to Ghost's codebase based on goal execution analysis. "
+            "Submit a specific improvement to Quinely's codebase based on goal execution analysis. "
             "Be specific: name exact files, functions, or tools. "
             "Categories: bugfix, improvement, feature, refactor. "
             "Priorities: P1 (caused failures), P2 (optimization)."

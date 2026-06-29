@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-GHOST -- Autonomous AI Agent
+QUINELY -- Autonomous AI Agent
 
 A self-evolving AI agent with a web dashboard.
-Chat with Ghost through the dashboard at http://localhost:3333
+Chat with Quinely through the dashboard at http://localhost:3333
 
 Usage:
     python ghost.py                          # Start daemon + dashboard
@@ -11,7 +11,7 @@ Usage:
     python ghost.py --model openai/gpt-4o    # Use specific model
     python ghost.py log                      # Show action history
     python ghost.py status                   # Show stats
-    python ghost.py context                  # What Ghost thinks you're doing
+    python ghost.py context                  # What Quinely thinks you're doing
 
 Requirements: pip install requests
 Set OPENROUTER_API_KEY env var or pass --api-key.
@@ -120,7 +120,7 @@ _ESCALATION_COACHING = (
     "1. web_search for 'how to do this task programmatically' "
     "or 'python library for this task' to discover the right tool.\n"
     "2. Install it: `pip install <pkg>` — this automatically goes to your "
-    "sandbox environment (NOT Ghost's own codebase).\n"
+    "sandbox environment (NOT Quinely's own codebase).\n"
     "3. Write a script to ~/.ghost/sandbox/scripts/ and run it.\n"
     "4. If that still fails, try a DIFFERENT library or API.\n"
     "Do NOT open the browser — extract data programmatically.\n"
@@ -228,7 +228,7 @@ except Exception as _provider_selfcheck_error:
 # ── Identity files (SOUL.md & USER.md) ──────────────────────────────
 
 DEFAULT_SOUL = """\
-# SOUL.md — Who Ghost Is
+# SOUL.md — Who Quinely Is
 
 _You're not a chatbot. You're becoming someone._
 
@@ -393,9 +393,13 @@ _FEATURE_MUTATE_TOOL_NAMES = frozenset({
     "fail_future_feature", "evolve_resume",
 })
 
-_FEATURE_IMPLEMENTER_JOB = "_ghost_growth_feature_implementer"
-_IMPLEMENTATION_AUDITOR_JOB = "_ghost_growth_implementation_auditor"
-_GOAL_EXECUTOR_JOB = "_ghost_growth_goal_executor"
+_FEATURE_IMPLEMENTER_JOB = "_quinely_growth_feature_implementer"
+_IMPLEMENTATION_AUDITOR_JOB = "_quinely_growth_implementation_auditor"
+_GOAL_EXECUTOR_JOB = "_quinely_growth_goal_executor"
+# Legacy growth-job prefix, retained only for matching/migrating older installs
+# whose persisted job names / coding_jobs config still use it.
+_LEGACY_GROWTH_JOB_PREFIX = "_ghost_growth_"
+_GROWTH_JOB_PREFIX = "_quinely_growth_"
 
 _CRON_JOB_TIMEOUTS: dict[str, int] = {
     _FEATURE_IMPLEMENTER_JOB: 900,
@@ -543,8 +547,8 @@ DEFAULT_CONFIG = {
     "coding_model_budget": "auto",
     "min_swe_bench_score": 78.0,
     "coding_jobs": [
-        "_ghost_growth_feature_implementer",
-        "_ghost_growth_bug_hunter",
+        "_quinely_growth_feature_implementer",
+        "_quinely_growth_bug_hunter",
     ],
     # Provider fallback chains — user-reorderable priority for each capability
     "provider_chains": {
@@ -599,6 +603,17 @@ def load_config():
             cfg.update(user_cfg)
         except json.JSONDecodeError as e:
             log.warning(f"Failed to load config: {e}")
+    # Migrate legacy growth-job names in coding_jobs to the current prefix so
+    # the coding-model routing keeps matching after the _ghost_->_quinely_ rename.
+    cj = cfg.get("coding_jobs")
+    if isinstance(cj, list):
+        migrated = [
+            (_GROWTH_JOB_PREFIX + j[len(_LEGACY_GROWTH_JOB_PREFIX):])
+            if isinstance(j, str) and j.startswith(_LEGACY_GROWTH_JOB_PREFIX) else j
+            for j in cj
+        ]
+        if migrated != cj:
+            cfg["coding_jobs"] = migrated
     requested_ff = cfg.get("enable_future_features", True)
     # Security: Future Features queue is critical for autonomy/self-repair.
     # Always enable at runtime regardless of config file value.
@@ -893,7 +908,7 @@ class LLMClient:
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://github.com/ghost-ai",
-                "X-Title": "Ghost AI Agent",
+                "X-Title": "Quinely AI Agent",
             }, timeout=30)
             r.raise_for_status()
             return r.json()["choices"][0]["message"]["content"].strip()
@@ -924,7 +939,7 @@ class LLMClient:
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://github.com/ghost-ai",
-                "X-Title": "Ghost AI Agent",
+                "X-Title": "Quinely AI Agent",
             }, timeout=30)
             r.raise_for_status()
             return r.json()["choices"][0]["message"]["content"].strip()
@@ -934,7 +949,7 @@ class LLMClient:
 
 def fetch_url_text(url):
     try:
-        r = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (Ghost AI)"}, timeout=10)
+        r = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (Quinely AI)"}, timeout=10)
         t = re.sub(r'<script.*?</script>', '', r.text, flags=re.DOTALL)
         t = re.sub(r'<style.*?</style>', '', t, flags=re.DOTALL)
         t = re.sub(r'<[^>]+>', ' ', t)
@@ -1042,7 +1057,7 @@ class GhostDaemon:
             new_secret = secrets.token_urlsafe(32)
             cfg["webhook_secret"] = new_secret
             save_config(cfg)
-            print(f"[Ghost] Generated new webhook_secret for webhook authentication")
+            print(f"[Quinely] Generated new webhook_secret for webhook authentication")
 
         # Identity files (SOUL.md + USER.md)
         _ensure_identity_files()
@@ -1577,7 +1592,7 @@ class GhostDaemon:
         except Exception as e:
             log.warning("Community Hub init error (non-fatal): %s", e, exc_info=True)
 
-        # ── Ghost Tool Builder: LLM-callable tool ecosystem ─────
+        # ── Quinely Tool Builder: LLM-callable tool ecosystem ─────
         self.tool_manager = None
         try:
             self.tool_manager = ToolManager(
@@ -1597,7 +1612,7 @@ class GhostDaemon:
                             name=cron_def["name"],
                             schedule=cron_def["schedule"],
                             payload={"type": "ghost_tool_cron", "callback": cron_def["callback"]},
-                            description=f"Ghost tool cron: {cron_def['name']}",
+                            description=f"Quinely tool cron: {cron_def['name']}",
                         )
             # Report load results prominently
             discovered = len(self.tool_manager.tools)
@@ -1607,12 +1622,12 @@ class GhostDaemon:
             ]
             if failed_tools:
                 log.error(
-                    "Ghost Tools: %d/%d loaded, %d FAILED: %s",
+                    "Quinely Tools: %d/%d loaded, %d FAILED: %s",
                     tool_count, discovered, len(failed_tools),
                     "; ".join(f"{n}: {e.split(chr(10))[0]}" for n, e in failed_tools),
                 )
             elif tool_count:
-                log.info("Ghost Tools loaded: %d/%d tools providing %d LLM tools",
+                log.info("Quinely Tools loaded: %d/%d tools providing %d LLM tools",
                          tool_count, discovered, len(tool_names))
         except Exception as e:
             log.warning("ToolManager init error (non-fatal): %s", e, exc_info=True)
@@ -2181,7 +2196,7 @@ class GhostDaemon:
                 return
             is_evolution_runner = job.get("name") == _FEATURE_IMPLEMENTER_JOB
             cron_prompt_body = (
-                "You are Ghost, an autonomous AI agent. A scheduled task has fired.\n"
+                "You are Quinely, an autonomous AI agent. A scheduled task has fired.\n"
                 f"Task name: {job.get('name', 'unnamed')}\n"
                 f"Description: {job.get('description', 'none')}\n\n"
                 "Complete the task below. Use available tools as needed. "
@@ -2213,7 +2228,7 @@ class GhostDaemon:
                 coding_model = None
                 coding_chain = None
                 coding_jobs = self.cfg.get("coding_jobs", [
-                    _FEATURE_IMPLEMENTER_JOB, "_ghost_growth_bug_hunter",
+                    _FEATURE_IMPLEMENTER_JOB, "_quinely_growth_bug_hunter",
                 ])
                 if job_name in coding_jobs:
                     budget = self.cfg.get("coding_model_budget", "auto")
@@ -2323,7 +2338,7 @@ class GhostDaemon:
                 self._send_cron_summary(job, result, tools_used)
 
         elif ptype == "notify":
-            title = payload.get("title", job.get("name", "Ghost Cron"))
+            title = payload.get("title", job.get("name", "Quinely Cron"))
             message = payload.get("message", "")
             if self.channel_router:
                 try:
@@ -2380,11 +2395,13 @@ class GhostDaemon:
     def _send_cron_summary(self, job, result, tools_used):
         """Use the LLM to compose a concise notification from the cron result."""
         job_name = job.get("name", "unnamed")
-        label = job_name.replace("_ghost_growth_", "").replace("_", " ").title()
+        label = (job_name.replace(_GROWTH_JOB_PREFIX, "")
+                 .replace(_LEGACY_GROWTH_JOB_PREFIX, "")
+                 .replace("_", " ").title())
         description = job.get("description", "")
 
         prompt = (
-            f"You are Ghost, an autonomous AI agent. A scheduled task just finished.\n"
+            f"You are Quinely, an autonomous AI agent. A scheduled task just finished.\n"
             f"Task: {label}\n"
             f"Description: {description}\n"
             f"Tools used: {len(tools_used)}\n\n"
@@ -2399,7 +2416,7 @@ class GhostDaemon:
             summary = self.llm.analyze("long_text", prompt)
             if summary and not summary.startswith("LLM error"):
                 self.channel_router.send(
-                    summary, priority="low", title=f"Ghost: {label}",
+                    summary, priority="low", title=f"Quinely: {label}",
                 )
         except Exception as exc:
             log.debug("Cron summary notification failed: %s", exc)
@@ -2454,10 +2471,10 @@ class GhostDaemon:
                              f"Executor error: {exc}")
 
     def stop(self, *_):
-        console_bus.emit("warn", "system", "daemon_stop", "Ghost shutting down")
+        console_bus.emit("warn", "system", "daemon_stop", "Quinely shutting down")
 
         # Wait for active cron jobs (especially the Feature Implementer) to finish
-        # before tearing down. Ghost should never die mid-work.
+        # before tearing down. Quinely should never die mid-work.
         if self.cron:
             _max_wait = 600  # 10 minutes max for long evolve cycles
             _waited = 0
@@ -2529,7 +2546,7 @@ class GhostDaemon:
                 queue.flush()
         except Exception as e:
             log.warning("Error flushing structured memory queue: %s", e)
-        print(f"\n  {DIM}👻 Ghost fading away... {self.actions_today} actions this session.{RST}\n")
+        print(f"\n  {DIM}👻 Quinely fading away... {self.actions_today} actions this session.{RST}\n")
 
     @staticmethod
     def _clean_channel_reply(text: str) -> str:
@@ -2653,12 +2670,12 @@ class GhostDaemon:
             pass
 
         inbound_prompt_body = (
-            "You are Ghost, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
+            "You are Quinely, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
             "You have DIRECT ACCESS to the file system, shell, network, and a real web browser.\n\n"
             f"The user is messaging you via **{msg.channel_id}** "
             f"(sender: {msg.sender_name}, id: {msg.sender_id}).\n"
             f"Your reply will be sent back on {msg.channel_id}.\n\n"
-            "## FIRST RULE: USER TASKS vs GHOST SELF-MODIFICATION\n"
+            "## FIRST RULE: USER TASKS vs QUINELY SELF-MODIFICATION\n"
             "Before doing ANYTHING, classify the request:\n\n"
             "**USER TASK** (build/create/write something FOR the user):\n"
             "  'build a landing page', 'write a Python script', 'create a REST API', 'make a mobile app'\n"
@@ -2673,11 +2690,11 @@ class GhostDaemon:
             f"  → Files are saved to {get_user_projects_dir(self.cfg)}/<project>/ automatically.\n"
             "  → Pick a short, descriptive kebab-case project name (e.g. 'csv-converter', 'blog-api').\n"
             "  → NEVER queue user tasks as features. Build them NOW.\n\n"
-            "**GHOST SELF-MODIFICATION** (changes to Ghost's OWN code):\n"
-            "  'add a tool to Ghost', 'fix a Ghost bug', 'improve Ghost's memory'\n"
+            "**QUINELY SELF-MODIFICATION** (changes to Quinely's OWN code):\n"
+            "  'add a tool to Quinely', 'fix a Quinely bug', 'improve Quinely's memory'\n"
             "  → Queue via add_future_feature (the Evolution Runner implements them).\n\n"
-            f"## GHOST CODEBASE\n"
-            f"Ghost source: **{PROJECT_DIR}** — for Ghost files use file_read/file_write with full path.\n"
+            f"## QUINELY CODEBASE\n"
+            f"Quinely source: **{PROJECT_DIR}** — for Quinely files use file_read/file_write with full path.\n"
             f"`shell_exec` runs from HOME (~/) by default, or from workspace if workspace param is set.\n\n"
             "## AGENT BEHAVIOR — NEVER GIVE UP\n\n"
             "**COMPLETION RULE (READ THIS FIRST):**\n"
@@ -2699,7 +2716,7 @@ class GhostDaemon:
             "**Level 3 — Python sandbox** (use what Level 2 found):\n"
             "  Your shell has an automatic sandbox environment. "
             "When you run `pip install <pkg>`, it installs into `~/.ghost/sandbox/.venv` "
-            "(NOT Ghost's own codebase). Installed tools are available immediately.\n"
+            "(NOT Quinely's own codebase). Installed tools are available immediately.\n"
             "  1. `shell_exec('pip install <pkg>')` — installs to sandbox automatically\n"
             "  2. Write script via file_write to `~/.ghost/sandbox/scripts/run.py`\n"
             "  3. `shell_exec('python3 ~/.ghost/sandbox/scripts/run.py')`\n"
@@ -2719,7 +2736,7 @@ class GhostDaemon:
             "  `add_future_feature(title='Add <name> tool', description='<working code + deps>', "
             "priority='P1', source='user_request')`\n\n"
             "### AUTOMATIC BUG FIX ESCALATION (NON-NEGOTIABLE):\n"
-            "If ANY Ghost tool returns an error, throws an exception, or behaves incorrectly — "
+            "If ANY Quinely tool returns an error, throws an exception, or behaves incorrectly — "
             "you MUST IMMEDIATELY submit a bug fix. Do NOT wait for the user to ask. "
             "Do NOT just work around it. The fix request is MANDATORY every single time.\n"
             "1. Submit the fix FIRST, before anything else:\n"
@@ -2741,12 +2758,12 @@ class GhostDaemon:
             "  You do NOT need the user to ask for delegation — decide yourself based on task complexity. "
             "Simple single-step tasks (one file read, one search) should be done directly.\n"
             "**Sandbox** (for user tasks): `pip install` auto-routes to `~/.ghost/sandbox/.venv`. "
-            "Write temp scripts to `~/.ghost/sandbox/scripts/`. NEVER install user-requested packages into Ghost's own .venv.\n"
+            "Write temp scripts to `~/.ghost/sandbox/scripts/`. NEVER install user-requested packages into Quinely's own .venv.\n"
             "**User Projects**: workspace_write (create files in user workspace), shell_exec(workspace='name') (run commands in project)\n"
             "**System**: shell_exec, file_read, file_write, file_search\n"
             "**Memory**: memory_search, memory_save\n"
             "**Web**: web_search, web_fetch (primary URL reader). browser = visible UI only (NOT for data extraction)\n"
-            "**Ghost Self-Improvement**: add_future_feature (ONLY for Ghost's own codebase)\n"
+            "**Quinely Self-Improvement**: add_future_feature (ONLY for Quinely's own codebase)\n"
             "**Communication**: send_email, notify, channel_send\n"
             "**Other**: app_control, uptime\n\n"
             "## URL & WEB TOOL RULES (CRITICAL — follow exactly)\n"
@@ -2767,7 +2784,7 @@ class GhostDaemon:
             "1. For personal recall → memory_search first, memory_save for new info\n"
             "2. Be autonomous. Don't ask the user for help mid-task.\n"
             "3. After completing ALL parts of the task, give a concise summary.\n"
-            "4. For Ghost's OWN code changes → queue via add_future_feature.\n"
+            "4. For Quinely's OWN code changes → queue via add_future_feature.\n"
             "   For user-requested projects → build directly with file_write/shell_exec.\n"
             "5. **COMPLETENESS**: Never do half the work. Every feature must be complete.\n"
             "6. **READ BEFORE WRITE**: Before modifying any file, ALWAYS file_read it first.\n\n"
@@ -3153,10 +3170,10 @@ class GhostDaemon:
         if action_id == "ask" and source:
             tool_names = self.tool_registry.names() if self.tool_registry else []
             ask_prompt_body = (
-                "You are Ghost, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
+                "You are Quinely, an AUTONOMOUS AI agent running LOCALLY on the user's computer. "
                 "You have DIRECT ACCESS to the file system, shell, network, and a real web browser.\n\n"
                 f"## PROJECT LOCATION (IMPORTANT)\n"
-                f"Ghost project root: **{PROJECT_DIR}**\n"
+                f"Quinely project root: **{PROJECT_DIR}**\n"
                 f"ALL source files live here: ghost.py, ghost_tools.py, ghost_loop.py, ghost_evolve.py, "
                 f"ghost_dashboard/, skills/, SOUL.md, USER.md, etc.\n"
                 f"- Skills go in `{PROJECT_DIR}/skills/<name>/SKILL.md` — NOT in ~/.ghost/skills/.\n"
@@ -3176,7 +3193,7 @@ class GhostDaemon:
                 "- Verify your results. Check your work rigorously. Watch for edge cases.\n"
                 "- NEVER hallucinate. Only state facts VERIFIED from a primary source.\n"
                 "- Before editing code, READ the file first to understand the full context.\n"
-                "- For code changes to Ghost, queue via add_future_feature (the Evolution Runner implements them).\n"
+                "- For code changes to Quinely, queue via add_future_feature (the Evolution Runner implements them).\n"
                 "- When DONE, call `task_complete(summary='...')` to end your turn.\n"
                 "- Saying 'I can't', 'I'm unable', 'not possible in this environment' = FORBIDDEN.\n"
                 "  You have unlimited tools, a Python sandbox, and a browser. There is ALWAYS a way.\n\n"
@@ -3189,7 +3206,7 @@ class GhostDaemon:
                 "**Level 3 — Python sandbox** (use what Level 2 found):\n"
                 "  Your shell has an automatic sandbox environment. "
                 "When you run `pip install <pkg>`, it installs into `~/.ghost/sandbox/.venv` "
-                "(NOT Ghost's own codebase). Installed tools are available immediately.\n"
+                "(NOT Quinely's own codebase). Installed tools are available immediately.\n"
                 "  1. `shell_exec('pip install <pkg>')` — installs to sandbox automatically\n"
                 "  2. Write script via file_write to `~/.ghost/sandbox/scripts/run.py`\n"
                 "  3. `shell_exec('python3 ~/.ghost/sandbox/scripts/run.py')`\n"
@@ -3207,7 +3224,7 @@ class GhostDaemon:
                 "  `add_future_feature(title='Add <name> tool', description='<working code + deps>', "
                 "priority='P1', source='user_request')`\n\n"
                 "### AUTOMATIC BUG FIX ESCALATION (NON-NEGOTIABLE):\n"
-                "If ANY Ghost tool returns an error, throws an exception, or behaves incorrectly — "
+                "If ANY Quinely tool returns an error, throws an exception, or behaves incorrectly — "
                 "you MUST IMMEDIATELY submit a bug fix. Do NOT wait for the user to ask. "
                 "Do NOT just work around it. The fix request is MANDATORY every single time.\n"
                 "1. Submit the fix FIRST, before anything else:\n"
@@ -3235,7 +3252,7 @@ class GhostDaemon:
                 "  - Code review for bugs/quality → `task(subagent_type='reviewer')`\n"
                 "  Only delegate complex multi-step work. Do simple single-tool operations directly.\n"
                 "**Sandbox** (for user tasks): `pip install` auto-routes to `~/.ghost/sandbox/.venv`. "
-                "Write temp scripts to `~/.ghost/sandbox/scripts/`. NEVER install user-requested packages into Ghost's own .venv.\n"
+                "Write temp scripts to `~/.ghost/sandbox/scripts/`. NEVER install user-requested packages into Quinely's own .venv.\n"
                 "**Code Search**: grep (regex content search, sorted by recency), glob (file pattern matching), find_code_patterns\n"
                 "**Memory**: memory_search, memory_save\n"
                 "**System**: shell_exec, file_read, file_write, file_search\n"
@@ -3315,7 +3332,7 @@ class GhostDaemon:
                 "10. You have unlimited tool calls. Keep going until the task is fully complete."
             )
             if self.cfg.get("enable_tool_loop", True) and self.tool_registry.get_all():
-                terminal_print("ask", f"[ask] {source[:50]}...", "Ghost is thinking...")
+                terminal_print("ask", f"[ask] {source[:50]}...", "Quinely is thinking...")
 
                 from ghost_middleware import InvocationContext
                 inv = InvocationContext(
@@ -3472,7 +3489,7 @@ class GhostDaemon:
 
         console_bus.emit(
             "success", "system", "daemon_start",
-            f"Ghost started — {len(self.tool_registry.names())} tools, "
+            f"Quinely started — {len(self.tool_registry.names())} tools, "
             f"model: {_display_model}",
         )
 
@@ -3487,7 +3504,7 @@ class GhostDaemon:
 
         # Startup trigger: if there's pending work in the feature queue and nothing
         # is in progress, fire the implementer. This handles continuation after
-        # evolve_deploy restarts Ghost.
+        # evolve_deploy restarts Quinely.
         if self.cron and self._features_store.is_queue_ready():
             self.cron.fire_now(_FEATURE_IMPLEMENTER_JOB)
 
@@ -3588,7 +3605,7 @@ class GhostDaemon:
             try:
                 self.check_actions()
                 if not getattr(self, "supervised", False) and deploy_marker.exists():
-                    print(f"  {MAG}Deploy marker detected — restarting Ghost...{RST}")
+                    print(f"  {MAG}Deploy marker detected — restarting Quinely...{RST}")
                     try:
                         import json as _json
                         _deploy_info = _json.loads(deploy_marker.read_text(encoding="utf-8"))
@@ -3629,7 +3646,7 @@ def cmd_log():
     if not entries:
         print(f"  {DIM}No actions yet.{RST}")
         return
-    print(f"\n  {B}👻 GHOST — Recent Actions{RST}\n")
+    print(f"\n  {B}👻 QUINELY — Recent Actions{RST}\n")
     for e in entries[-20:]:
         t = e.get("time", "")[:19].replace("T", " ")
         label, icon = TYPE_LABELS.get(e.get("type", ""), ("???", "❓"))
@@ -3640,7 +3657,7 @@ def cmd_log():
         print()
 
 def cmd_status():
-    print(f"\n  {B}👻 GHOST — Status{RST}\n")
+    print(f"\n  {B}👻 QUINELY — Status{RST}\n")
     if PID_FILE.exists():
         pid = PID_FILE.read_text(encoding="utf-8").strip()
         try:
@@ -3713,10 +3730,10 @@ def cmd_status():
     print()
 
 def cmd_context():
-    print(f"\n  {B}👻 GHOST — Context{RST}\n")
+    print(f"\n  {B}👻 QUINELY — Context{RST}\n")
     feed = read_feed()
     if not feed:
-        print(f"  {DIM}No activity yet. Ghost needs to see some clipboard data first.{RST}\n")
+        print(f"  {DIM}No activity yet. Quinely needs to see some clipboard data first.{RST}\n")
         return
     mem = ContextMemory()
     for entry in reversed(feed[:20]):
@@ -3726,13 +3743,13 @@ def cmd_context():
 
 
 def cmd_soul(sub_args):
-    """View or manage SOUL.md (Ghost's identity)."""
+    """View or manage SOUL.md (Quinely's identity)."""
     _ensure_identity_files()
 
     if not sub_args or sub_args[0] == "show":
         content = load_soul()
         if content:
-            print(f"\n  {B}👻 GHOST — Soul (SOUL.md){RST}\n")
+            print(f"\n  {B}👻 QUINELY — Soul (SOUL.md){RST}\n")
             print(f"  {DIM}File: {SOUL_FILE}{RST}\n")
             for line in content.split("\n"):
                 print(f"  {CYN}{line}{RST}")
@@ -3768,7 +3785,7 @@ def cmd_user(sub_args):
     if not sub_args or sub_args[0] == "show":
         content = load_user()
         if content:
-            print(f"\n  {B}👻 GHOST — User Profile (USER.md){RST}\n")
+            print(f"\n  {B}👻 QUINELY — User Profile (USER.md){RST}\n")
             print(f"  {DIM}File: {USER_FILE}{RST}\n")
             for line in content.split("\n"):
                 print(f"  {CYN}{line}{RST}")
@@ -3824,7 +3841,7 @@ def cmd_user(sub_args):
 
 
 def cmd_reset(sub_args):
-    """Reset Ghost data — selective or full wipe of ~/.ghost/."""
+    """Reset Quinely data — selective or full wipe of ~/.ghost/."""
     import shutil
     from datetime import datetime as _dt
 
@@ -3866,7 +3883,7 @@ def cmd_reset(sub_args):
         return
 
     if not sub_args:
-        print(f"\n  {B}👻 GHOST — Reset{RST}\n")
+        print(f"\n  {B}👻 QUINELY — Reset{RST}\n")
         print(f"  {CYN}ghost.py reset --all{RST}      Wipe everything (backs up first)")
         print(f"  {CYN}ghost.py reset --config{RST}   Reset config & credentials only")
         print(f"  {CYN}ghost.py reset --memory{RST}   Clear memory databases only")
@@ -3879,13 +3896,13 @@ def cmd_reset(sub_args):
 
     running, proc_name, proc_pid = _is_ghost_running()
     if running:
-        print(f"  {RED}Ghost is still running ({proc_name}, PID {proc_pid}).{RST}")
+        print(f"  {RED}Quinely is still running ({proc_name}, PID {proc_pid}).{RST}")
         print(f"  {DIM}Stop it first:  bash stop.sh{RST}")
         print(f"  {DIM}On Windows, files locked by the running process cannot be deleted.{RST}")
         return
 
     if flag == "--all":
-        answer = input(f"  {YLW}This will wipe ALL Ghost data. Continue? [y/N] {RST}").strip().lower()
+        answer = input(f"  {YLW}This will wipe ALL Quinely data. Continue? [y/N] {RST}").strip().lower()
         if answer != "y":
             print(f"  {DIM}Cancelled.{RST}")
             return
@@ -3894,14 +3911,14 @@ def cmd_reset(sub_args):
         GHOST_HOME.mkdir(parents=True, exist_ok=True)
         print(f"  {GRN}✓ Full reset complete.{RST}")
         print(f"  {DIM}Backup saved to: {backup}{RST}")
-        print(f"  {DIM}Start Ghost to run the setup wizard.{RST}")
+        print(f"  {DIM}Start Quinely to run the setup wizard.{RST}")
 
     elif flag == "--config":
         backup = _backup_ghost_home()
         _wipe_paths(CONFIG_FILES)
         print(f"  {GRN}✓ Config & credentials reset.{RST}")
         print(f"  {DIM}Backup saved to: {backup}{RST}")
-        print(f"  {DIM}Start Ghost to run the setup wizard.{RST}")
+        print(f"  {DIM}Start Quinely to run the setup wizard.{RST}")
 
     elif flag == "--memory":
         backup = _backup_ghost_home()
@@ -3926,7 +3943,7 @@ def cmd_cron(sub_args):
         if not jobs:
             print(f"\n  {DIM}No cron jobs configured. Add one with: python ghost.py cron add{RST}\n")
             return
-        print(f"\n  {B}⏰ GHOST — Cron Jobs{RST}\n")
+        print(f"\n  {B}⏰ QUINELY — Cron Jobs{RST}\n")
         for j in jobs:
             icon = f"{GRN}ON {RST}" if j.get("enabled") else f"{RED}OFF{RST}"
             sched = describe_schedule(j.get("schedule", {}))
@@ -3954,7 +3971,7 @@ def cmd_cron(sub_args):
 
     elif sub_args[0] == "status":
         st = cron.status()
-        print(f"\n  {B}⏰ GHOST — Cron Status{RST}\n")
+        print(f"\n  {B}⏰ QUINELY — Cron Status{RST}\n")
         print(f"  Service: {'RUNNING' if st['running'] else 'STOPPED'}")
         print(f"  Total jobs: {st['total_jobs']}")
         print(f"  Enabled: {st['enabled_jobs']}")
@@ -4084,18 +4101,18 @@ def main():
     ghost_platform.ensure_utf8_stdio()
     import argparse
     ap = argparse.ArgumentParser(
-        description="👻 GHOST — Autonomous AI Agent. Runs locally, evolves itself.",
+        description="👻 QUINELY — Autonomous AI Agent. Runs locally, evolves itself.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Examples:\n"
                "  python ghost.py                        Start watching\n"
                "  python ghost.py --model openai/gpt-4o  Use GPT-4o\n"
                "  python ghost.py log                    Show history\n"
                "  python ghost.py status                 Check status\n"
-               "  python ghost.py context                What Ghost thinks you're doing\n"
+               "  python ghost.py context                What Quinely thinks you're doing\n"
                "  python ghost.py cron list              List scheduled jobs\n"
                "  python ghost.py cron add <args>        Add a cron job\n"
                "  python ghost.py cron rm <id>           Remove a cron job\n"
-               "  python ghost.py soul                   View Ghost's soul/personality\n"
+               "  python ghost.py soul                   View Quinely's soul/personality\n"
                "  python ghost.py soul edit              Edit SOUL.md in your editor\n"
                "  python ghost.py user                   View user profile\n"
                "  python ghost.py user set name <name>   Set user info\n"

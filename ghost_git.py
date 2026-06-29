@@ -90,10 +90,10 @@ def init_repo() -> Tuple[bool, str]:
 
         _run(["add", "."])
 
-        _run(["config", "user.email", "ghost@localhost"])
-        _run(["config", "user.name", "Ghost"])
+        _run(["config", "user.email", "quinely@localhost"])
+        _run(["config", "user.name", "Quinely"])
 
-        _run(["commit", "-m", "Initial commit: Ghost baseline"])
+        _run(["commit", "-m", "Initial commit: Quinely baseline"])
 
         r = _run(["branch", "--show-current"])
         if r.stdout.strip() != "main":

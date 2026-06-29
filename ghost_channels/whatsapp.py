@@ -2,7 +2,7 @@
 WhatsApp Channel Provider — Dual-Mode
 
 Mode 1: "web" (default) — Personal WhatsApp via QR code linking (neonize/whatsmeow).
-         User scans a QR code in the Ghost dashboard to link their WhatsApp account.
+         User scans a QR code in the Quinely dashboard to link their WhatsApp account.
          Full bidirectional messaging without any Meta developer account.
 
 Mode 2: "business" — WhatsApp Business Cloud API (Meta Graph API).
@@ -133,7 +133,7 @@ def _check_neonize():
         _neonize_error = (
             f"neonize not installed.\n\n"
             f"Install with:\n  pip install neonize\n\n"
-            f"Then restart Ghost."
+            f"Then restart Quinely."
         )
         log.warning("WhatsApp Web mode unavailable: %s", exc)
     return _neonize_available
@@ -244,7 +244,7 @@ class _WebSession:
         Filtering logic:
         - Skip @status and @broadcast JIDs
         - If IsFromMe and NOT self-chat → skip (echo from user's own typing)
-        - If IsFromMe and IS self-chat → process (user talking to Ghost)
+        - If IsFromMe and IS self-chat → process (user talking to Quinely)
         - If NOT IsFromMe → process (someone else messaging the user)
         """
         if not self._inbound_cb:

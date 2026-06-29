@@ -45,7 +45,7 @@ STATE_PROCESSING = "processing"
 STATE_SPEAKING = "speaking"
 
 # ── Defaults ─────────────────────────────────────────────────────────
-DEFAULT_WAKE_WORDS = ["ghost", "hey ghost"]
+DEFAULT_WAKE_WORDS = ["quinely", "hey quinely"]
 DEFAULT_SILENCE_THRESHOLD = 0.02
 DEFAULT_SILENCE_DURATION = 2.0
 DEFAULT_CAPTURE_TIMEOUT = 30.0
@@ -918,8 +918,8 @@ def build_voice_tools(auth_store=None, cfg=None):
             "name": "voice_wake_start",
             "description": (
                 "Start Voice Wake mode — always-on microphone listening for wake words. "
-                "When a wake word is detected (e.g. 'Ghost'), captures the spoken command, "
-                "transcribes it, processes it through Ghost, and speaks the response aloud. "
+                "When a wake word is detected (e.g. 'Quinely'), captures the spoken command, "
+                "transcribes it, processes it through Quinely, and speaks the response aloud. "
                 "Requires: pip install sounddevice numpy soundfile. "
                 "STT requires an OpenAI or Groq API key, or offline vosk model."
             ),
@@ -931,7 +931,7 @@ def build_voice_tools(auth_store=None, cfg=None):
                         "items": {"type": "string"},
                         "description": (
                             "Custom wake words to listen for. "
-                            "Default: ['ghost', 'hey ghost']"
+                            "Default: ['quinely', 'hey quinely']"
                         ),
                     },
                 },

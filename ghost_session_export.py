@@ -1,5 +1,5 @@
 """
-Ghost Session Export — Export and import chat sessions in multiple formats.
+Quinely Session Export — Export and import chat sessions in multiple formats.
 
 Supports JSON (full data), Markdown (readable), and HTML (styled) formats.
 Exports include messages, tool calls, skills used, model info, timestamps, token counts.
@@ -35,7 +35,7 @@ _HTML_TEMPLATE = '''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Chat Export — {title}</title>
+    <title>Quinely Chat Export — {title}</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -122,7 +122,7 @@ _HTML_TEMPLATE = '''<!DOCTYPE html>
 <body>
     <div class="container">
         <div class="header">
-            <h1>&#x1F47B; Ghost Chat Session</h1>
+            <h1>&#x1F47B; Quinely Chat Session</h1>
             <div class="meta">
                 <span>&#x1F4C5; {date}</span>
                 <span>&#x1F4AC; {message_count} messages</span>
@@ -130,7 +130,7 @@ _HTML_TEMPLATE = '''<!DOCTYPE html>
             </div>
         </div>
         {messages}
-        <div class="footer">Exported from Ghost Autonomous Agent</div>
+        <div class="footer">Exported from Quinely Autonomous Agent</div>
     </div>
 </body>
 </html>'''
@@ -360,7 +360,7 @@ def _export_markdown(messages: list[dict], filename_base: str, model: str, metad
     filepath = EXPORTS_DIR / filename
     
     lines = [
-        "# Ghost Chat Session",
+        "# Quinely Chat Session",
         "",
         f"**Exported:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
     ]
@@ -382,7 +382,7 @@ def _export_markdown(messages: list[dict], filename_base: str, model: str, metad
         if role == "user":
             lines.append(f"## &#x1F464; User")
         elif role == "assistant":
-            lines.append(f"## &#x1F47B; Ghost")
+            lines.append(f"## &#x1F47B; Quinely")
         else:
             lines.append(f"## {role.capitalize()}")
         if timestamp:
@@ -449,7 +449,7 @@ def _export_html(messages: list[dict], filename_base: str, model: str, metadata:
         # Format code
         content = _format_code_blocks(content)
         role_class = "user" if role == "user" else "assistant"
-        role_label = "You" if role == "user" else "Ghost"
+        role_label = "You" if role == "user" else "Quinely"
         
         tools_html = ""
         tools = msg.get("tools_used") or msg.get("tool_calls")

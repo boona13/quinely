@@ -173,7 +173,7 @@ class OnboardingMixin:
         if hasattr(self, "send_text"):
             try:
                 result = self.send_text(
-                    to="", text="Ghost channel setup complete! This is a test message.",
+                    to="", text="Quinely channel setup complete! This is a test message.",
                 )
                 test_sent = hasattr(result, "ok") and result.ok
             except Exception:

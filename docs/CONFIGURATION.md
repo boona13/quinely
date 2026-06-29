@@ -87,7 +87,7 @@ Ghost stores configuration in `~/.ghost/config.json`. All settings can be change
 | `coding_model_budget` | string/number | `"auto"` | Budget for coding tasks. Presets: `"free"` (disables self-evolution), `"low"` (≤$0.50/MTok), `"medium"` (≤$2/MTok), `"high"` (≤$6/MTok), `"auto"` (best value ratio). A raw number like `1.5` is treated as max $/MTok. |
 | `coding_model_override` | string/null | `null` | Force a specific model for coding tasks (e.g. `"anthropic/claude-opus-4.6"`). Bypasses the dispatcher entirely. |
 | `min_swe_bench_score` | float | `78.0` | Minimum acceptable SWE-bench Verified score for coding model selection. Auto-relaxed with a warning if no model qualifies within budget. |
-| `coding_jobs` | list | `["_ghost_growth_feature_implementer", "_ghost_growth_bug_hunter"]` | Cron job names that should use the coding model instead of the default. |
+| `coding_jobs` | list | `["_quinely_growth_feature_implementer", "_quinely_growth_bug_hunter"]` | Cron job names that should use the coding model instead of the default. (Legacy `_ghost_growth_*` names are auto-migrated on load.) |
 
 The dispatcher checks all configured providers and picks the cheapest route to the highest-quality model. For example, a user with a ChatGPT Plus subscription gets `gpt-5.3-codex` at $0 through OAuth. Setting budget to `"free"` completely disables coding cron jobs to avoid low-quality output.
 

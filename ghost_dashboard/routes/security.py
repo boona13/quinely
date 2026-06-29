@@ -202,7 +202,6 @@ def stream_ai_audit(session_id):
                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-@bp.route("/api/security/ai-audit/stop/<session_id>", methods=["POST"])
 @bp.route("/api/security/vulnerabilities/latest", methods=["GET"])
 def get_latest_vulnerabilities():
     """Return the latest dependency vulnerability report, if one has run."""
@@ -229,7 +228,8 @@ def scan_vulnerabilities():
     return jsonify(report), status
 
 
-@bp.route("/api/security/audit", methods=["POST"])
+@bp.route("/api/security/ai-audit/stop/<session_id>", methods=["POST"])
+def stop_ai_audit(session_id):
     """Cancel an in-progress AI audit."""
     with _audit_lock:
         session = _audit_sessions.get(session_id)

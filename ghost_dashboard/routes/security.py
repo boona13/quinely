@@ -19,7 +19,17 @@ bp = Blueprint("security", __name__)
 
 _audit_sessions = {}
 _audit_lock = threading.Lock()
+_vuln_lock = threading.Lock()
+_latest_vuln_report = None
 
+
+def _scan_dependencies(manifest_path="requirements.txt", include_transitive=False):
+    """Run the dependency vuln tool directly for dashboard endpoints."""
+    try:
+        from ghost_tools.dependency_vuln_intel.tool import _scan
+        return _scan(manifest_path=manifest_path, include_transitive=include_transitive)
+    except (ImportError, OSError, ValueError) as exc:
+        return {"ok": False, "error": str(exc), "summary": "Dependency vulnerability scanner unavailable.", "findings": []}
 SECURITY_AUDIT_PROMPT = (
     "You are Quinely performing a COMPREHENSIVE SECURITY AUDIT.\n\n"
 
@@ -193,7 +203,33 @@ def stream_ai_audit(session_id):
 
 
 @bp.route("/api/security/ai-audit/stop/<session_id>", methods=["POST"])
-def stop_ai_audit(session_id):
+@bp.route("/api/security/vulnerabilities/latest", methods=["GET"])
+def get_latest_vulnerabilities():
+    """Return the latest dependency vulnerability report, if one has run."""
+    with _vuln_lock:
+        report = dict(_latest_vuln_report) if isinstance(_latest_vuln_report, dict) else None
+    if report is None:
+        return jsonify({"ok": True, "summary": "No dependency vulnerability scan has run yet.", "findings": [], "package_count": 0, "finding_count": 0})
+    return jsonify(report)
+
+
+@bp.route("/api/security/vulnerabilities/scan", methods=["POST"])
+def scan_vulnerabilities():
+    """Scan a local Python requirements manifest for OSV advisories."""
+    global _latest_vuln_report
+    data = request.get_json(silent=True) or {}
+    manifest_path = data.get("path") or data.get("manifest_path") or "requirements.txt"
+    include_transitive = bool(data.get("include_transitive", False))
+    if not isinstance(manifest_path, str):
+        return jsonify({"ok": False, "error": "path must be a string", "findings": []}), 400
+    report = _scan_dependencies(manifest_path=manifest_path, include_transitive=include_transitive)
+    with _vuln_lock:
+        _latest_vuln_report = report
+    status = 200 if report.get("ok") else 502
+    return jsonify(report), status
+
+
+@bp.route("/api/security/audit", methods=["POST"])
     """Cancel an in-progress AI audit."""
     with _audit_lock:
         session = _audit_sessions.get(session_id)

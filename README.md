@@ -12,6 +12,10 @@ It's a full operating system for AI autonomy — not a chatbot.
 
 > **One agent. 260+ tools. 20 AI nodes. 7 LLM providers. MCP client. 3 messaging channels. Zero cloud dependencies.**
 
+<p align="center">
+  <img src="assets/screenshots/quinely-evolution-live.png" alt="Quinely's self-evolution theater — watching the agent rewrite, test, and deploy its own source code in real time" width="900">
+</p>
+
 ---
 
 ## Why Quinely
@@ -124,6 +128,10 @@ Quinely starts without one. Open [http://localhost:3333](http://localhost:3333) 
 
 Quinely's tool system is a multi-turn execution engine. The LLM calls tools, gets results, decides what to do next, and loops — up to 200 steps per session with automatic context compaction, loop detection, and deferral prevention.
 
+<p align="center">
+  <img src="assets/screenshots/quinely-tools.png" alt="Quinely Tools page — LLM-callable tools and subagent types managed from the dashboard" width="900">
+</p>
+
 ### Core Tools
 
 | Category | Tools | Highlights |
@@ -194,6 +202,10 @@ Quinely can extend its own toolset at runtime:
 
 GhostNodes is a modular AI capability system. Each node is a self-contained plugin (just a `NODE.yaml` manifest + `node.py` entry point) that registers tools with Quinely. Nodes can run locally on your GPU or call cloud APIs.
 
+<p align="center">
+  <img src="assets/screenshots/quinely-nodes.png" alt="AI Nodes catalog — 20 local capabilities across image generation, audio, video, and vision with a GPU load balancer" width="900">
+</p>
+
 ### Bundled Nodes
 
 | Category | Nodes | What They Do |
@@ -254,6 +266,10 @@ evolve_plan → evolve_apply (1-5x) → evolve_test → evolve_submit_pr → PR 
 
 Every self-modification goes through a **separate LLM instance** acting as a strict senior code reviewer. The reviewer gets 7 specialized tools:
 
+<p align="center">
+  <img src="assets/screenshots/quinely-prs.png" alt="Pull Requests — Quinely's Developer and Reviewer personas review every self-modification before it ships" width="900">
+</p>
+
 | Tool | What It Does |
 |---|---|
 | `read_pr_diff` | Browse diffs per-file (sorted: new files → integration files → patches) |
@@ -281,6 +297,10 @@ The reviewer checks ~15 categories: code quality, security, frontend-backend int
 ## Autonomous Growth — 14 Routines
 
 Quinely improves itself on configurable schedules. Each routine is a specialized autonomous agent with a detailed system prompt, full tool access, and its own schedule.
+
+<p align="center">
+  <img src="assets/screenshots/quinely-cron.png" alt="Cron Jobs — Quinely's autonomous growth routines on configurable schedules" width="900">
+</p>
 
 | Routine | Schedule | What It Does |
 |---|---|---|
@@ -358,6 +378,10 @@ Quinely supports **OpenRouter** (200+ models), **OpenAI** (direct API), **OpenAI
 
 Configure one or all — Quinely automatically falls back through your provider chain with jittered exponential backoff, escalating cooldowns (60s → 5m → 25m → 1h), and periodic probing of failed providers for recovery detection.
 
+<p align="center">
+  <img src="assets/screenshots/quinely-models.png" alt="Models page — multi-provider management with the budget-aware coding model dispatcher and fallback chain" width="900">
+</p>
+
 ---
 
 ## Messaging Channels
@@ -375,6 +399,10 @@ Every channel gets: message queuing with write-ahead logging, exponential backof
 ## 47 Skills + GhostHub Registry
 
 Specialized knowledge injected automatically when relevant:
+
+<p align="center">
+  <img src="assets/screenshots/quinely-skills.png" alt="Skills page — 47 bundled and user skills with triggers, plus the GhostHub registry" width="900">
+</p>
 
 | Category | Skills |
 |---|---|
@@ -414,6 +442,10 @@ Quinely doesn't wait for the model to decide to look something up. Before every 
 ### Memory Map
 
 Quinely's long-term memory is also explorable as a **living knowledge graph** in the dashboard (Memory → Map). It turns the flat memory list into a visual "mind":
+
+<p align="center">
+  <img src="assets/screenshots/quinely-memory.png" alt="Memory Map — Quinely's long-term memory as a living graph, clustered by type and linked by shared tags" width="900">
+</p>
 
 - **Type clusters** — every memory orbits a hub node for its type (`ask`, `session`, `note`, `mistake`, `preference`, …), so the shape of what Quinely knows is visible at a glance.
 - **Tag cross-links** — memories that share tags are connected, surfacing the latent structure across types.
@@ -509,6 +541,10 @@ Tracing is best-effort (failures never affect the agent) and toggled with `enabl
 ## Dashboard
 
 The web dashboard at [http://localhost:3333](http://localhost:3333) is organized into **19 destinations**, grouped in the sidebar. Related views are consolidated into tabbed **hubs** so the navigation stays shallow — each tab below is a view that used to be its own page.
+
+<p align="center">
+  <img src="assets/screenshots/quinely-overview.png" alt="Quinely dashboard Overview — live daemon status, session stats, skills, memories, and system health" width="900">
+</p>
 
 | Page | Tabs | What It Does |
 |---|---|---|

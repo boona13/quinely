@@ -468,7 +468,7 @@ function _html() {
         <span class="theater-bar-dot" style="background:#ef4444"></span>
         <span class="theater-bar-dot" style="background:#eab308"></span>
         <span class="theater-bar-dot" style="background:#22c55e"></span>
-        <span class="theater-term-title">ghost — self-evolution</span>
+        <span class="theater-term-title">quinely — self-evolution</span>
       </div>
       <div class="theater-term-body" id="theater-term"></div>
     </div>

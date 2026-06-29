@@ -15,7 +15,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-log = logging.getLogger("ghost.skills")
+log = logging.getLogger("quinely.skills")
 
 
 GHOST_HOME = Path.home() / ".ghost"

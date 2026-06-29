@@ -17,7 +17,7 @@ import platform
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.video_gen")
+log = logging.getLogger("quinely.node.video_gen")
 
 _pipe = None
 _current_model = None

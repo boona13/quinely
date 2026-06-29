@@ -21,7 +21,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.stable_diffusion")
+log = logging.getLogger("quinely.node.stable_diffusion")
 
 _pipe = None
 _current_model = None

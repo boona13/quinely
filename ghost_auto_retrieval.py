@@ -25,7 +25,7 @@ import re
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
-log = logging.getLogger("ghost.retrieval")
+log = logging.getLogger("quinely.retrieval")
 
 _GREETINGS = {
     "hi", "hello", "hey", "yo", "sup", "hiya", "howdy", "thanks", "thank you",

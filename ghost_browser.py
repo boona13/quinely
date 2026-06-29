@@ -24,7 +24,7 @@ import requests as _req
 from pathlib import Path
 from urllib.parse import urlparse
 
-log = logging.getLogger("ghost.browser")
+log = logging.getLogger("quinely.browser")
 
 GHOST_HOME = Path.home() / ".ghost"
 SCREENSHOTS_DIR = GHOST_HOME / "screenshots"

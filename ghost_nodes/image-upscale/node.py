@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.image_upscale")
+log = logging.getLogger("quinely.node.image_upscale")
 
 _upsampler = None
 _upsampler_scale = None

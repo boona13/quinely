@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.surya_ocr")
+log = logging.getLogger("quinely.node.surya_ocr")
 
 _det_predictor = None
 _rec_predictor = None

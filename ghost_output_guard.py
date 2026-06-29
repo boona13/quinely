@@ -16,7 +16,7 @@ import logging
 import threading
 from collections import Counter
 
-log = logging.getLogger("ghost.output_guard")
+log = logging.getLogger("quinely.output_guard")
 
 _guard_stats = {"total_processed": 0, "calls_clamped": 0, "duplicates_removed": 0}
 _guard_stats_lock = threading.Lock()

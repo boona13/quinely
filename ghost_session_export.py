@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-log = logging.getLogger("ghost.session_export")
+log = logging.getLogger("quinely.session_export")
 
 GHOST_HOME = Path.home() / ".ghost"
 EXPORTS_DIR = GHOST_HOME / "exports"

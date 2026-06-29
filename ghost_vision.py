@@ -16,7 +16,7 @@ import re
 import requests
 from pathlib import Path
 
-log = logging.getLogger("ghost.vision")
+log = logging.getLogger("quinely.vision")
 
 GHOST_HOME = Path.home() / ".ghost"
 MAX_IMAGE_SIZE_MB = 20

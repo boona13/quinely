@@ -16,7 +16,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-log = logging.getLogger("ghost.node_sdk")
+log = logging.getLogger("quinely.node_sdk")
 
 GHOST_HOME = Path.home() / ".ghost"
 NODES_DIR = GHOST_HOME / "nodes"
@@ -57,7 +57,7 @@ NODE_PY_TEMPLATE = textwrap.dedent('''\
     import logging
     import time
 
-    log = logging.getLogger("ghost.node.{name_safe}")
+    log = logging.getLogger("quinely.node.{name_safe}")
 
 
     def register(api):

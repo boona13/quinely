@@ -34,7 +34,7 @@ import re
 import threading
 from typing import List, Optional
 
-log = logging.getLogger("ghost.embeddings")
+log = logging.getLogger("quinely.embeddings")
 
 DEFAULT_MODEL = "minishlab/potion-base-8M"  # 256-dim static model, CPU, ~30MB
 

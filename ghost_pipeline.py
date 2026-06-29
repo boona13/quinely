@@ -16,7 +16,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
-log = logging.getLogger("ghost.pipeline")
+log = logging.getLogger("quinely.pipeline")
 
 GHOST_HOME = Path.home() / ".ghost"
 PIPELINES_DIR = GHOST_HOME / "pipelines"

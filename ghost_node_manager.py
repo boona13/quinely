@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-log = logging.getLogger("ghost.node_manager")
+log = logging.getLogger("quinely.node_manager")
 
 GHOST_HOME = Path.home() / ".ghost"
 NODES_DIR = GHOST_HOME / "nodes"

@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Dict, Any, List
 
-log = logging.getLogger("ghost.channels.threading")
+log = logging.getLogger("quinely.channels.threading")
 
 
 class ThreadingMode(Enum):

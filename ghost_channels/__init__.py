@@ -52,7 +52,7 @@ INBOUND_LOG_FILE = GHOST_HOME / "channel_inbound.json"
 
 MAX_INBOUND_LOG = 200
 
-log = logging.getLogger("ghost.channels")
+log = logging.getLogger("quinely.channels")
 
 
 # ═══════════════════════════════════════════════════════════════

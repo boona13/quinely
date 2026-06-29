@@ -15,7 +15,7 @@ import uuid
 from pathlib import Path
 from threading import RLock
 
-log = logging.getLogger("ghost.canvas")
+log = logging.getLogger("quinely.canvas")
 
 CANVAS_ROOT = Path.home() / ".ghost" / "canvas"
 CANVAS_ROOT.mkdir(parents=True, exist_ok=True)

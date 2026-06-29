@@ -13,7 +13,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.depth_estimation")
+log = logging.getLogger("quinely.node.depth_estimation")
 
 _model = None
 _processor = None

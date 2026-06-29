@@ -14,7 +14,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-log = logging.getLogger("ghost.model_dispatch")
+log = logging.getLogger("quinely.model_dispatch")
 
 GHOST_HOME = Path.home() / ".ghost"
 BENCHMARKS_FILE = GHOST_HOME / "coding_benchmarks.json"

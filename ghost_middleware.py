@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-log = logging.getLogger("ghost.middleware")
+log = logging.getLogger("quinely.middleware")
 
 
 def _push_chat_progress(ctx: InvocationContext, message: str) -> None:

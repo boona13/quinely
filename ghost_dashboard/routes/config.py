@@ -200,7 +200,7 @@ def update_cloud_provider(name):
             details={"enabled": data.get("enabled"), "api_key_updated": "api_key" in data, "secret_key_updated": "secret_key" in data},
         )
     except Exception as e:
-        logging.getLogger("ghost.audit").warning("Audit log failed: %s", e)
+        logging.getLogger("quinely.audit").warning("Audit log failed: %s", e)
 
     return jsonify({"ok": True, "message": f"Updated {name}"})
 

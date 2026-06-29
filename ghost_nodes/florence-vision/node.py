@@ -11,7 +11,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.florence_vision")
+log = logging.getLogger("quinely.node.florence_vision")
 
 _model = None
 _processor = None

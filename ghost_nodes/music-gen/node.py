@@ -8,7 +8,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.music_gen")
+log = logging.getLogger("quinely.node.music_gen")
 
 _model = None
 _processor = None

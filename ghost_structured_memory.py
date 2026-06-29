@@ -25,7 +25,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger("ghost.structured_memory")
+log = logging.getLogger("quinely.structured_memory")
 
 GHOST_HOME = Path.home() / ".ghost"
 STRUCTURED_MEMORY_FILE = GHOST_HOME / "structured_memory.json"

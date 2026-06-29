@@ -22,7 +22,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-log = logging.getLogger("ghost.channels.directory")
+log = logging.getLogger("quinely.channels.directory")
 
 GHOST_HOME = Path.home() / ".ghost"
 CONTACTS_CACHE_FILE = GHOST_HOME / "channel_contacts.json"

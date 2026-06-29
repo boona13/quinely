@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.bark_tts")
+log = logging.getLogger("quinely.node.bark_tts")
 
 _model = None
 _processor = None

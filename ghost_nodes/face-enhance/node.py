@@ -12,7 +12,7 @@ import time
 import io
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.face_enhance")
+log = logging.getLogger("quinely.node.face_enhance")
 
 _model = None
 _processor = None

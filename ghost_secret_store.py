@@ -26,7 +26,7 @@ import logging
 import os
 from pathlib import Path
 
-log = logging.getLogger("ghost.secrets")
+log = logging.getLogger("quinely.secrets")
 
 GHOST_HOME = Path.home() / ".ghost"
 KEY_FILE = GHOST_HOME / ".secret_key"

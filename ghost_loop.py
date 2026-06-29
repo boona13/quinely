@@ -37,7 +37,7 @@ try:
 except Exception:  # pragma: no cover - tracing is best-effort
     _get_tracer = None
 
-log = logging.getLogger("ghost.loop")
+log = logging.getLogger("quinely.loop")
 
 
 def _build_date_context() -> str:

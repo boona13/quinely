@@ -15,7 +15,7 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-log = logging.getLogger("ghost.media_store")
+log = logging.getLogger("quinely.media_store")
 
 GHOST_HOME = Path.home() / ".ghost"
 MEDIA_DIR = GHOST_HOME / "media"

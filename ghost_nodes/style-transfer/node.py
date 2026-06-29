@@ -20,7 +20,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.style_transfer")
+log = logging.getLogger("quinely.node.style_transfer")
 
 _pipe = None
 _device_str = None

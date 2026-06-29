@@ -28,7 +28,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-log = logging.getLogger("ghost.webhooks")
+log = logging.getLogger("quinely.webhooks")
 
 GHOST_HOME = Path.home() / ".ghost"
 WEBHOOKS_FILE = GHOST_HOME / "webhooks.json"

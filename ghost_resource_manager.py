@@ -20,7 +20,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Optional
 
-log = logging.getLogger("ghost.resource_manager")
+log = logging.getLogger("quinely.resource_manager")
 
 GHOST_HOME = Path.home() / ".ghost"
 MODELS_CACHE_DIR = GHOST_HOME / "models"

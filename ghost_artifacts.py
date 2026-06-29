@@ -19,7 +19,7 @@ import shutil
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.artifacts")
+log = logging.getLogger("quinely.artifacts")
 
 GHOST_HOME = Path.home() / ".ghost"
 ARTIFACTS_ROOT = GHOST_HOME / "artifacts"

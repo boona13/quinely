@@ -14,7 +14,7 @@ import json
 import logging
 import re
 
-log = logging.getLogger("ghost.llm_task")
+log = logging.getLogger("quinely.llm_task")
 
 JSON_SYSTEM_PROMPT = (
     "You are a JSON-only task executor. You MUST respond with ONLY valid JSON. "

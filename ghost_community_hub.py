@@ -20,7 +20,7 @@ from typing import Optional
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
-log = logging.getLogger("ghost.community_hub")
+log = logging.getLogger("quinely.community_hub")
 
 GHOST_HOME = Path.home() / ".ghost"
 HUB_CACHE_DIR = GHOST_HOME / "hub_cache"

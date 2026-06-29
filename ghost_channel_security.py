@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
 
-log = logging.getLogger("ghost.channel_security")
+log = logging.getLogger("quinely.channel_security")
 GHOST_HOME = Path.home() / ".ghost"
 CHANNEL_AUDIT_LOG = GHOST_HOME / "channel_audit.jsonl"
 RISK_SCORE_HIGH, RISK_SCORE_MEDIUM = 80, 60

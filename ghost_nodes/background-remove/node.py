@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.background_remove")
+log = logging.getLogger("quinely.node.background_remove")
 
 
 def register(api):

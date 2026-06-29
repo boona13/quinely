@@ -25,7 +25,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-log = logging.getLogger("ghost.security_audit")
+log = logging.getLogger("quinely.security_audit")
 
 GHOST_HOME = Path.home() / ".ghost"
 PROJECT_DIR = Path(__file__).resolve().parent

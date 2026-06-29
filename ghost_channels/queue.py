@@ -20,7 +20,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Callable
 
-log = logging.getLogger("ghost.channels.queue")
+log = logging.getLogger("quinely.channels.queue")
 
 GHOST_HOME = Path.home() / ".ghost"
 QUEUE_DIR = GHOST_HOME / "channel_queue"

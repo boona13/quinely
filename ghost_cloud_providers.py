@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-log = logging.getLogger("ghost.cloud_providers")
+log = logging.getLogger("quinely.cloud_providers")
 
 GHOST_HOME = Path.home() / ".ghost"
 COSTS_FILE = GHOST_HOME / "cloud_costs.json"

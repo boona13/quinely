@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List, Callable
 from enum import Enum
 
-log = logging.getLogger("ghost.channels.onboard")
+log = logging.getLogger("quinely.channels.onboard")
 
 
 class StepType(Enum):

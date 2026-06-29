@@ -16,7 +16,7 @@ assistant message that made the dangling calls.
 import logging
 import threading
 
-log = logging.getLogger("ghost.message_repair")
+log = logging.getLogger("quinely.message_repair")
 
 _repair_stats = {"total_scanned": 0, "repairs_performed": 0, "dangling_found": 0}
 _repair_stats_lock = threading.Lock()

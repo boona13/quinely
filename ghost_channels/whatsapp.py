@@ -28,7 +28,7 @@ from ghost_channels import (
     OutboundResult, InboundMessage, GHOST_HOME,
 )
 
-log = logging.getLogger("ghost.channels.whatsapp")
+log = logging.getLogger("quinely.channels.whatsapp")
 
 GRAPH_API = "https://graph.facebook.com/v21.0"
 WA_DATA_DIR = GHOST_HOME / "whatsapp_web"

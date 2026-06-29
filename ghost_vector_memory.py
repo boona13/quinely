@@ -16,7 +16,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 from dataclasses import dataclass, asdict
 
-log = logging.getLogger("ghost.vector_memory")
+log = logging.getLogger("quinely.vector_memory")
 
 try:
     import numpy as _np

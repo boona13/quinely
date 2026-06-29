@@ -30,7 +30,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.runway_video")
+log = logging.getLogger("quinely.node.runway_video")
 
 PROVIDER = "runway"
 

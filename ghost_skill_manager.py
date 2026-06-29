@@ -14,7 +14,7 @@ import yaml
 
 from ghost_skills import SKILLS_USER_DIR
 
-log = logging.getLogger("ghost.skill_manager")
+log = logging.getLogger("quinely.skill_manager")
 
 
 @dataclass

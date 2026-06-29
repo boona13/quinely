@@ -15,7 +15,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.video_composer")
+log = logging.getLogger("quinely.node.video_composer")
 
 RESOLUTIONS = {
     "480p": (854, 480),

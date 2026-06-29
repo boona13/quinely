@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Dict, Any, List
 
-log = logging.getLogger("ghost.channels.actions")
+log = logging.getLogger("quinely.channels.actions")
 
 
 class ActionType(Enum):

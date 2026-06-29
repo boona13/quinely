@@ -28,7 +28,7 @@ from urllib.parse import urlencode, urlparse, parse_qs
 
 import requests
 
-log = logging.getLogger("ghost.oauth")
+log = logging.getLogger("quinely.oauth")
 
 CODEX_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
 CODEX_AUTH_URL = "https://auth.openai.com/oauth/authorize"

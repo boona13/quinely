@@ -20,7 +20,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
-log = logging.getLogger("ghost.audit")
+log = logging.getLogger("quinely.audit")
 
 GHOST_HOME = Path.home() / ".ghost"
 AUDIT_LOG_FILE = GHOST_HOME / "audit_log.jsonl"

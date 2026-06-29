@@ -804,7 +804,7 @@ def _process_message(session, daemon):
                 if _mem_block:
                     user_message_with_context = user_message_with_context + "\n\n" + _mem_block
             except Exception as _e:
-                logging.getLogger("ghost.retrieval").debug("auto-retrieval skipped: %s", _e)
+                logging.getLogger("quinely.retrieval").debug("auto-retrieval skipped: %s", _e)
 
         # When the user message contains a URL, force the model to call
         # a tool first (it will naturally pick web_fetch per the system prompt).

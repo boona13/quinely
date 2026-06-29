@@ -30,7 +30,7 @@ import threading
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.voice")
+log = logging.getLogger("quinely.voice")
 
 GHOST_HOME = Path.home() / ".ghost"
 VOICE_DIR = GHOST_HOME / "voice"

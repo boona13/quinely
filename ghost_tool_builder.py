@@ -45,7 +45,7 @@ def clear_tool_progress_callback():
     _tool_progress.callback = None
 
 
-log = logging.getLogger("ghost.tool_builder")
+log = logging.getLogger("quinely.tool_builder")
 
 PROJECT_DIR = Path(__file__).resolve().parent
 TOOLS_DIR = PROJECT_DIR / "ghost_tools"

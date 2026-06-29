@@ -23,7 +23,7 @@ from pathlib import Path
 from enum import Enum
 from typing import Optional, Dict, Any, List, Set
 
-log = logging.getLogger("ghost.channels.security")
+log = logging.getLogger("quinely.channels.security")
 
 GHOST_HOME = Path.home() / ".ghost"
 SECURITY_LOG_FILE = GHOST_HOME / "channel_security.json"

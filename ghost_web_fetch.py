@@ -31,7 +31,7 @@ from urllib.parse import urlparse
 
 import requests
 
-log = logging.getLogger("ghost.web_fetch")
+log = logging.getLogger("quinely.web_fetch")
 logging.getLogger("readability.readability").setLevel(logging.WARNING)
 
 # ═════════════════════════════════════════════════════════════════════

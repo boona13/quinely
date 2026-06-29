@@ -15,7 +15,7 @@ import time
 import io
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.sound_effects")
+log = logging.getLogger("quinely.node.sound_effects")
 
 _pipe = None
 _current_model = None

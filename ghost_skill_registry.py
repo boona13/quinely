@@ -19,7 +19,7 @@ import requests
 
 from ghost_skills import SKILLS_USER_DIR
 
-log = logging.getLogger("ghost.skill_registry")
+log = logging.getLogger("quinely.skill_registry")
 
 # Default registry configuration
 DEFAULT_REGISTRY_REPO = "boona13/skills-registry"

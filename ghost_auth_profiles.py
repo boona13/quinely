@@ -15,7 +15,7 @@ from pathlib import Path
 
 import ghost_secret_store as secret_store
 
-log = logging.getLogger("ghost.auth_profiles")
+log = logging.getLogger("quinely.auth_profiles")
 
 GHOST_HOME = Path.home() / ".ghost"
 PROFILES_FILE = GHOST_HOME / "auth_profiles.json"

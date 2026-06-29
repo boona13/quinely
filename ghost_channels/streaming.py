@@ -20,7 +20,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, Callable
 
-log = logging.getLogger("ghost.channels.streaming")
+log = logging.getLogger("quinely.channels.streaming")
 
 
 @dataclass

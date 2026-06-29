@@ -28,7 +28,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.kling_video")
+log = logging.getLogger("quinely.node.kling_video")
 
 PROVIDER = "kling"
 

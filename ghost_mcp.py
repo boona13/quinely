@@ -37,7 +37,7 @@ import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-log = logging.getLogger("ghost.mcp")
+log = logging.getLogger("quinely.mcp")
 
 CONFIG_PATH = Path.home() / ".ghost" / "mcp_servers.json"
 PROTOCOL_VERSION = "2024-11-05"

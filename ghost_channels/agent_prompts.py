@@ -15,7 +15,7 @@ Usage:
 import logging
 from typing import Dict, Any, List, Optional
 
-log = logging.getLogger("ghost.channels.agent_prompts")
+log = logging.getLogger("quinely.channels.agent_prompts")
 
 
 CHANNEL_TOOL_HINTS: Dict[str, List[str]] = {

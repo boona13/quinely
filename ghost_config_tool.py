@@ -15,7 +15,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-log = logging.getLogger("ghost.config_tool")
+log = logging.getLogger("quinely.config_tool")
 
 GHOST_HOME = Path.home() / ".ghost"
 CONFIG_FILE = GHOST_HOME / "config.json"

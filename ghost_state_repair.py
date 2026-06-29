@@ -13,7 +13,7 @@ import stat
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.state_repair")
+log = logging.getLogger("quinely.state_repair")
 
 GHOST_HOME = Path.home() / ".ghost"
 BACKUP_DIR = GHOST_HOME / "state_backups"

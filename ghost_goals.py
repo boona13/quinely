@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-log = logging.getLogger("ghost.goals")
+log = logging.getLogger("quinely.goals")
 
 GHOST_HOME = Path.home() / ".ghost"
 GOALS_FILE = GHOST_HOME / "goals.json"

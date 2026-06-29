@@ -56,10 +56,10 @@ def _migrate_credentials():
         if any(isinstance(c, dict) and c.get("password")
                and not secret_store.is_encrypted(c["password"]) for c in raw):
             _save_credentials(_load_credentials())  # load decrypts, save encrypts
-            logging.getLogger("ghost.credentials").info(
+            logging.getLogger("quinely.credentials").info(
                 "Migrated credentials to encrypted-at-rest")
     except Exception as e:
-        logging.getLogger("ghost.credentials").warning(
+        logging.getLogger("quinely.credentials").warning(
             "Credential encryption migration failed: %s", e)
 
 
@@ -99,7 +99,7 @@ def build_credential_tools() -> list:
                 details={"username": username, "email": email},
             )
         except Exception as e:
-            logging.getLogger("ghost.audit").warning("Audit log failed: %s", e)
+            logging.getLogger("quinely.audit").warning("Audit log failed: %s", e)
         display_email = entry["email"] or entry["username"]
         return f"OK: credentials saved for {entry['service']} ({display_email})"
 

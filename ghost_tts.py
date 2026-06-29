@@ -18,7 +18,7 @@ import uuid
 import requests
 from pathlib import Path
 
-log = logging.getLogger("ghost.tts")
+log = logging.getLogger("quinely.tts")
 
 GHOST_HOME = Path.home() / ".ghost"
 AUDIO_DIR = GHOST_HOME / "audio"

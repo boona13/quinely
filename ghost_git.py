@@ -33,7 +33,7 @@ memory.db
 .env
 """
 
-log = logging.getLogger("ghost.git")
+log = logging.getLogger("quinely.git")
 
 
 def _run(args: list[str], check: bool = True,

@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Optional
 
 from ghost_goals import GoalStore, STEP_PENDING, STEP_COMPLETED, STEP_FAILED
 
-log = logging.getLogger("ghost.goal_executor")
+log = logging.getLogger("quinely.goal_executor")
 
 MAX_STEP_TOOL_STEPS = 30
 MAX_QA_TOOL_STEPS   = 15

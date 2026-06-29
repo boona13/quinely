@@ -11,7 +11,7 @@ import time
 import io
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.image_inpaint")
+log = logging.getLogger("quinely.node.image_inpaint")
 
 _pipe = None
 _current_model = None

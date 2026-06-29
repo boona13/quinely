@@ -108,7 +108,7 @@ from ghost_community_hub import CommunityHub, build_community_hub_tools
 from ghost_tool_builder import ToolManager, ToolEventBus, build_tool_manager_tools
 
 # ── Logging ──────────────────────────────────────────────────────────
-log = logging.getLogger("ghost")
+log = logging.getLogger("quinely")
 
 # ── Self-correction: detect LLM give-up and auto-escalate ───────────
 

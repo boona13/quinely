@@ -27,7 +27,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.minimax_video")
+log = logging.getLogger("quinely.node.minimax_video")
 
 PROVIDER = "minimax"
 

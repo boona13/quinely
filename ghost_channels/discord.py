@@ -27,7 +27,7 @@ from ghost_channels.security import SecurityMixin
 from ghost_channels.onboard import OnboardingMixin, SetupStep, StepType, StepValidation
 from ghost_channels.mentions import MentionMixin
 
-log = logging.getLogger("ghost.channels.discord")
+log = logging.getLogger("quinely.channels.discord")
 
 DISCORD_API = "https://discord.com/api/v10"
 

@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-log = logging.getLogger("ghost.node_registry")
+log = logging.getLogger("quinely.node_registry")
 
 GHOST_HOME = Path.home() / ".ghost"
 REGISTRY_CACHE_DIR = GHOST_HOME / "node_registry_cache"

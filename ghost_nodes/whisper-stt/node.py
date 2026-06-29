@@ -9,7 +9,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.whisper_stt")
+log = logging.getLogger("quinely.node.whisper_stt")
 
 _model = None
 _current_size = None

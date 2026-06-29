@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Dict, Any, Callable
 
-log = logging.getLogger("ghost.channels.gateway")
+log = logging.getLogger("quinely.channels.gateway")
 
 
 class GatewayState(Enum):

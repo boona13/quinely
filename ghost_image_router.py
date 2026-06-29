@@ -27,7 +27,7 @@ from typing import Any
 
 import requests
 
-log = logging.getLogger("ghost.image_router")
+log = logging.getLogger("quinely.image_router")
 
 # ──────────────────────────────────────────────────────────────────────
 #  Vision Capability Registry

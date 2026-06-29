@@ -16,7 +16,7 @@ import re
 import logging
 from typing import List, Dict, Any, Optional, Callable
 
-log = logging.getLogger("ghost.channels.formatting")
+log = logging.getLogger("quinely.channels.formatting")
 
 
 class FormatMode:

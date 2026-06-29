@@ -23,7 +23,7 @@ import tempfile
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.voice_fx")
+log = logging.getLogger("quinely.node.voice_fx")
 
 EFFECTS = {
     "robot": "Metallic robotic voice with harmonics",

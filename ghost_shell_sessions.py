@@ -37,7 +37,7 @@ from ghost_tools import (
     get_workspace,
 )
 
-log = logging.getLogger("ghost.shell_sessions")
+log = logging.getLogger("quinely.shell_sessions")
 
 _MARKER_PREFIX = "__GHOST_END_"
 _DEFAULT_SESSION = "default"

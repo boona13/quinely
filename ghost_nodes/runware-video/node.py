@@ -22,7 +22,7 @@ import time
 import uuid
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.runware_video")
+log = logging.getLogger("quinely.node.runware_video")
 
 PROVIDER = "runware"
 API_URL = "https://api.runware.ai/v1"

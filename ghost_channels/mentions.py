@@ -18,7 +18,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
-log = logging.getLogger("ghost.channels.mentions")
+log = logging.getLogger("quinely.channels.mentions")
 
 
 @dataclass

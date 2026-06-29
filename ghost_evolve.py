@@ -21,7 +21,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-log = logging.getLogger("ghost.evolve")
+log = logging.getLogger("quinely.evolve")
 
 PROJECT_DIR = Path(__file__).resolve().parent
 GHOST_HOME = Path.home() / ".ghost"
@@ -129,7 +129,7 @@ class EvolutionEngine:
                 pass
         if cleaned:
             import logging
-            _log = logging.getLogger("ghost.evolve")
+            _log = logging.getLogger("quinely.evolve")
             _log.info("Cleaned up %d orphaned pending evolution(s) on startup", cleaned)
 
     def set_active_jobs_fn(self, fn):
@@ -319,12 +319,12 @@ class EvolutionEngine:
                     git_branch = branch_name
                 else:
                     import logging
-                    _log = logging.getLogger("ghost.evolve")
+                    _log = logging.getLogger("quinely.evolve")
                     _log.warning("Could not create git branch %s: %s",
                                 branch_name, msg)
             except Exception as e:
                 import logging
-                _log = logging.getLogger("ghost.evolve")
+                _log = logging.getLogger("quinely.evolve")
                 _log.warning("Git branch creation failed: %s", e)
 
             evo = {
@@ -1691,7 +1691,7 @@ class EvolutionEngine:
                 )
             evo["git_branch"] = branch_name
             import logging
-            _log = logging.getLogger("ghost.evolve")
+            _log = logging.getLogger("quinely.evolve")
             _log.info("Recovered git branch %s for evolution %s", branch_name, evolution_id)
 
         # Commit changes on the feature branch
@@ -1783,7 +1783,7 @@ class EvolutionEngine:
                 provider_chain=provider_chain,
             )
         except Exception as e:
-            _log = logging.getLogger("ghost.evolve")
+            _log = logging.getLogger("quinely.evolve")
             _log.warning("Could not create LLM engine for review: %s", e)
             ghost_git.stash_and_checkout("main")
             return False, f"Cannot start review: LLM init failed: {e}"
@@ -1830,7 +1830,7 @@ class EvolutionEngine:
                 pass
 
         import logging
-        _log = logging.getLogger("ghost.evolve")
+        _log = logging.getLogger("quinely.evolve")
         _log.info("PR %s verdict: %s", pr["pr_id"], verdict)
 
         _verdict_level = {"approved": "success", "rejected": "warn",

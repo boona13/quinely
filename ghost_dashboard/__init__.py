@@ -110,7 +110,7 @@ def create_app():
         # Exempt CSRF token endpoint itself
         csrf.exempt("/api/csrf-token")
     else:
-        logging.getLogger("ghost_dashboard").warning(
+        logging.getLogger("quinely_dashboard").warning(
             "CSRF protection not available - install flask-wtf: pip install flask-wtf"
         )
 
@@ -265,4 +265,4 @@ def run_dashboard(port=3333, open_browser=True):
         try:
             server.shutdown()
         except (OSError, RuntimeError) as exc:
-            logging.getLogger("ghost_dashboard").warning("Server shutdown error: %s", exc)
+            logging.getLogger("quinely_dashboard").warning("Server shutdown error: %s", exc)

@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.node.image_to_video")
+log = logging.getLogger("quinely.node.image_to_video")
 
 _pipe = None
 _current_model = None

@@ -109,7 +109,7 @@ import logging
 import time
 from pathlib import Path
 
-log = logging.getLogger("ghost.nodes.my_node_name")
+log = logging.getLogger("quinely.nodes.my_node_name")
 
 # Module-level globals for caching loaded models
 _model = None
@@ -426,7 +426,7 @@ tags: ["upscale", "super-resolution", "enhance"]
 import json, logging, time, io
 from pathlib import Path
 
-log = logging.getLogger("ghost.nodes.super_resolution")
+log = logging.getLogger("quinely.nodes.super_resolution")
 
 _model = None
 _device_str = None
@@ -534,7 +534,7 @@ tags: ["tts", "speech", "voice", "cloud"]
 """Cloud TTS using ElevenLabs API."""
 
 import json, logging, time
-log = logging.getLogger("ghost.nodes.cloud_tts")
+log = logging.getLogger("quinely.nodes.cloud_tts")
 
 PROVIDER = "elevenlabs"
 
@@ -621,7 +621,7 @@ tags: ["exif", "metadata", "info"]
 
 import json, logging
 from pathlib import Path
-log = logging.getLogger("ghost.nodes.image_metadata")
+log = logging.getLogger("quinely.nodes.image_metadata")
 
 
 def register(api):

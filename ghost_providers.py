@@ -11,7 +11,7 @@ import requests
 from dataclasses import dataclass
 from typing import Any
 
-log = logging.getLogger("ghost.providers")
+log = logging.getLogger("quinely.providers")
 
 
 # ═════════════════════════════════════════════════════════════════════

@@ -19,7 +19,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-log = logging.getLogger("ghost.session_memory")
+log = logging.getLogger("quinely.session_memory")
 
 GHOST_HOME = Path.home() / ".ghost"
 SESSION_MEMORY_DIR = GHOST_HOME / "memory" / "sessions"

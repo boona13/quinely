@@ -20,7 +20,7 @@ from typing import Any, Optional
 
 import requests
 
-log = logging.getLogger("ghost.spotify")
+log = logging.getLogger("quinely.spotify")
 
 _GHOST_HOME = Path.home() / ".ghost"
 _SPOTIFY_DIR = _GHOST_HOME / "artifacts" / "spotify"

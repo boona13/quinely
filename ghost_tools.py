@@ -69,7 +69,7 @@ def _ensure_sandbox():
         SANDBOX_SCRIPTS.mkdir(parents=True, exist_ok=True)
         if not SANDBOX_VENV.exists():
             import logging
-            log = logging.getLogger("ghost.sandbox")
+            log = logging.getLogger("quinely.sandbox")
             log.info("Creating sandbox venv at %s", SANDBOX_VENV)
             subprocess.run(
                 [sys.executable, "-m", "venv", str(SANDBOX_VENV)],
@@ -543,7 +543,7 @@ def make_shell_exec(cfg):
         policy_ok, policy_reason = _check_dangerous_command_policy(command, cfg, workspace=workspace)
         if not policy_ok:
             import logging as _logging
-            _sec_log = _logging.getLogger("ghost.security")
+            _sec_log = _logging.getLogger("quinely.security")
             deny_code = "POLICY_DENY"
             if policy_reason.startswith("POLICY_DENY:"):
                 parts = policy_reason.split(":", 2)

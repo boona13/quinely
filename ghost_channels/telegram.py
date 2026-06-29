@@ -28,7 +28,7 @@ from ghost_channels.onboard import OnboardingMixin, SetupStep, StepType, StepVal
 from ghost_channels.mentions import MentionMixin
 from ghost_channels.directory import DirectoryMixin, DirectoryEntry
 
-log = logging.getLogger("ghost.channels.telegram")
+log = logging.getLogger("quinely.channels.telegram")
 
 API_BASE = "https://api.telegram.org"
 

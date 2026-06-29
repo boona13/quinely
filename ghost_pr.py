@@ -25,7 +25,7 @@ GHOST_HOME = Path.home() / ".ghost"
 PR_DIR = GHOST_HOME / "prs"
 PR_DIR.mkdir(parents=True, exist_ok=True)
 
-log = logging.getLogger("ghost.pr")
+log = logging.getLogger("quinely.pr")
 
 # ── Review System Prompt ──────────────────────────────────────────────
 

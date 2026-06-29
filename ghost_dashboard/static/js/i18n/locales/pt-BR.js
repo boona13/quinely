@@ -287,6 +287,7 @@ export default {
     providerFallbackChainsDesc: "Arraste para reordenar a prioridade do provedor para cada capacidade...",
     saveConfig: "Salvar Configuração", resetDefaults: "Restaurar Padrões",
     configSaved: "Configuração salva",
+    configSaveError: "Falha ao salvar a configuração",
     resetConfirm: "Restaurar todas as configurações para os padrões?",
     dangerousConfirmPrompt: "AVISO: Ativar interpretadores perigosos permite a execução de Python/pip.\n\nDigite \"I_UNDERSTAND_THE_RISK\" para confirmar:",
     dangerousConfirmRequired: "Confirmação necessária para ativar interpretadores perigosos",

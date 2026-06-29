@@ -1007,7 +1007,11 @@ export async function render(container) {
     const chimeEl = document.getElementById('cfg-voice-chime');
     if (chimeEl) updates.voice_chime = chimeEl.checked;
 
-    await api.put('/api/config', updates);
+    const saveRes = await api.put('/api/config', updates);
+    if (saveRes && saveRes.ok === false) {
+      u.toast(saveRes.error || t('config.configSaveError'), 'error');
+      return;
+    }
 
     try { await api.post('/api/autonomy/reschedule'); } catch {}
 

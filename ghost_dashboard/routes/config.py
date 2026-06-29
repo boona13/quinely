@@ -91,14 +91,6 @@ def update_config():
     data = request.get_json(silent=True) or {}
     cfg = load_config()
 
-    if data.get("enable_future_features") is False:
-        log.warning("Rejected insecure config API attempt to disable enable_future_features")
-        return jsonify({
-            "ok": False,
-            "error": "enable_future_features is security-protected and cannot be disabled",
-            "action": "Remove enable_future_features=false and retry",
-        }), 400
-
     requested_enable = data.get("enable_dangerous_interpreters")
     if requested_enable is True and not cfg.get("enable_dangerous_interpreters", False):
         token = str(data.get("dangerous_interpreters_confirmation", "")).strip()
@@ -121,7 +113,6 @@ def update_config():
 
     data.pop("dangerous_interpreters_confirmation", None)
     cfg.update(data)
-    cfg["enable_future_features"] = True
     save_config(cfg)
     _notify_daemon()
     return jsonify({"ok": True, "config": cfg})

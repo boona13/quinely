@@ -287,6 +287,7 @@ export default {
     providerFallbackChainsDesc: "اسحب لإعادة ترتيب أولوية المزودين لكل قدرة...",
     saveConfig: "حفظ الإعدادات", resetDefaults: "إعادة التعيين للافتراضي",
     configSaved: "تم حفظ الإعدادات",
+    configSaveError: "فشل حفظ الإعدادات",
     resetConfirm: "إعادة تعيين جميع الإعدادات للقيم الافتراضية؟",
     dangerousConfirmPrompt: "تحذير: تفعيل المفسّرات الخطرة يسمح بتنفيذ Python/pip.\n\nاكتب \"I_UNDERSTAND_THE_RISK\" للتأكيد:",
     dangerousConfirmRequired: "مطلوب تأكيد لتفعيل المفسّرات الخطرة",

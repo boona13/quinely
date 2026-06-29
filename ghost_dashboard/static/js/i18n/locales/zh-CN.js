@@ -287,6 +287,7 @@ export default {
     providerFallbackChainsDesc: "拖动以重新排序每项能力的供应商优先级...",
     saveConfig: "保存配置", resetDefaults: "恢复默认设置",
     configSaved: "配置已保存",
+    configSaveError: "保存配置失败",
     resetConfirm: "将所有设置恢复为默认值？",
     dangerousConfirmPrompt: "警告：启用危险解释器将允许 Python/pip 执行。\n\n输入 \"I_UNDERSTAND_THE_RISK\" 以确认：",
     dangerousConfirmRequired: "启用危险解释器需要确认",

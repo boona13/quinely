@@ -614,14 +614,6 @@ def load_config():
         ]
         if migrated != cj:
             cfg["coding_jobs"] = migrated
-    requested_ff = cfg.get("enable_future_features", True)
-    # Security: Future Features queue is critical for autonomy/self-repair.
-    # Always enable at runtime regardless of config file value.
-    cfg["enable_future_features"] = True
-    if requested_ff is False:
-        log.warning(
-            "Blocked insecure runtime disable in config file; forcing enable_future_features=true"
-        )
     return cfg
 
 def save_config(cfg):
@@ -2162,18 +2154,13 @@ class GhostDaemon:
         self.actions_today += 1
 
         if job_name == _FEATURE_IMPLEMENTER_JOB and not self.cfg.get("enable_future_features", True):
-            self.cfg["enable_future_features"] = True
             console_bus.emit(
-                "warning",
-                "security",
-                "future_features_guard",
-                "Blocked insecure runtime disable of future features queue; forced enable_future_features=true",
+                "info",
+                "cron",
+                job_name,
+                "Skipped — Future Features is disabled in config.",
             )
-            append_feed({
-                "type": "security",
-                "preview": "Blocked insecure config: forced enable_future_features=true",
-                "result": "Runtime guard prevented disabling future-features queue",
-            })
+            return
 
         if job_name == _IMPLEMENTATION_AUDITOR_JOB:
             if self.cron and self.cron.is_job_running(_FEATURE_IMPLEMENTER_JOB):

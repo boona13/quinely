@@ -289,6 +289,7 @@ export default {
     providerFallbackChainsDesc: "Drag to reorder provider priority for each capability...",
     saveConfig: "Save Configuration", resetDefaults: "Reset to Defaults",
     configSaved: "Configuration saved",
+    configSaveError: "Failed to save configuration",
     resetConfirm: "Reset all settings to defaults?",
     dangerousConfirmPrompt: "WARNING: Enabling dangerous interpreters allows Python/pip execution.\n\nType \"I_UNDERSTAND_THE_RISK\" to confirm:",
     dangerousConfirmRequired: "Confirmation required to enable dangerous interpreters",

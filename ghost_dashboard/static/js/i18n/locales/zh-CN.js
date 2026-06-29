@@ -244,7 +244,7 @@ export default {
     inboundEnabled: "启用入站消息",
     inboundEnabledDesc: "所有入站频道消息的主开关",
     allowedSenders: "允许的发送者",
-    allowedSendersDesc: "允许向 Quinely 发送消息的发送者 ID（在策略为"白名单"时使用）",
+    allowedSendersDesc: "允许向 Quinely 发送消息的发送者 ID（在策略为“白名单”时使用）",
     addSenderPlaceholder: "输入发送者 ID（例如 883752657）",
     addSender: "添加",
     noSendersYet: "白名单中暂无发送者。在下方添加发送者 ID。",

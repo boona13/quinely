@@ -248,6 +248,10 @@ def _build_browser_provider_chain(cfg, auth):
         else:
             _add(pid, pm or prov.default_model)
 
+    # Honor the fallback toggle: primary-only when disabled.
+    if not cfg.get("fallback_enabled", True) and chain:
+        return chain[:1]
+
     return chain
 
 

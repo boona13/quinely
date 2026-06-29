@@ -59,6 +59,11 @@ def _build_date_context() -> str:
 
 MAX_RETRIES = 2
 RATE_LIMIT_MAX_RETRIES = 1   # try once more then move to fallback — don't waste minutes
+# When there's no fallback to switch to (single-model chain / fallbacks
+# disabled), be patient on rate limits and wait the limit out instead of
+# failing. Each wait is cancellable (honors cancel_check) and capped at 120s,
+# so this stays bounded by the caller's cancel/watchdog, never a hard hang.
+SINGLE_MODEL_RATE_LIMIT_RETRIES = 240
 RETRY_DELAY = 1.5
 RATE_LIMIT_BASE_DELAY = 3.0  # short delay before switching to fallback
 DEFAULT_MAX_TOKENS = 4096
@@ -2032,6 +2037,13 @@ class ToolLoopEngine:
         coding_set = set(coding_model_chain) if coding_model_chain else set()
         all_errors = []
 
+        # Single-model mode: the chain has exactly one model (fallbacks disabled,
+        # or the user only configured one provider). With nothing to fall back
+        # to, a rate limit should be waited out rather than failing the call, so
+        # we give 429s a much larger (cancellable) retry budget.
+        single_model_mode = len(self._fallback_chain._chain) == 1
+        _rl_budget = SINGLE_MODEL_RATE_LIMIT_RETRIES if single_model_mode else RATE_LIMIT_MAX_RETRIES
+
         for provider_id, model in candidates:
             if cancel_check and cancel_check():
                 return None, "Cancelled by user"
@@ -2054,7 +2066,7 @@ class ToolLoopEngine:
             max_attempts = MAX_RETRIES + 1
             rate_limit_hits = 0
 
-            for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
+            for attempt in range(_rl_budget + 1):
                 try:
                     if is_codex and attempt == 0:
                         log.debug("Codex request to %s | keys: %s", url, list(adapted_payload.keys()))
@@ -2073,7 +2085,7 @@ class ToolLoopEngine:
                             wait = _jittered_delay(RATE_LIMIT_BASE_DELAY, rate_limit_hits - 1)
                         log.info("Rate-limited on %s:%s, waiting %.1fs (attempt %d/%d, Retry-After: %s)",
                                  provider_id, model, wait, attempt + 1,
-                                 RATE_LIMIT_MAX_RETRIES + 1,
+                                 _rl_budget + 1,
                                  f"{retry_after}s" if retry_after else "not set")
                         if _cancellable_sleep(wait):
                             return None, "Cancelled by user"

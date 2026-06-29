@@ -94,6 +94,17 @@ export async function render(container) {
     </div>
     <div style="height:1.5rem"></div>
 
+    <!-- Fallback toggle: use paid fallbacks, or stick to the primary and wait out rate limits -->
+    <div class="stat-card mb-4" id="fallback-toggle-card">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+        <input id="cfg-fallback-enabled" type="checkbox" class="mt-0.5 rounded bg-surface-700 border-surface-600 text-ghost-500" ${cfg.fallback_enabled !== false ? 'checked' : ''}>
+        <span>
+          <span class="text-sm font-semibold text-white">${t('models.useFallbacks')}</span>
+          <span class="block text-xs text-zinc-500 mt-0.5">${t('models.useFallbacksDesc')}</span>
+        </span>
+      </label>
+    </div>
+
     <!-- Advanced: Provider Fallback Order -->
     <div class="collapsible-section mb-4">
       <button class="collapsible-header" data-collapse-target="section-provider-order">
@@ -445,6 +456,17 @@ export async function render(container) {
 
     document.getElementById('or-add-model-input')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-or-add-model')?.click(); }
+    });
+
+    document.getElementById('cfg-fallback-enabled')?.addEventListener('change', async (e) => {
+      const enabled = e.target.checked;
+      try {
+        await api.put('/api/config', { fallback_enabled: enabled });
+        u.toast(enabled ? t('models.fallbacksOn') : t('models.fallbacksOff'));
+      } catch (err) {
+        e.target.checked = !enabled;
+        u.toast(t('common.error') || 'Failed to save', 'error');
+      }
     });
 
     document.getElementById('btn-save-or-fallback')?.addEventListener('click', async () => {

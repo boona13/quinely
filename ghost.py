@@ -410,6 +410,10 @@ _CRON_DEFAULT_TIMEOUT = 300
 DEFAULT_CONFIG = {
     "model": "google/gemini-2.0-flash-001",
     "primary_provider": "openrouter",
+    # When False, only the primary provider/model is used (no fallback
+    # providers/models). On a rate limit the loop waits it out instead of
+    # spending on paid fallbacks. Default True preserves prior behavior.
+    "fallback_enabled": True,
     "fallback_models": [
         "anthropic/claude-opus-4.6",
         "openai/gpt-5.5",
@@ -2123,6 +2127,12 @@ class GhostDaemon:
                         )
             else:
                 _add(pid, _model_for(pid, prov))
+
+        # Fallbacks disabled → use only the primary entry. This keeps Quinely on
+        # the user's chosen (often free) primary and lets the loop wait out rate
+        # limits rather than spending on paid fallback providers.
+        if not self.cfg.get("fallback_enabled", True) and chain:
+            return chain[:1]
 
         return chain
 

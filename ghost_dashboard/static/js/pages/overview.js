@@ -1,4 +1,4 @@
-/** Overview page — Ghost command center */
+/** Overview page — Quinely command center */
 
 const t = (key, params) => window.GhostI18n?.t(key, params) ?? key;
 
@@ -427,14 +427,14 @@ function sparklineSVG(counts) {
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Activity over the last ${n} days">${bars}</svg>`;
 }
 
-/** A short, human "what Ghost has been up to" line. */
+/** A short, human "what Quinely has been up to" line. */
 function buildStory({ today, total, skills, memory, u }) {
   const esc = (n) => `<span class="text-white font-semibold">${n.toLocaleString()}</span>`;
   if (total === 0) {
-    return `Ghost is warmed up and waiting. Give it a goal and watch it run \u2014 every action shows up here.`;
+    return `Quinely is warmed up and waiting. Give it a goal and watch it run \u2014 every action shows up here.`;
   }
   const lead = today > 0
-    ? `Today Ghost has taken ${esc(today)} action${today === 1 ? '' : 's'}.`
-    : `Ghost is idle right now, resting on ${esc(total)} lifetime action${total === 1 ? '' : 's'}.`;
+    ? `Today Quinely has taken ${esc(today)} action${today === 1 ? '' : 's'}.`
+    : `Quinely is idle right now, resting on ${esc(total)} lifetime action${total === 1 ? '' : 's'}.`;
   return `${lead} It's carrying ${esc(skills)} skill${skills === 1 ? '' : 's'} and ${esc(memory)} memor${memory === 1 ? 'y' : 'ies'}, ready to go.`;
 }

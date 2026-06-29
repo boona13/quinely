@@ -1,4 +1,4 @@
-/** Ghost Dashboard — Evolution Page */
+/** Quinely Dashboard — Evolution Page */
 
 const api = window.GhostAPI;
 const u = window.GhostUtils;

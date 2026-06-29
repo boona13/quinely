@@ -1,4 +1,4 @@
-/** Identity hub — Ghost's personality (SOUL.md) and what it knows about you (USER.md). */
+/** Identity hub — Quinely's personality (SOUL.md) and what it knows about you (USER.md). */
 
 import { mountHub } from './_hub.js';
 import { render as soul } from './soul.js';

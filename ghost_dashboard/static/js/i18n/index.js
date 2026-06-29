@@ -1,5 +1,5 @@
 /**
- * Ghost Dashboard i18n — Lightweight client-side localization.
+ * Quinely Dashboard i18n — Lightweight client-side localization.
  *
  * Usage:
  *   import { i18n } from './i18n/index.js';

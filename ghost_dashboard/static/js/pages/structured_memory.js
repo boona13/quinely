@@ -240,7 +240,7 @@ function renderSectionGroup(title, groupData, sections, u) {
 
 function renderFactsList(facts, u) {
   if (!facts.length) {
-    return '<div class="text-xs text-zinc-600 text-center py-6">No facts stored yet. Chat with Ghost to build memory.</div>';
+    return '<div class="text-xs text-zinc-600 text-center py-6">No facts stored yet. Chat with Quinely to build memory.</div>';
   }
 
   const validFacts = facts.filter(f => f && typeof f === 'object');

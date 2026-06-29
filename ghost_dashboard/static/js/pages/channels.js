@@ -826,7 +826,7 @@ function showTelegramModal(pageContainer) {
     const resultEl = $('#tg-test-result');
     try {
       const res = await api.post('/api/channels/telegram/test', {
-        message: '\u{2705} Ghost is connected to Telegram! Setup complete.',
+        message: '\u{2705} Quinely is connected to Telegram! Setup complete.',
       });
       if (res.ok) {
         resultEl.textContent = 'Test message sent to your Telegram!';
@@ -1250,7 +1250,7 @@ function showDiscordModal(pageContainer) {
     const resultEl = $('#dc-test-result');
     try {
       const res = await api.post('/api/channels/discord/test', {
-        message: '\u{2705} Ghost is connected to Discord! Setup complete.',
+        message: '\u{2705} Quinely is connected to Discord! Setup complete.',
       });
       if (res.ok) {
         resultEl.textContent = 'Test message sent to your Discord channel!';

@@ -1,4 +1,4 @@
-/** Projects page — manage Ghost project workspaces */
+/** Projects page — manage Quinely project workspaces */
 
 const t = (key, params) => window.GhostI18n?.t(key, params) ?? key;
 

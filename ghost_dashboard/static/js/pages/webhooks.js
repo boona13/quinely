@@ -1,4 +1,4 @@
-/** Webhooks page — Event-driven triggers for Ghost autonomy */
+/** Webhooks page — Event-driven triggers for Quinely autonomy */
 
 const t = (key, params) => window.GhostI18n?.t(key, params) ?? key;
 

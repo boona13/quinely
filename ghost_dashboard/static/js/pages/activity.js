@@ -1,4 +1,4 @@
-/** Activity hub — one place to see what Ghost is doing, at three fidelities. */
+/** Activity hub — one place to see what Quinely is doing, at three fidelities. */
 
 import { mountHub } from './_hub.js';
 import { render as feed } from './feed.js';

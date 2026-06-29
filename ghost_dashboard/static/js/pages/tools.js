@@ -1,4 +1,4 @@
-/** Ghost Tools management page — browse, configure, enable/disable, and delete LLM tools */
+/** Quinely Tools management page — browse, configure, enable/disable, and delete LLM tools */
 
 const t = (key, params) => window.GhostI18n?.t(key, params) ?? key;
 

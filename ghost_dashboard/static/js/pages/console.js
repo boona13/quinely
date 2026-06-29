@@ -1,4 +1,4 @@
-/** Ghost Console — real-time terminal event stream */
+/** Quinely Console — real-time terminal event stream */
 
 const t = (key, params) => window.GhostI18n?.t(key, params) ?? key;
 

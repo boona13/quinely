@@ -1,8 +1,8 @@
 /**
- * Wins — celebrate Ghost's autonomous milestones.
+ * Wins — celebrate Quinely's autonomous milestones.
  *
  * Taps the existing console SSE stream and fires a tasteful celebration toast
- * the moment Ghost does something noteworthy on its own (evolves itself, learns
+ * the moment Quinely does something noteworthy on its own (evolves itself, learns
  * a skill, completes a goal, heals a bug, ships a PR). Purely additive: if no
  * milestone events arrive, nothing happens.
  */
@@ -12,11 +12,11 @@ const SPARKLE = `<svg viewBox="0 0 24 24" fill="none" width="16" height="16" str
 // High-signal milestone rules. Matched against the event title/detail/result.
 // Keep these specific so routine successes don't trigger confetti fatigue.
 const RULES = [
-  { re: /\b(deployed|shipped a build|hot-?reload|evolution (complete|deployed)|self-?evolved)\b/i, title: 'Ghost evolved itself', kind: 'evolve' },
-  { re: /\bself-?heal(ed)?\b|\b(bug|error|crash|regression)\b[^.]{0,40}\b(fixed|resolved|repaired|healed)\b/i, title: 'Ghost healed itself', kind: 'heal' },
-  { re: /\b(new skill|skill (added|learned|created|installed)|learned a (new )?skill)\b/i, title: 'Ghost learned a new skill', kind: 'skill' },
-  { re: /\b(goal)\b[^.]{0,40}\b(complete|completed|achieved|finished|done)\b/i, title: 'Ghost completed a goal', kind: 'goal' },
-  { re: /\b(pull request|\bPR\b)\b[^.]{0,40}\b(merged|approved|opened|submitted)\b/i, title: 'Ghost shipped a pull request', kind: 'pr' },
+  { re: /\b(deployed|shipped a build|hot-?reload|evolution (complete|deployed)|self-?evolved)\b/i, title: 'Quinely evolved itself', kind: 'evolve' },
+  { re: /\bself-?heal(ed)?\b|\b(bug|error|crash|regression)\b[^.]{0,40}\b(fixed|resolved|repaired|healed)\b/i, title: 'Quinely healed itself', kind: 'heal' },
+  { re: /\b(new skill|skill (added|learned|created|installed)|learned a (new )?skill)\b/i, title: 'Quinely learned a new skill', kind: 'skill' },
+  { re: /\b(goal)\b[^.]{0,40}\b(complete|completed|achieved|finished|done)\b/i, title: 'Quinely completed a goal', kind: 'goal' },
+  { re: /\b(pull request|\bPR\b)\b[^.]{0,40}\b(merged|approved|opened|submitted)\b/i, title: 'Quinely shipped a pull request', kind: 'pr' },
 ];
 
 let lastSeq = -1;

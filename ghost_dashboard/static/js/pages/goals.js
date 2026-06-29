@@ -67,7 +67,7 @@ export async function render(container) {
           </div>
           <div>
             <label class="form-label">Goal Description</label>
-            <textarea id="goal-text" rows="3" required placeholder="Describe what Ghost should do — be specific about steps and output." class="form-input w-full" style="resize:vertical"></textarea>
+            <textarea id="goal-text" rows="3" required placeholder="Describe what Quinely should do — be specific about steps and output." class="form-input w-full" style="resize:vertical"></textarea>
           </div>
           <div>
             <label class="form-label">Recurrence <span class="text-zinc-500 font-normal">(optional cron expression)</span></label>
@@ -202,7 +202,7 @@ function renderList(goals, filter) {
       return `<div class="text-center py-16">
         <div class="text-3xl mb-3 opacity-80">\uD83C\uDFAF</div>
         <div class="text-sm text-zinc-300">No goals yet.</div>
-        <div class="text-xs text-zinc-600 mt-1">Hand Ghost something to chase \u2014 it'll plan the steps and work them on its own.</div>
+        <div class="text-xs text-zinc-600 mt-1">Hand Quinely something to chase \u2014 it'll plan the steps and work them on its own.</div>
       </div>`;
     }
     return `<div class="text-center text-zinc-600 py-16 text-sm">Nothing ${filter} right now.</div>`;
@@ -373,7 +373,7 @@ function renderDrawer(goal) {
       </div>
     ` : `
       <div class="mb-5 p-3 rounded-lg bg-zinc-800/30 border border-zinc-700/30 text-xs text-zinc-500 italic">
-        No output yet — Ghost will populate this after completing the first execution cycle.
+        No output yet — Quinely will populate this after completing the first execution cycle.
       </div>
     `}
 
@@ -411,7 +411,7 @@ function renderDrawer(goal) {
         <div class="text-[10px] uppercase tracking-wider text-violet-400 font-semibold">Self-Improvement</div>
         <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400" id="improvements-count"></span>
       </div>
-      <p class="text-[10px] text-zinc-600 mb-2">Ghost analyzed this goal's execution and submitted these improvements to its own codebase:</p>
+      <p class="text-[10px] text-zinc-600 mb-2">Quinely analyzed this goal's execution and submitted these improvements to its own codebase:</p>
       <div id="goal-improvements-list" class="space-y-1.5"></div>
     </div>
 
@@ -475,7 +475,7 @@ function bindEvents(container, api, u) {
     btn.disabled = false; btn.textContent = 'Create Goal';
     if (res.ok) {
       closeModal();
-      u.toast('Goal created — Ghost will plan and execute it automatically.');
+      u.toast('Goal created — Quinely will plan and execute it automatically.');
       await refresh(api);
     } else {
       u.toast(res.error || 'Failed to create goal', 'error');
@@ -652,7 +652,7 @@ function openDrawer(goal, api, u) {
     });
   }
 
-  // Fetch self-improvements Ghost made from this goal
+  // Fetch self-improvements Quinely made from this goal
   if (api) {
     api.get(`/api/goals/${goal.id}/improvements`).then(data => {
       const section = document.getElementById('goal-improvements-section');

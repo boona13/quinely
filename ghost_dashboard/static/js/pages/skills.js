@@ -375,7 +375,7 @@ function showSecurityModal(skillName, security, onProceed, u) {
         </div>
       ` : `
         <div class="p-2 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 mb-4">
-          This skill has security findings. Review them carefully before proceeding. Ghost's runtime safeguards (allowed_commands, allowed_roots) still apply.
+          This skill has security findings. Review them carefully before proceeding. Quinely's runtime safeguards (allowed_commands, allowed_roots) still apply.
         </div>
         <div class="flex gap-3 justify-end">
           <button id="btn-sec-cancel" class="btn btn-secondary btn-sm">Cancel</button>

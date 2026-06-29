@@ -1,4 +1,4 @@
-/** Ghost Dashboard API client */
+/** Quinely Dashboard API client */
 
 // Get CSRF token from meta tag
 function getCsrfToken() {

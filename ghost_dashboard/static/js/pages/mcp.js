@@ -57,12 +57,12 @@ export async function render(container) {
     <div class="stat-card mb-4 border border-amber-500/30">
       <div class="text-sm font-medium text-amber-400">MCP is disabled</div>
       <p class="text-xs text-zinc-400 mt-1">Enable <span class="font-mono">enable_mcp</span> in
-      Configuration → Feature Toggles, then restart Ghost to connect servers.</p>
+      Configuration → Feature Toggles, then restart Quinely to connect servers.</p>
     </div>` : '';
 
   container.innerHTML = `
     <h1 class="page-header">MCP Servers</h1>
-    <p class="page-desc">Connect external Model Context Protocol tool servers. Their tools are bridged into Ghost as <span class="font-mono">mcp_&lt;server&gt;_&lt;tool&gt;</span>.</p>
+    <p class="page-desc">Connect external Model Context Protocol tool servers. Their tools are bridged into Quinely as <span class="font-mono">mcp_&lt;server&gt;_&lt;tool&gt;</span>.</p>
 
     ${disabledNotice}
 

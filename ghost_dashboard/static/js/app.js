@@ -1,4 +1,4 @@
-/** Ghost Dashboard — Main app router */
+/** Quinely Dashboard — Main app router */
 
 import { toast } from './utils.js';
 import { initWins } from './wins.js';
@@ -341,7 +341,7 @@ async function init() {
   updateUsageStatus();
   setInterval(updateUsageStatus, 3000);
 
-  // Celebrate Ghost's autonomous wins as they happen.
+  // Celebrate Quinely's autonomous wins as they happen.
   initWins();
 }
 

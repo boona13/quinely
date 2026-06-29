@@ -1,6 +1,6 @@
-/** Ghost Dashboard — Self-Evolution Theater
+/** Quinely Dashboard — Self-Evolution Theater
  *
- * Cinematic replay of Ghost's self-evolution cycles.
+ * Cinematic replay of Quinely's self-evolution cycles.
  * Designed for screen recording and viral demos.
  */
 
@@ -394,10 +394,10 @@ async function _playEvo(container, idx) {
       _termLine(term, '✓ DEPLOYED', 'success');
       _flash(container, 'deployed');
     }, wait: d(1800) });
-    steps.push({ fn: () => { _ecgMode = 'flatline'; _termLine(term, 'Restarting Ghost process...'); }, wait: d(1200) });
+    steps.push({ fn: () => { _ecgMode = 'flatline'; _termLine(term, 'Restarting Quinely process...'); }, wait: d(1200) });
     steps.push({ fn: () => {
       _ecgMode = 'idle';
-      _termLine(term, '✓ SYSTEM RESTARTED — Ghost is live with new code', 'success');
+      _termLine(term, '✓ SYSTEM RESTARTED — Quinely is live with new code', 'success');
       _flash(container, 'restarted');
     }, wait: d(1800) });
   } else if (evo.status === 'rolled_back') {

@@ -1,9 +1,9 @@
 /**
- * Memory Map — an interactive, dependency-free knowledge graph of Ghost's
+ * Memory Map — an interactive, dependency-free knowledge graph of Quinely's
  * long-term memory. Memories cluster around per-type hub nodes and are
  * cross-linked by shared tags, turning the flat memory list into a living
  * "mind" you can explore. Pure SVG + a small spring simulation (no libs), so
- * it works fully offline like the rest of Ghost.
+ * it works fully offline like the rest of Quinely.
  *
  * Data comes from GET /api/memory/graph (read-only over the existing store).
  */
@@ -29,7 +29,7 @@ export async function render(container) {
     <div class="mm-head flex items-center justify-between flex-wrap gap-2 mb-3">
       <div>
         <h1 class="page-header mb-0">Memory Map</h1>
-        <p class="page-desc mb-0">Ghost's long-term memory as a living graph — clustered by type, linked by shared tags.</p>
+        <p class="page-desc mb-0">Quinely's long-term memory as a living graph — clustered by type, linked by shared tags.</p>
       </div>
       <div class="flex items-center gap-2">
         <label class="text-xs text-zinc-500">Nodes</label>
@@ -53,7 +53,7 @@ export async function render(container) {
       <div id="mm-detail" class="mm-detail" style="display:none;"></div>
       <div id="mm-empty" class="mm-empty" style="display:none;">
         <div class="text-3xl mb-2">🧠</div>
-        <div class="text-zinc-400">No memories yet. As Ghost works and chats, its memory map will grow here.</div>
+        <div class="text-zinc-400">No memories yet. As Quinely works and chats, its memory map will grow here.</div>
       </div>
     </div>
   `;

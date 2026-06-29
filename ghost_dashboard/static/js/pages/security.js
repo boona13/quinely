@@ -25,7 +25,7 @@ export async function render(container) {
     <div id="key-posture-section" class="mb-6">
       <h2 class="text-base font-semibold text-white mb-3 flex items-center gap-2">
         <svg class="w-4 h-4 text-ghost-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
         </svg>
         ${t('security.keyPosture')}
@@ -39,26 +39,6 @@ export async function render(container) {
           <span>${t('security.analyzingPosture')}</span>
         </div>
       </div>
-    </div>
-
-    <div id="vuln-intel-section" class="mb-6">
-      <h2 class="text-base font-semibold text-white mb-3 flex items-center gap-2">
-        <svg class="w-4 h-4 text-ghost-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 4v5c0 5-3.4 8.4-7 9-3.6-.6-7-4-7-9V7l7-4z"/>
-        </svg>
-  const resultEl = document.getElementById('audit-result');
-  const vulnBtn = document.getElementById('btn-vuln-scan');
-  const vulnPath = document.getElementById('vuln-manifest-path');
-  const vulnTransitive = document.getElementById('vuln-transitive');
-
-  let activeSessionId = null;
-
-  aiBtn.addEventListener('click', startAiAudit);
-  vulnBtn.addEventListener('click', scanVulnerabilities);
-
-  // Fetch dashboard security data on page load
-  fetchKeyPosture();
-  fetchLatestVulnerabilities();
     </div>
   `;
 
@@ -188,59 +168,6 @@ export async function render(container) {
       _auditEventSource = null;
       activeSessionId = null;
       statusEl.innerHTML = `<div class="text-amber-400 text-xs">${t('security.connectionLost')}</div>`;
-  async function fetchLatestVulnerabilities() {
-    const vulnEl = document.getElementById('vuln-intel-content');
-    try {
-      const resp = await api.get('/api/security/vulnerabilities/latest');
-      renderVulnerabilities(resp);
-    } catch (err) {
-      vulnEl.innerHTML = `<div class="text-red-400 text-xs">${u.escapeHtml(err.message)}</div>`;
-    }
-  }
-
-  async function scanVulnerabilities() {
-    const vulnEl = document.getElementById('vuln-intel-content');
-    vulnBtn.disabled = true;
-    vulnEl.innerHTML = `<div class="text-amber-400 text-xs">Scanning dependencies against OSV...</div>`;
-    try {
-      const resp = await api.post('/api/security/vulnerabilities/scan', {
-        path: vulnPath.value || 'requirements.txt',
-        include_transitive: vulnTransitive.checked,
-      });
-      renderVulnerabilities(resp);
-    } catch (err) {
-      vulnEl.innerHTML = `<div class="text-red-400 text-xs">${u.escapeHtml(err.message)}</div>`;
-    } finally {
-      vulnBtn.disabled = false;
-    }
-  }
-
-  function renderVulnerabilities(data) {
-    const vulnEl = document.getElementById('vuln-intel-content');
-    const findings = Array.isArray(data.findings) ? data.findings : [];
-    const badgeClass = data.ok === false ? 'badge-red' : findings.length > 0 ? 'badge-yellow' : 'badge-green';
-    const findingsHtml = findings.length > 0 ? findings.map((f) => `
-      <div class="p-2 rounded bg-surface-700/50 border border-surface-600/30 mb-2">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="badge badge-yellow text-[10px]">${u.escapeHtml(f.id || 'advisory')}</span>
-          <span class="text-xs font-medium text-white">${u.escapeHtml(f.package || 'unknown package')}</span>
-          ${f.version ? `<span class="text-[10px] text-zinc-500">${u.escapeHtml(f.version)}</span>` : ''}
-        </div>
-        <div class="text-[11px] text-zinc-400">${u.escapeHtml(f.summary || 'No summary available')}</div>
-        ${Array.isArray(f.aliases) && f.aliases.length ? `<div class="text-[10px] text-zinc-500 mt-1">Aliases: ${f.aliases.map((a) => u.escapeHtml(a)).join(', ')}</div>` : ''}
-      </div>`).join('') : `<div class="text-sm text-emerald-400">No vulnerable dependencies found.</div>`;
-    vulnEl.innerHTML = `
-      <div class="stat-card border border-ghost-500/20">
-        <div class="flex items-center justify-between mb-3">
-          <span class="badge ${badgeClass}">${data.ok === false ? 'Unavailable' : findings.length ? 'Advisories found' : 'Clean'}</span>
-          <span class="text-xs text-zinc-400">${Number(data.package_count || 0)} packages / ${Number(data.finding_count || findings.length)} findings</span>
-        </div>
-        <div class="text-xs text-zinc-400 mb-3">${u.escapeHtml(data.summary || data.error || 'No scan summary available.')}</div>
-        ${findingsHtml}
-      </div>`;
-  }
-
-  async function fetchKeyPosture() {
     };
   }
 
@@ -284,21 +211,19 @@ export async function render(container) {
     }
 
     // Determine badge color based on posture
-    const badgeClass = posture === 'green' ? 'badge-green' : 
-                       posture === 'yellow' ? 'badge-yellow' : 
+    const badgeClass = posture === 'green' ? 'badge-green' :
+                       posture === 'yellow' ? 'badge-yellow' :
                        posture === 'red' ? 'badge-red' : 'badge-zinc';
-    const badgeText = posture === 'green' ? t('security.healthy') : 
-                      posture === 'yellow' ? t('security.warning') : 
+    const badgeText = posture === 'green' ? t('security.healthy') :
+                      posture === 'yellow' ? t('security.warning') :
                       posture === 'red' ? t('security.critical') : t('security.unknown');
 
     let findingsHtml = '';
     if (findings && findings.length > 0) {
       findingsHtml = findings.map(f => {
-        const severityClass = f.severity === 'critical' ? 'text-red-400' :
-                              f.severity === 'warning' ? 'text-amber-400' : 'text-blue-400';
         const severityBadge = f.severity === 'critical' ? 'badge-red' :
                               f.severity === 'warning' ? 'badge-yellow' : 'badge-blue';
-        
+
         let evidenceHtml = '';
         if (f.evidence && Object.keys(f.evidence).length > 0) {
           const evidenceItems = Object.entries(f.evidence)

@@ -1,6 +1,6 @@
 ---
 name: ghost-node-developer
-description: "Create new Ghost AI nodes from scratch — complete guide to node architecture, tool registration, GPU management, media handling, and dashboard integration"
+description: "Create new Quinely AI nodes from scratch — complete guide to node architecture, tool registration, GPU management, media handling, and dashboard integration"
 triggers:
   - create node
   - new node
@@ -27,9 +27,9 @@ tools:
 priority: 80
 ---
 
-# Ghost Node Developer
+# Quinely Node Developer
 
-You are Ghost's node development expert. When the user asks you to create a new node for any AI functionality, you follow this exact architecture and produce production-ready code.
+You are Quinely's node development expert. When the user asks you to create a new node for any AI functionality, you follow this exact architecture and produce production-ready code.
 
 ## Node Anatomy
 
@@ -45,7 +45,7 @@ ghost_nodes/<node-name>/
 
 ## Step 1: Create NODE.yaml
 
-The manifest tells Ghost what the node needs and what it provides.
+The manifest tells Quinely what the node needs and what it provides.
 
 ### Full Schema
 
@@ -117,7 +117,7 @@ _device_str = None
 
 
 def register(api):
-    """Called once when Ghost loads this node. Register all tools here."""
+    """Called once when Quinely loads this node. Register all tools here."""
 
     # ── Model Loading (with caching) ─────────────────────────
     def _load_model():
@@ -234,7 +234,7 @@ raise Exception("failed")       # unhandled exception
 
 ### Rule 2: Always Include `**_kw` in Execute Signatures
 
-Ghost may pass extra keyword arguments. Swallow them to avoid crashes:
+Quinely may pass extra keyword arguments. Swallow them to avoid crashes:
 
 ```python
 def execute_my_tool(param1="", param2=0, filename="", **_kw):
@@ -703,7 +703,7 @@ When the user asks "create a node for X", follow these steps:
 
 4. **Add schema defaults** — Every optional parameter must have `"default"` in the JSON schema.
 
-5. **Test** — Guide the user to restart Ghost (`bash stop.sh && sleep 3 && bash start.sh`) so the new node is discovered and loaded.
+5. **Test** — Guide the user to restart Quinely (`bash stop.sh && sleep 3 && bash start.sh`) so the new node is discovered and loaded.
 
 6. **Verify** — Check the Nodes page in the dashboard to confirm the node shows as loaded with its tools.
 

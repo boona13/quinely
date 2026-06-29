@@ -947,9 +947,9 @@ def build_voice_tools(auth_store=None, cfg=None):
         {
             "name": "voice_talk_start",
             "description": (
-                "Start Talk Mode — continuous voice conversation with Ghost. "
+                "Start Talk Mode — continuous voice conversation with Quinely. "
                 "No wake word needed. Every spoken utterance is transcribed, processed "
-                "by Ghost, and the response is spoken aloud. A natural voice conversation. "
+                "by Quinely, and the response is spoken aloud. A natural voice conversation. "
                 "Requires: pip install sounddevice numpy soundfile."
             ),
             "parameters": {"type": "object", "properties": {}},

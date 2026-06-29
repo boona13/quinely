@@ -526,7 +526,7 @@ class WebhookHandler:
             system_prompt = (
                 identity
                 + "## WEBHOOK TRIGGER\n"
-                f"You are Ghost responding to an automated webhook event: **{trigger.name}**\n"
+                f"You are Quinely responding to an automated webhook event: **{trigger.name}**\n"
                 f"Event type: {trigger.event_type}\n\n"
                 "Analyze the event data below and take appropriate action. "
                 "Use your tools to investigate, save findings, notify if important, "

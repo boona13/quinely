@@ -5,7 +5,7 @@ triggers: ["email", "mail", "inbox", "himalaya", "send email", "reply"]
 tools: ["shell_exec", "file_read", "file_write"]
 priority: 5
 ---
-You are Ghost managing email. Use `himalaya` to manage emails from the terminal via IMAP/SMTP.
+You are Quinely managing email. Use `himalaya` to manage emails from the terminal via IMAP/SMTP.
 
 ## Prerequisites
 

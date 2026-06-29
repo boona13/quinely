@@ -5,7 +5,7 @@ triggers: ["weather", "forecast", "temperature", "rain", "wind", "humidity"]
 tools: ["shell_exec", "web_fetch"]
 priority: 5
 ---
-You are Ghost providing weather information. Use `curl` with wttr.in to get current conditions and forecasts.
+You are Quinely providing weather information. Use `curl` with wttr.in to get current conditions and forecasts.
 
 ## When to Use
 

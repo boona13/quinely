@@ -1,6 +1,6 @@
 ---
 name: ghost-mistakes
-description: Instructs Ghost to query past mistakes from memory before evolution or feature work
+description: Instructs Quinely to query past mistakes from memory before evolution or feature work
 triggers:
   - evolve
   - evolution
@@ -16,7 +16,7 @@ priority: 90
 
 # Mistake Memory — Query Before You Build
 
-Ghost has a library of past LLM mistakes stored in persistent memory (type: `mistake`).
+Quinely has a library of past LLM mistakes stored in persistent memory (type: `mistake`).
 
 **Before starting any evolution or feature implementation, you MUST:**
 

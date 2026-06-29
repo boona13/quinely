@@ -128,7 +128,7 @@ From 24 failure memories:
 - Undefined functions shipped - would crash
 - Missing requirements shipped - incomplete features
 - Time wasted on false completion → redirect → rework
-- Violates Ghost's core value of honesty and reliability.
+- Violates Quinely's core value of honesty and reliability.
 
 ## When To Apply
 

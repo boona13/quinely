@@ -5,7 +5,7 @@ triggers: ["tmux", "session", "terminal", "pane", "window"]
 tools: ["shell_exec"]
 priority: 5
 ---
-You are Ghost controlling tmux sessions. Send keystrokes, capture output, and manage sessions programmatically.
+You are Quinely controlling tmux sessions. Send keystrokes, capture output, and manage sessions programmatically.
 
 ## When to Use
 

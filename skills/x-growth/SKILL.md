@@ -133,7 +133,7 @@ browser(action='snapshot')
 - Wait for the user to confirm
 - Snapshot again to verify, then proceed
 
-**Do NOT try to automate the X login flow** — it has CAPTCHAs and verification steps. The Ghost browser preserves sessions, so login persists.
+**Do NOT try to automate the X login flow** — it has CAPTCHAs and verification steps. The Quinely browser preserves sessions, so login persists.
 
 ---
 
@@ -216,7 +216,7 @@ This uses Playwright's `set_input_files()` on `input[type="file"]` — bypasses 
 
 4. **Verify the image appears** in the compose area (look for a media preview thumbnail in the snapshot).
 
-**NEVER click the media/photo button** — it opens a native macOS Finder dialog that Ghost cannot see or interact with.
+**NEVER click the media/photo button** — it opens a native macOS Finder dialog that Quinely cannot see or interact with.
 
 5. Now type the tweet text with `slowly=true`:
 ```

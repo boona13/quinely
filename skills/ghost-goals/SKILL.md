@@ -49,9 +49,9 @@ tools:
 priority: 20
 ---
 
-# Ghost Goal Engine
+# Quinely Goal Engine
 
-Ghost has a persistent Goal Engine for long-horizon, multi-step, and recurring tasks.
+Quinely has a persistent Goal Engine for long-horizon, multi-step, and recurring tasks.
 
 ## When to use Goal tools (NOT a regular cron job)
 

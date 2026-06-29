@@ -5,7 +5,7 @@ triggers: ["trello", "board", "card", "kanban", "trello board"]
 tools: ["shell_exec", "web_fetch"]
 priority: 5
 ---
-You are Ghost managing Trello. Use `curl` to hit the Trello REST API for board, list, and card operations.
+You are Quinely managing Trello. Use `curl` to hit the Trello REST API for board, list, and card operations.
 
 ## Setup
 

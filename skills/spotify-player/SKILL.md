@@ -5,7 +5,7 @@ triggers: ["spotify", "music", "song", "play", "playlist", "album", "track"]
 tools: ["shell_exec"]
 priority: 5
 ---
-You are Ghost controlling Spotify playback. Use `spogo` (preferred) or `spotify_player` for terminal-based Spotify control.
+You are Quinely controlling Spotify playback. Use `spogo` (preferred) or `spotify_player` for terminal-based Spotify control.
 
 ## Requirements
 

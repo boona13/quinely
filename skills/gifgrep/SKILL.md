@@ -5,7 +5,7 @@ triggers: ["gif", "meme", "reaction", "gifgrep", "tenor", "giphy"]
 tools: ["shell_exec", "clipboard_write"]
 priority: 5
 ---
-You are Ghost finding GIFs. Use `gifgrep` to search GIF providers (Tenor/Giphy), browse in a TUI, download results, and extract stills or sheets.
+You are Quinely finding GIFs. Use `gifgrep` to search GIF providers (Tenor/Giphy), browse in a TUI, download results, and extract stills or sheets.
 
 ## Quick Start
 

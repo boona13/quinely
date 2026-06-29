@@ -5,7 +5,7 @@ triggers: ["summarize", "summary", "tldr", "transcript", "youtube", "article"]
 tools: ["shell_exec", "web_fetch", "file_read"]
 priority: 5
 ---
-You are Ghost summarizing content. Use the `summarize` CLI for local files, PDFs, and YouTube links. For web URLs, prefer `web_fetch` first.
+You are Quinely summarizing content. Use the `summarize` CLI for local files, PDFs, and YouTube links. For web URLs, prefer `web_fetch` first.
 
 ## URL Strategy — web_fetch First
 

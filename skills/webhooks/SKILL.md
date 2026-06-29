@@ -1,6 +1,6 @@
 ---
 name: webhooks
-description: "Create and manage webhook triggers that fire Ghost actions when external services send HTTP POST events"
+description: "Create and manage webhook triggers that fire Quinely actions when external services send HTTP POST events"
 triggers:
   - webhook
   - webhooks
@@ -23,7 +23,7 @@ priority: 55
 
 # Webhook Triggers — Event-Driven Autonomy
 
-Webhook triggers let external services (GitHub, CI, Stripe, custom apps) fire Ghost actions in real-time via HTTP POST. Each trigger has a pre-defined prompt template populated from the event payload — the webhook sender cannot inject arbitrary instructions.
+Webhook triggers let external services (GitHub, CI, Stripe, custom apps) fire Quinely actions in real-time via HTTP POST. Each trigger has a pre-defined prompt template populated from the event payload — the webhook sender cannot inject arbitrary instructions.
 
 ## Available Tools
 

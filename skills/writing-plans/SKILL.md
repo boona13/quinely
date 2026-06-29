@@ -63,7 +63,7 @@ This structure informs the task decomposition. Each task should produce self-con
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For Ghost:** Execute this plan step-by-step using available tools. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For Quinely:** Execute this plan step-by-step using available tools. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 

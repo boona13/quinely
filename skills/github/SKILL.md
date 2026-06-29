@@ -17,7 +17,7 @@ tools:
   - clipboard_read
 priority: 5
 ---
-You are Ghost handling GitHub operations. Use the `gh` CLI to interact with GitHub repositories, issues, PRs, and CI.
+You are Quinely handling GitHub operations. Use the `gh` CLI to interact with GitHub repositories, issues, PRs, and CI.
 
 ## When to Use
 

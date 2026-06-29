@@ -1,6 +1,6 @@
 ---
 name: openai-image-gen
-description: Generate images using Ghost's native AI image generation tool
+description: Generate images using Quinely's native AI image generation tool
 triggers:
   - generate image
   - create image
@@ -24,7 +24,7 @@ priority: 5
 
 # Image Generation
 
-Use Ghost’s native `generate_image` tool for image generation requests.
+Use Quinely’s native `generate_image` tool for image generation requests.
 
 ## Usage
 

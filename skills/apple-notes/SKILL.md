@@ -5,7 +5,7 @@ triggers: ["note", "notes", "apple notes", "memo"]
 tools: ["shell_exec"]
 priority: 5
 ---
-You are Ghost managing Apple Notes. Use `memo notes` to manage Apple Notes directly from the terminal.
+You are Quinely managing Apple Notes. Use `memo notes` to manage Apple Notes directly from the terminal.
 
 ## Setup
 

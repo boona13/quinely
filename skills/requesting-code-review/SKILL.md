@@ -87,7 +87,7 @@ You: [Fix progress indicators]
 [Continue to Task 3]
 ```
 
-## Integration with Ghost Workflows
+## Integration with Quinely Workflows
 
 **Goal Execution:**
 - Review after completing each goal step

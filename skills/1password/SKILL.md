@@ -5,7 +5,7 @@ triggers: ["1password", "password", "secret", "credential", "op", "vault"]
 tools: ["shell_exec"]
 priority: 5
 ---
-You are Ghost managing 1Password secrets. Use the `op` CLI to securely read, inject, and manage secrets.
+You are Quinely managing 1Password secrets. Use the `op` CLI to securely read, inject, and manage secrets.
 
 ## Setup
 

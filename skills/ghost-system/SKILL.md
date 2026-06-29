@@ -1,6 +1,6 @@
 ---
 name: ghost-system
-description: "Ghost's self-knowledge: complete system architecture, file map, design patterns, and modification rules"
+description: "Quinely's self-knowledge: complete system architecture, file map, design patterns, and modification rules"
 triggers:
   - evolve
   - self-modify
@@ -33,14 +33,14 @@ tools:
 priority: 90
 ---
 
-# Ghost System Architecture — Self-Knowledge
+# Quinely System Architecture — Self-Knowledge
 
 You are modifying YOUR OWN codebase. You MUST understand every file you touch.
 Read this ENTIRE section before writing any code.
 
 ## Project Root
 
-`{project_dir}/` — all paths below are relative to this (the directory where Ghost is installed).
+`{project_dir}/` — all paths below are relative to this (the directory where Quinely is installed).
 
 ## Backend Python Modules
 
@@ -126,7 +126,7 @@ Every page module exports `render(container)`. The SPA router in `app.js` calls 
 
 | File | Page | Hash route |
 |------|------|-----------|
-| `chat.js` | Ghost Chat | `#chat` |
+| `chat.js` | Quinely Chat | `#chat` |
 | `overview.js` | System overview | `#overview` |
 | `models.js` | Model browser | `#models` |
 | `config.js` | Configuration | `#config` |
@@ -170,7 +170,7 @@ Single CSS file. Dark theme. Key class conventions:
 Color palette:
 - Background: `#0a0a14` (darkest), `#10101c` (cards), `#161625` (inputs)
 - Borders: `rgba(30, 30, 48, 0.5)`
-- Ghost purple: `#8b5cf6` (primary), `#a78bfa` (hover), `rgba(139, 92, 246, *)` (glows)
+- Quinely purple: `#8b5cf6` (primary), `#a78bfa` (hover), `rgba(139, 92, 246, *)` (glows)
 - Text: `#ffffff` (headings), `#d4d4d8` (body), `#a1a1aa` (muted), `#71717a` (dim)
 - Success: `#10b981` / `#34d399`
 - Warning: `#f59e0b` / `#fbbf24`
@@ -195,7 +195,7 @@ evolve_apply(evolution_id, file_path, patches=[...]) → applies code changes
     ↓  (repeat for each file)
 evolve_test(evolution_id) → syntax + import + smoke test
     ↓
-evolve_deploy(evolution_id) → writes deploy marker → supervisor restarts Ghost
+evolve_deploy(evolution_id) → writes deploy marker → supervisor restarts Quinely
 ```
 
 ### evolve_apply Rules (CRITICAL)
@@ -261,5 +261,5 @@ priority: 75
 - **Dashboard → Daemon**: writes `~/.ghost/action.json`, daemon polls it
 - **Daemon → Dashboard**: writes `~/.ghost/feed.json`, dashboard API reads it
 - **Chat**: Flask serves SSE stream from `ChatSession` object; daemon processes in background thread
-- **Restart**: `evolve_deploy` writes marker → supervisor detects → kills Ghost → relaunches → dashboard SSE reconnects
+- **Restart**: `evolve_deploy` writes marker → supervisor detects → kills Quinely → relaunches → dashboard SSE reconnects
 - **Status**: `app.js` polls `/api/status` every 5 seconds — fires `ghost:restarted` when server recovers from downtime

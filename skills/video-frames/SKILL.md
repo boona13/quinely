@@ -5,7 +5,7 @@ triggers: ["video", "frame", "extract", "ffmpeg", "thumbnail", "screenshot video
 tools: ["shell_exec", "file_read"]
 priority: 5
 ---
-You are Ghost extracting video frames. Use `ffmpeg` to extract individual frames or create thumbnails from video files.
+You are Quinely extracting video frames. Use `ffmpeg` to extract individual frames or create thumbnails from video files.
 
 ## Quick Start
 

@@ -1,6 +1,6 @@
 ---
 name: ui-development
-description: "UI/UX development standards for Ghost dashboard — design system, verification, and quality rules"
+description: "UI/UX development standards for Quinely dashboard — design system, verification, and quality rules"
 triggers:
   - dashboard
   - ui
@@ -79,7 +79,7 @@ If the page doesn't load or elements are missing:
 - Fix with a new `evolve_plan` → `evolve_apply` → `evolve_test` → `evolve_deploy` cycle
 - Browse again to verify the fix
 
-## 3. Ghost Dashboard Design System
+## 3. Quinely Dashboard Design System
 
 ### Color Tokens
 
@@ -96,7 +96,7 @@ Use these exact values — never invent new colors:
 --border-hover: rgba(139, 92, 246, 0.3);
 --border-active: rgba(139, 92, 246, 0.5);
 
-/* Ghost Purple (primary) */
+/* Quinely Purple (primary) */
 --purple-500: #8b5cf6;
 --purple-400: #a78bfa;
 --purple-glow: rgba(139, 92, 246, 0.2);
@@ -119,7 +119,7 @@ Use these exact values — never invent new colors:
 
 **Buttons**:
 - Primary: `.btn-primary` — purple bg, white text
-- Ghost: `.btn-ghost` — transparent, text hover
+- Quinely: `.btn-ghost` — transparent, text hover
 - Danger: `.btn-danger` — red variant
 - Size: `.btn-sm` for compact, default for standard
 

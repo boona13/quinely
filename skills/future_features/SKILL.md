@@ -30,14 +30,14 @@ content_types:
 
 # Future Features — Serial Evolution Queue
 
-The central queue for ALL code changes in Ghost. Every evolution — features, bug fixes, security patches, refactors, improvements — flows through this queue and is processed serially by the Evolution Runner.
+The central queue for ALL code changes in Quinely. Every evolution — features, bug fixes, security patches, refactors, improvements — flows through this queue and is processed serially by the Evolution Runner.
 
 ## Why Serial?
 
-`evolve_deploy` restarts the entire Ghost process. If two loops evolve concurrently, one deploy kills the other mid-execution, losing work. The serial queue eliminates this by design:
+`evolve_deploy` restarts the entire Quinely process. If two loops evolve concurrently, one deploy kills the other mid-execution, losing work. The serial queue eliminates this by design:
 - Only the **Feature Implementer** (Evolution Runner) has `evolve_*` tools.
 - All other routines and user chat queue changes via `add_future_feature`.
-- One item is processed at a time. After deploy, Ghost restarts and picks up the next item.
+- One item is processed at a time. After deploy, Quinely restarts and picks up the next item.
 
 ## Priority Levels
 
@@ -74,7 +74,7 @@ Every routine queues changes instead of evolving directly:
 2. **Queue**: Call `add_future_feature(title, description, priority, source, category)`.
 3. **Trigger**: P0/P1 items fire the Evolution Runner immediately. P2/P3 wait for schedule.
 4. **Implement**: Evolution Runner picks highest-priority pending item, evolves, tests, deploys.
-5. **Restart**: Ghost restarts. Next item picked up on next run.
+5. **Restart**: Quinely restarts. Next item picked up on next run.
 6. **Complete**: Marked as done, added to changelog.
 
 ## Deploy Safety
@@ -106,4 +106,4 @@ Check status with `list_future_features` or `get_feature_stats`.
 
 ## Dashboard
 
-See the Future Features page in the Ghost dashboard for full queue UI — add, approve, reject, and track items.
+See the Future Features page in the Quinely dashboard for full queue UI — add, approve, reject, and track items.

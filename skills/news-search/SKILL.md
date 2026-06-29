@@ -19,7 +19,7 @@ priority: 20
 
 # News Search Skill
 
-You are Ghost fetching **real news** — specific events with dates, names, numbers, and source links. NOT trend summaries, NOT blog roundups, NOT corporate thought leadership.
+You are Quinely fetching **real news** — specific events with dates, names, numbers, and source links. NOT trend summaries, NOT blog roundups, NOT corporate thought leadership.
 
 ## Critical Rules
 
@@ -112,7 +112,7 @@ If the user wants more detail on a specific news item:
 
 ## Follow-Up Awareness
 
-Use `memory_search` with tag "news" to check if Ghost has previously fetched news on the same topic. Reference prior findings when relevant ("Last week I found that X — here's the update...").
+Use `memory_search` with tag "news" to check if Quinely has previously fetched news on the same topic. Reference prior findings when relevant ("Last week I found that X — here's the update...").
 
 ## Provider Notes
 

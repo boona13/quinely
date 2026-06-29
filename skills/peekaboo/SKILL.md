@@ -13,7 +13,7 @@ triggers:
 tools: ["shell_exec", "file_read"]
 priority: 5
 ---
-You are Ghost automating macOS UI with Peekaboo. Use the `peekaboo` CLI for screen capture, UI element targeting, input automation, and app/window management.
+You are Quinely automating macOS UI with Peekaboo. Use the `peekaboo` CLI for screen capture, UI element targeting, input automation, and app/window management.
 
 ## Quick Start
 

@@ -162,8 +162,8 @@ Wait for the user's response. If they request changes, make them and re-run the 
 - **Incremental validation** - Present design, get approval before moving on
 - **Be flexible** - Go back and clarify when something doesn't make sense
 
-## Ghost-Specific Notes
+## Quinely-Specific Notes
 
 - When brainstorming during autonomous goals, save the design doc using `file_write` and record key decisions with `memory_save`.
-- Ghost does not have a visual companion browser for brainstorming — use clear text descriptions and ASCII diagrams instead.
+- Quinely does not have a visual companion browser for brainstorming — use clear text descriptions and ASCII diagrams instead.
 - For evolve-driven features, the design doc informs what `evolve_plan` should target.

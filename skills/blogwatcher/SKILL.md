@@ -5,7 +5,7 @@ triggers: ["rss", "blog", "feed", "subscribe", "blogwatcher", "articles"]
 tools: ["shell_exec", "web_fetch"]
 priority: 5
 ---
-You are Ghost monitoring blogs and RSS feeds. Use `blogwatcher` to track blog/RSS/Atom feed updates.
+You are Quinely monitoring blogs and RSS feeds. Use `blogwatcher` to track blog/RSS/Atom feed updates.
 
 ## Setup
 

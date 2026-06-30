@@ -189,7 +189,7 @@ ghost_implementation_auditor_filters.py — Audit deduplication and filtering lo
 # Tool Builder
 ghost_tool_builder.py           — ToolManager, ToolAPI, ToolEventBus for ghost_tools/<name>/
 ghost_tools/                    — Isolated LLM-callable tools (each has TOOL.yaml + tool.py)
-  dependency_vuln_intel/        — Local Python requirements vulnerability scanner using OSV
+  dependency_vuln_intel/        — Local Python requirements vulnerability scanner using OSV, surfaced through the Security dashboard dependency scan endpoints
 ghost_community_hub.py          — Community Hub client: browse, install, publish nodes
 
 # Messaging Channels

@@ -16,8 +16,11 @@ export async function render(container) {
     <div class="flex gap-3 mb-6 flex-wrap">
       <button id="btn-ai-audit" class="btn btn-primary">${t('security.runAudit')}</button>
       <button id="btn-stop-audit" class="btn btn-danger" style="display:none">${t('security.stopAudit')}</button>
+      <button id="btn-vuln-scan" class="btn btn-secondary">${t('security.scanDependencies')}</button>
     </div>
 
+    <div id="vuln-status" class="mb-4"></div>
+    <div id="vuln-result" class="mb-6"></div>
     <div id="audit-status" class="mb-4"></div>
     <div id="audit-steps" class="mb-4"></div>
     <div id="audit-result" class="mb-6"></div>
@@ -44,6 +47,9 @@ export async function render(container) {
 
   const aiBtn = document.getElementById('btn-ai-audit');
   const stopBtn = document.getElementById('btn-stop-audit');
+  const vulnBtn = document.getElementById('btn-vuln-scan');
+  const vulnStatusEl = document.getElementById('vuln-status');
+  const vulnResultEl = document.getElementById('vuln-result');
   const statusEl = document.getElementById('audit-status');
   const stepsEl = document.getElementById('audit-steps');
   const resultEl = document.getElementById('audit-result');
@@ -51,8 +57,9 @@ export async function render(container) {
   let activeSessionId = null;
 
   aiBtn.addEventListener('click', startAiAudit);
+  vulnBtn.addEventListener('click', startVulnScan);
 
-  // Fetch key posture on page load
+  fetchLatestVulnReport();
   fetchKeyPosture();
 
   async function startAiAudit() {
@@ -177,9 +184,61 @@ export async function render(container) {
     try {
       await api.post(`/api/security/ai-audit/stop/${activeSessionId}`);
       statusEl.innerHTML = `<div class="text-zinc-400 text-xs">${t('security.auditStopped')}</div>`;
-    } catch { /* will resolve */ }
+    } catch (err) {
+      statusEl.innerHTML = `<div class="text-amber-400 text-xs">${u.escapeHtml(err.message)}</div>`;
+    }
     resetButtons();
   });
+
+  async function fetchLatestVulnReport() {
+    try {
+      const resp = await api.get('/api/security/vulnerabilities/latest');
+      renderVulnReport(resp);
+    } catch (err) {
+      vulnResultEl.innerHTML = `<div class="text-amber-400 text-xs">${u.escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  async function startVulnScan() {
+    vulnBtn.disabled = true;
+    vulnStatusEl.innerHTML = `<div class="text-xs text-amber-400 animate-pulse">${t('security.scanningDependencies')}</div>`;
+    try {
+      const resp = await api.post('/api/security/vulnerabilities/scan', {manifest_path: 'requirements.txt'});
+      renderVulnReport(resp);
+      vulnStatusEl.innerHTML = resp.ok
+        ? `<div class="text-xs text-emerald-400">${t('security.scanComplete')}</div>`
+        : `<div class="text-xs text-red-400">${u.escapeHtml(resp.error || resp.summary || t('security.scanFailed'))}</div>`;
+    } catch (err) {
+      vulnStatusEl.innerHTML = `<div class="text-xs text-red-400">${u.escapeHtml(err.message)}</div>`;
+    } finally {
+      vulnBtn.disabled = false;
+    }
+  }
+
+  function renderVulnReport(data) {
+    const findings = Array.isArray(data.findings) ? data.findings : [];
+    const badgeClass = data.finding_count > 0 ? 'badge-red' : 'badge-green';
+    const findingsHtml = findings.length ? findings.map((f) => `
+      <div class="p-2 rounded bg-surface-700/50 border border-surface-600/30 mb-2">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge badge-red text-[10px]">${u.escapeHtml(f.id || 'advisory')}</span>
+          <span class="text-xs font-medium text-white">${u.escapeHtml(f.package || 'unknown')}</span>
+          ${f.version ? `<span class="text-[10px] text-zinc-500">${u.escapeHtml(f.version)}</span>` : ''}
+        </div>
+        <div class="text-[11px] text-zinc-400">${u.escapeHtml(f.summary || '')}</div>
+      </div>`).join('') : `<div class="text-sm text-emerald-400">${t('security.noDependencyFindings')}</div>`;
+    vulnResultEl.innerHTML = `
+      <div class="stat-card border border-ghost-500/20">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <span class="badge ${badgeClass}">${data.finding_count || 0} ${t('security.findings')}</span>
+            <span class="text-xs text-zinc-400">${u.escapeHtml(data.summary || '')}</span>
+          </div>
+          <span class="text-[10px] text-zinc-600 font-mono">${u.escapeHtml(data.manifest || 'requirements.txt')}</span>
+        </div>
+        <div class="findings-list">${findingsHtml}</div>
+      </div>`;
+  }
 
   function resetButtons() {
     aiBtn.disabled = false;

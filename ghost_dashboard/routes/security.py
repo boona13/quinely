@@ -1,6 +1,7 @@
 """Security API — AI-driven audit + deterministic quick scan + auto-fix."""
 
 import json
+import logging
 import threading
 import time
 import uuid
@@ -16,6 +17,7 @@ from ghost_security_audit import run_security_audit, auto_fix
 from ghost_api_key_posture import analyze_provider_key_posture
 
 bp = Blueprint("security", __name__)
+log = logging.getLogger("quinely.dashboard.security")
 
 _audit_sessions = {}
 _audit_lock = threading.Lock()
@@ -23,12 +25,17 @@ _vuln_lock = threading.Lock()
 _latest_vuln_report = None
 
 
-def _scan_dependencies(manifest_path="requirements.txt", include_transitive=False):
+def _scan_dependencies(manifest_path="requirements.txt", include_transitive=False, include_unpinned=True):
     """Run the dependency vuln tool directly for dashboard endpoints."""
     try:
         from ghost_tools.dependency_vuln_intel.tool import _scan
-        return _scan(manifest_path=manifest_path, include_transitive=include_transitive)
-    except (ImportError, OSError, ValueError) as exc:
+        return _scan(
+            manifest_path=manifest_path,
+            include_transitive=include_transitive,
+            include_unpinned=include_unpinned,
+        )
+    except ImportError as exc:
+        log.warning("Dependency vulnerability scanner import failed: %s", exc)
         return {"ok": False, "error": str(exc), "summary": "Dependency vulnerability scanner unavailable.", "findings": []}
 SECURITY_AUDIT_PROMPT = (
     "You are Quinely performing a COMPREHENSIVE SECURITY AUDIT.\n\n"
@@ -140,9 +147,10 @@ def _run_ai_audit(session, daemon):
         session.tools_used = [tc["tool"] for tc in loop_result.tool_calls]
         session.status = "complete"
         session.finished_at = time.time()
-    except Exception as e:
+    except (RuntimeError, ValueError, AttributeError) as exc:
+        log.warning("AI security audit failed for session %s: %s", session.id, exc)
         session.status = "error"
-        session.error = str(e)
+        session.error = str(exc)
         session.finished_at = time.time()
 
 
@@ -217,11 +225,18 @@ def scan_vulnerabilities():
     """Scan a local Python requirements manifest for OSV advisories."""
     global _latest_vuln_report
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"ok": False, "error": "request body must be an object", "findings": []}), 400
     manifest_path = data.get("path") or data.get("manifest_path") or "requirements.txt"
     include_transitive = bool(data.get("include_transitive", False))
+    include_unpinned = bool(data.get("include_unpinned", True))
     if not isinstance(manifest_path, str):
         return jsonify({"ok": False, "error": "path must be a string", "findings": []}), 400
-    report = _scan_dependencies(manifest_path=manifest_path, include_transitive=include_transitive)
+    report = _scan_dependencies(
+        manifest_path=manifest_path,
+        include_transitive=include_transitive,
+        include_unpinned=include_unpinned,
+    )
     with _vuln_lock:
         _latest_vuln_report = report
     status = 200 if report.get("ok") else 502
@@ -289,11 +304,12 @@ def get_key_posture():
         response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
-    except Exception as e:
+    except (RuntimeError, ValueError, AttributeError) as exc:
+        log.warning("Provider key posture analysis failed: %s", exc)
         return jsonify({
             "posture": "unknown",
             "finding_count": 0,
             "findings": [],
             "summary": {"critical": 0, "warning": 0, "info": 0},
-            "error": str(e)
+            "error": str(exc)
         }), 500

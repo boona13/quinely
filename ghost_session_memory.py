@@ -481,12 +481,14 @@ def run_maintenance(cfg=None):
                 log.warning("Failed to load config for maintenance: %s", exc)
                 cfg = {}
         
-        # Read config with defaults
+        # Read config with defaults. Coalesce None (an explicit ``null`` in the
+        # config file) to the defaults too — otherwise the numeric limits below
+        # compare against None and raise TypeError, aborting maintenance.
         auto_cleanup = cfg.get("session_auto_cleanup", DEFAULT_SESSION_AUTO_CLEANUP)
-        max_count = cfg.get("session_max_count", DEFAULT_SESSION_MAX_COUNT)
-        max_age_days = cfg.get("session_max_age_days", DEFAULT_SESSION_MAX_AGE_DAYS)
-        disk_budget_mb = cfg.get("session_disk_budget_mb", DEFAULT_SESSION_DISK_BUDGET_MB)
-        archive_age_days = cfg.get("session_archive_age_days", DEFAULT_SESSION_ARCHIVE_AGE_DAYS)
+        max_count = cfg.get("session_max_count") or DEFAULT_SESSION_MAX_COUNT
+        max_age_days = cfg.get("session_max_age_days") or DEFAULT_SESSION_MAX_AGE_DAYS
+        disk_budget_mb = cfg.get("session_disk_budget_mb") or DEFAULT_SESSION_DISK_BUDGET_MB
+        archive_age_days = cfg.get("session_archive_age_days") or DEFAULT_SESSION_ARCHIVE_AGE_DAYS
         
         if not auto_cleanup:
             log.info("Session auto-cleanup disabled, skipping maintenance")

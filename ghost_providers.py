@@ -497,6 +497,13 @@ def _adapt_to_codex_responses(payload: dict) -> dict:
 
     instructions = None
     input_items = []
+    # The Responses API rejects empty call_id on function_call / function_call_output
+    # (HTTP 400 "empty_string"). Tool calls reconstructed from history or produced by
+    # providers that omit ids can arrive without one, which would break every codex
+    # call after the first tool use. Synthesize stable ids and pair outputs to calls
+    # by order when ids are missing so codex stays usable in multi-step tool loops.
+    _synthetic_counter = 0
+    _pending_call_ids: list[str] = []
 
     for msg in messages:
         role = msg.get("role", "")
@@ -542,9 +549,14 @@ def _adapt_to_codex_responses(payload: dict) -> dict:
                     })
                 for tc in tool_calls:
                     fn = tc.get("function", {})
+                    cid = tc.get("id") or ""
+                    if not cid:
+                        cid = f"call_auto_{_synthetic_counter}"
+                        _synthetic_counter += 1
+                    _pending_call_ids.append(cid)
                     input_items.append({
                         "type": "function_call",
-                        "call_id": tc.get("id", ""),
+                        "call_id": cid,
                         "name": fn.get("name", ""),
                         "arguments": fn.get("arguments", "{}"),
                     })
@@ -556,9 +568,18 @@ def _adapt_to_codex_responses(payload: dict) -> dict:
                 })
 
         elif role == "tool":
+            cid = msg.get("tool_call_id") or ""
+            if cid:
+                if cid in _pending_call_ids:
+                    _pending_call_ids.remove(cid)
+            elif _pending_call_ids:
+                cid = _pending_call_ids.pop(0)
+            else:
+                cid = f"call_auto_{_synthetic_counter}"
+                _synthetic_counter += 1
             input_items.append({
                 "type": "function_call_output",
-                "call_id": msg.get("tool_call_id", ""),
+                "call_id": cid,
                 "output": content if isinstance(content, str) else json.dumps(content),
             })
 

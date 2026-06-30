@@ -404,6 +404,12 @@ _GROWTH_JOB_PREFIX = "_quinely_growth_"
 _CRON_JOB_TIMEOUTS: dict[str, int] = {
     _FEATURE_IMPLEMENTER_JOB: 900,
     _IMPLEMENTATION_AUDITOR_JOB: 600,
+    # Open-ended exploratory routines that legitimately run many tool steps
+    # (codebase scans, log hunting, news browsing). 300s cut them off mid-work
+    # before they could produce a summary; give them more headroom.
+    "_quinely_growth_bug_hunter": 600,
+    "_quinely_growth_health_check": 600,
+    "_quinely_growth_tech_scout": 600,
 }
 _CRON_DEFAULT_TIMEOUT = 300
 
